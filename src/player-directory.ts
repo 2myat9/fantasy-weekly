@@ -13,15 +13,24 @@ const BATCH = 1000;
 /**
  * The given players by ID, from the stored directory. The directory is fetched
  * first when there is no copy or the copy is a day old. An ID that Sleeper
- * does not know is absent from the result.
+ * does not know is absent from the result. When the directory cannot be
+ * fetched, the players are those of the old copy and `stale` is set; with no
+ * copy at all there is nothing to give, and the error is thrown.
  */
 export async function playersById(
   storage: DurableObjectStorage,
   ids: string[]
-): Promise<Map<string, Player>> {
+): Promise<{ players: Map<string, Player>; stale: boolean }> {
   const fetchedAt = storage.kv.get<number>(FETCHED_AT);
+  let stale = false;
   if (fetchedAt === undefined || Date.now() - fetchedAt >= DAY_MS) {
-    store(storage, await fetchPlayerDirectory());
+    const directory = await fetchPlayerDirectory().catch((error) => {
+      if (fetchedAt === undefined) throw error;
+      console.error("The player directory could not be fetched", error);
+      return null;
+    });
+    if (directory) store(storage, directory);
+    else stale = true;
   }
   const rows = storage.sql.exec<{
     id: string;
@@ -45,7 +54,7 @@ export async function playersById(
       espnId: row.espn_id
     });
   }
-  return players;
+  return { players, stale };
 }
 
 // Replaces the stored directory in one transaction, so a run never reads half

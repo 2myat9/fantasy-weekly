@@ -1,14 +1,18 @@
 // The Sleeper client: the NFL week, the user's leagues and rosters, this
 // week's opponents and the player directory. It only reads Sleeper and shapes what it reads; it stores
 // nothing and knows nothing about digests.
+import { retried } from "./retry";
+
 const SLEEPER = "https://api.sleeper.app/v1";
 
-async function read<T>(path: string) {
-  const response = await fetch(`${SLEEPER}${path}`);
-  if (!response.ok) {
-    throw new Error(`Sleeper ${path} returned ${response.status}`);
-  }
-  return response.json<T>();
+function read<T>(path: string) {
+  return retried(async () => {
+    const response = await fetch(`${SLEEPER}${path}`);
+    if (!response.ok) {
+      throw new Error(`Sleeper ${path} returned ${response.status}`);
+    }
+    return response.json<T>();
+  });
 }
 
 export type NflState = {
@@ -165,14 +169,19 @@ type SleeperMatchup = {
   matchup_id: number | null;
 };
 
+/** A league whose rosters could not be read: what is known of it without them. */
+export type UnreadLeague = Pick<League, "id" | "name" | "status">;
+
 /**
  * The user's leagues for the NFL season, each with their roster as it is set
- * now and the roster it plays in the NFL week.
+ * now and the roster it plays in the NFL week. The leagues are read
+ * independently: one whose rosters cannot be read is returned in `unread`,
+ * and the others are not lost over it.
  */
 export async function fetchMyLeagues(
   username: string,
   { season, seasonType, week }: NflState
-): Promise<League[]> {
+): Promise<{ leagues: League[]; unread: UnreadLeague[] }> {
   const user = await read<{ user_id: string } | null>(
     `/user/${encodeURIComponent(username)}`
   );
@@ -180,58 +189,72 @@ export async function fetchMyLeagues(
   const leagues = await read<SleeperLeague[]>(
     `/user/${user.user_id}/leagues/nfl/${season}`
   );
-  return Promise.all(
-    leagues.map(async (league) => {
-      const [rosters, matchups] = await Promise.all([
-        read<SleeperRoster[]>(`/league/${league.league_id}/rosters`),
-        // Leagues play in the weeks of the regular season: outside it the
-        // NFL's week number is not one of theirs. The opponent only adds to
-        // the message, so a league is not lost over failing to read it.
-        seasonType === "regular"
-          ? read<SleeperMatchup[] | null>(
-              `/league/${league.league_id}/matchups/${week}`
-            )
-              .then((matchups) => matchups ?? [])
-              .catch((error) => {
-                console.error("The matchups could not be read", error);
-                return [];
-              })
-          : []
-      ]);
-      const mine = rosters.find(
-        (roster) =>
-          roster.owner_id === user.user_id ||
-          roster.co_owners?.includes(user.user_id)
-      );
-      if (!mine) throw new Error(`No roster of mine in league ${league.name}`);
-      const game = matchups.find(
-        (matchup) => matchup.roster_id === mine.roster_id
-      )?.matchup_id;
-      const opponentId = matchups.find(
-        (matchup) =>
-          game != null &&
-          matchup.matchup_id === game &&
-          matchup.roster_id !== mine.roster_id
-      )?.roster_id;
-      const opponent = rosters.find(
-        (roster) => roster.roster_id === opponentId
-      );
-      return {
-        id: league.league_id,
-        name: league.name,
-        format: FORMATS[league.settings.type ?? 0] ?? "redraft",
-        status: league.status,
-        rosterId: mine.roster_id,
-        firstPlayoffWeek: league.settings.playoff_week_start ?? 0,
-        ...placement(league.roster_positions, mine),
-        opponent: opponent
-          ? rosterSpots(placement(league.roster_positions, opponent)).filter(
-              ({ slot }) => slot !== TAXI_SLOT
-            )
-          : []
-      };
-    })
+  const unread: UnreadLeague[] = [];
+  const mine = await Promise.all(
+    leagues
+      .map(async (league): Promise<League | null> => {
+        const [rosters, matchups] = await Promise.all([
+          read<SleeperRoster[]>(`/league/${league.league_id}/rosters`),
+          // Leagues play in the weeks of the regular season: outside it the
+          // NFL's week number is not one of theirs. The opponent only adds to
+          // the message, so a league is not lost over failing to read it.
+          seasonType === "regular"
+            ? read<SleeperMatchup[] | null>(
+                `/league/${league.league_id}/matchups/${week}`
+              )
+                .then((matchups) => matchups ?? [])
+                .catch((error) => {
+                  console.error("The matchups could not be read", error);
+                  return [];
+                })
+            : []
+        ]);
+        const mine = rosters.find(
+          (roster) =>
+            roster.owner_id === user.user_id ||
+            roster.co_owners?.includes(user.user_id)
+        );
+        // A league the user is in without a roster of their own, as its
+        // commissioner can be, has no lineup to brief them on.
+        if (!mine) return null;
+        const game = matchups.find(
+          (matchup) => matchup.roster_id === mine.roster_id
+        )?.matchup_id;
+        const opponentId = matchups.find(
+          (matchup) =>
+            game != null &&
+            matchup.matchup_id === game &&
+            matchup.roster_id !== mine.roster_id
+        )?.roster_id;
+        const opponent = rosters.find(
+          (roster) => roster.roster_id === opponentId
+        );
+        return {
+          id: league.league_id,
+          name: league.name,
+          format: FORMATS[league.settings.type ?? 0] ?? "redraft",
+          status: league.status,
+          rosterId: mine.roster_id,
+          firstPlayoffWeek: league.settings.playoff_week_start ?? 0,
+          ...placement(league.roster_positions, mine),
+          opponent: opponent
+            ? rosterSpots(placement(league.roster_positions, opponent)).filter(
+                ({ slot }) => slot !== TAXI_SLOT
+              )
+            : []
+        };
+      })
+      // Kept in Sleeper's order, which is the order the messages are sent in.
+      .map((reading, index) =>
+        reading.catch((error) => {
+          const { league_id: id, name, status } = leagues[index];
+          console.error(`League ${name} could not be read`, error);
+          unread.push({ id, name, status });
+          return null;
+        })
+      )
   );
+  return { leagues: mine.filter((league) => league !== null), unread };
 }
 
 /** The fields of a Sleeper player record that the agent uses. */

@@ -10,10 +10,18 @@ export type Gathered = {
   nfl: NflState;
   /** The leagues still owed a league message, in the order they are sent. */
   leagues: League[];
-  schedule: WeekSchedule;
+  /** The names of the leagues whose message could not be built or sent. */
+  failed: string[];
+  /** Null when the week's schedule could not be read. */
+  schedule: WeekSchedule | null;
   /** The players on those leagues' rosters and their opponents', by Sleeper ID. */
   players: Map<string, Player>;
   news: Gathering;
+  /**
+   * What could not be read besides the news sources, as the league message
+   * names it.
+   */
+  missing: string[];
 };
 
 export type Run = {

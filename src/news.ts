@@ -26,7 +26,12 @@ export type SourceItem = {
 };
 
 /** A player whose own page at ESPN is still to be read. */
-export type Lookup = { playerId: string; espnId: string };
+export type Lookup = {
+  playerId: string;
+  espnId: string;
+  /** How many times reading the page has failed. */
+  failures: number;
+};
 
 /** The news gathered so far, and what is left to gather. */
 export type Gathering = {
@@ -39,7 +44,17 @@ export type Gathering = {
   unmatched: Set<string>;
   /** Empty once the news is complete. */
   lookups: Lookup[];
+  /**
+   * The shared sources that could not be read, as the league message names
+   * them. The news was gathered without them.
+   */
+  missing: string[];
+  /** The players whose own page at ESPN could not be read. */
+  pagesUnread: string[];
 };
+
+// How many times a player's own page is read before it is given up.
+const PAGE_ATTEMPTS = 3;
 
 // Where a player's page at ESPN is, before the ID.
 const PLAYER_PAGE = "https://www.espn.com/nfl/player/_/id";
@@ -85,6 +100,17 @@ function names(text: string, player: Player) {
   return ` ${words} `.includes(` ${name} `);
 }
 
+// What a source returned, or null when it could not be read: the news is then
+// gathered without it, so that one source does not cost the whole digest.
+async function orNull<T>(read: () => Promise<T>) {
+  try {
+    return await read();
+  } catch (error) {
+    console.error("A news source could not be read", error);
+    return null;
+  }
+}
+
 // Adds to the items the articles about a player that are inside the news
 // window. The same article can come from more than one source, and is kept
 // once.
@@ -113,7 +139,8 @@ function addArticles(
  * it faces this week, and is unmatched when its game is not on the schedule.
  * Only the players in `ownPages` are left with their own page at ESPN to read:
  * the rest, the opponents' players, are covered by the shared sources alone,
- * which keeps a run to the same number of requests.
+ * which keeps a run to the same number of requests. A source that cannot be
+ * read is named in `missing` and the news is gathered from the others.
  */
 export async function gatherSharedNews({
   players,
@@ -126,11 +153,17 @@ export async function gatherSharedNews({
   schedule: WeekSchedule;
   windowStart: Date;
 }): Promise<Gathering> {
-  const [reports, leagueNews, feed] = await Promise.all([
-    fetchInjuryReports(),
-    fetchLeagueNews(),
-    fetchProFootballTalk()
+  const sources = await Promise.all([
+    orNull(fetchInjuryReports),
+    orNull(fetchLeagueNews),
+    orNull(fetchProFootballTalk)
   ]);
+  const [reports, leagueNews, feed] = sources.map((read) => read ?? []) as [
+    InjuryReport[],
+    Awaited<ReturnType<typeof fetchLeagueNews>>,
+    Awaited<ReturnType<typeof fetchProFootballTalk>>
+  ];
+  const missing = ["ESPN's injury reports", "ESPN's news", "ProFootballTalk"];
   const byEspnId = new Map<string, InjuryReport[]>();
   const byName = new Map<string, InjuryReport[]>();
   const add = (
@@ -201,7 +234,7 @@ export async function gatherSharedNews({
     if (espnId) {
       resolved.set(espnId, player.id);
       if (ownPages.has(player.id)) {
-        lookups.push({ playerId: player.id, espnId });
+        lookups.push({ playerId: player.id, espnId, failures: 0 });
       }
     }
     for (const report of found) {
@@ -234,12 +267,21 @@ export async function gatherSharedNews({
       ]);
     }
   }
-  return { items, unmatched, lookups };
+  return {
+    items,
+    unmatched,
+    lookups,
+    missing: missing.filter((_, index) => sources[index] === null),
+    pagesUnread: []
+  };
 }
 
 /**
  * Reads the own pages of the next players waiting for it, at most `limit` of
  * them with one request each, and returns the gathering with their news added.
+ * A page that cannot be read goes to the back of those waiting, so that it is
+ * read again in a later invocation and not out of this one's requests, and
+ * is given up as unread after a few attempts.
  */
 export async function gatherPlayerNews(
   gathering: Gathering,
@@ -248,11 +290,22 @@ export async function gatherPlayerNews(
 ): Promise<Gathering> {
   const lookups = gathering.lookups.slice(0, limit);
   const overviews = await Promise.all(
-    lookups.map(({ espnId }) => fetchPlayerOverview(espnId))
+    lookups.map(({ espnId }) => orNull(() => fetchPlayerOverview(espnId)))
   );
   const items = [...gathering.items];
-  lookups.forEach(({ playerId, espnId }, index) => {
-    const { articles, note } = overviews[index];
+  const again: Lookup[] = [];
+  const pagesUnread = [...gathering.pagesUnread];
+  lookups.forEach(({ playerId, espnId, failures }, index) => {
+    const overview = overviews[index];
+    if (!overview) {
+      if (failures + 1 < PAGE_ATTEMPTS) {
+        again.push({ playerId, espnId, failures: failures + 1 });
+      } else {
+        pagesUnread.push(playerId);
+      }
+      return;
+    }
+    const { articles, note } = overview;
     addArticles(items, windowStart, playerId, "ESPN", articles);
     // ESPN's injury report on a player is usually this same note.
     const reported =
@@ -270,5 +323,10 @@ export async function gatherPlayerNews(
       });
     }
   });
-  return { ...gathering, items, lookups: gathering.lookups.slice(limit) };
+  return {
+    ...gathering,
+    items,
+    pagesUnread,
+    lookups: [...gathering.lookups.slice(limit), ...again]
+  };
 }

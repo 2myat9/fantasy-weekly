@@ -202,7 +202,16 @@ export async function writeSections(
     }))
   };
 
-  const client = new Anthropic({ apiKey });
+  // The SDK takes a failed call again itself, after a pause: a connection
+  // error, a rate limit or a server error, this many times.
+  // Each attempt is given up after a few minutes, so that all of them end
+  // within the 15 minutes an invocation may last and a model that does not
+  // answer leaves time for the message to go out without the sections.
+  const client = new Anthropic({
+    apiKey,
+    maxRetries: 2,
+    timeout: 4 * 60 * 1000
+  });
   const response = await client.beta.messages.create({
     model: MODEL,
     max_tokens: 16000,

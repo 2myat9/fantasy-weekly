@@ -1,6 +1,7 @@
 // The ESPN client: the schedule of one NFL week, the league's injury reports,
 // the league's news and the overview of one player. ESPN's endpoints are
 // unofficial, so only the fields read here are relied on.
+import { retried } from "./retry";
 import type { NflState } from "./sleeper";
 
 const NFL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
@@ -22,6 +23,15 @@ const SEASON_TYPES: Record<string, string> = {
 const SLEEPER_TEAM: Record<string, string> = { WSH: "WAS" };
 // Where ESPN abbreviates a position differently from Sleeper.
 const SLEEPER_POSITION: Record<string, string> = { PK: "K" };
+
+// What ESPN answers a read with, as JSON. `what` names the read in the error.
+async function readJson<T>(url: string, what: string) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`ESPN ${what} returned ${response.status}`);
+  }
+  return response.json<T>();
+}
 
 /** One game of an NFL week. */
 export type Game = {
@@ -46,6 +56,9 @@ type Scoreboard = {
   }[];
 };
 
+/** What is known of a week whose schedule could not be read: nothing. */
+export const NO_SCHEDULE: WeekSchedule = { teamsOnBye: [], games: [] };
+
 /** The game a team plays in the week, if it has one. */
 export function gameOf(schedule: WeekSchedule, team: string | null) {
   return team === null
@@ -63,11 +76,9 @@ export async function fetchWeekSchedule(nfl: NflState): Promise<WeekSchedule> {
     seasontype: seasonType,
     week: String(nfl.week)
   });
-  const response = await fetch(`${SCOREBOARD}?${query}`);
-  if (!response.ok) {
-    throw new Error(`ESPN scoreboard returned ${response.status}`);
-  }
-  const scoreboard = await response.json<Scoreboard>();
+  const scoreboard = await retried(() =>
+    readJson<Scoreboard>(`${SCOREBOARD}?${query}`, "scoreboard")
+  );
   const sleeperTeam = (abbreviation: string) =>
     SLEEPER_TEAM[abbreviation] ?? abbreviation;
   return {
@@ -126,11 +137,9 @@ type Injuries = {
 
 /** The latest report on every player ESPN has one for, across all teams. */
 export async function fetchInjuryReports(): Promise<InjuryReport[]> {
-  const response = await fetch(INJURIES);
-  if (!response.ok) {
-    throw new Error(`ESPN injuries returned ${response.status}`);
-  }
-  const { injuries: teams = [] } = await response.json<Injuries>();
+  const { injuries: teams = [] } = await retried(() =>
+    readJson<Injuries>(INJURIES, "injuries")
+  );
   const reports: InjuryReport[] = [];
   for (const report of teams.flatMap((team) => team.injuries ?? [])) {
     const athlete = report.athlete;
@@ -199,11 +208,9 @@ function article(raw: EspnArticle): Article | null {
 export async function fetchLeagueNews(): Promise<
   (Article & { espnIds: string[] })[]
 > {
-  const response = await fetch(NEWS);
-  if (!response.ok) {
-    throw new Error(`ESPN news returned ${response.status}`);
-  }
-  const { articles = [] } = await response.json<{ articles?: EspnArticle[] }>();
+  const { articles = [] } = await retried(() =>
+    readJson<{ articles?: EspnArticle[] }>(NEWS, "news")
+  );
   return articles.flatMap((raw) => {
     const read = article(raw);
     if (!read) return [];
@@ -228,6 +235,9 @@ type Overview = {
   rotowire?: { headline?: string; story?: string; published?: string } | null;
 };
 
+// Read once, unlike the other sources: there is one page per player, and
+// reading each again here could go past what one invocation may request. The
+// caller reads a failed page again later.
 export async function fetchPlayerOverview(
   espnId: string
 ): Promise<PlayerOverview> {

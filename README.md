@@ -12,6 +12,8 @@ The digest goes out on its own every Saturday at 6:00 PM Pacific, one message pe
 - The automatic digest is recorded per season, week and league, and a run sends nothing to a league already recorded for its week.
 - A league gets nothing when the NFL is outside its regular season and postseason, when the league is complete, or when my team is eliminated from its playoffs. A team left with only a placement game, such as the one for third place, counts as eliminated.
 - `/preview` works on any day, ignores those rules, and touches neither the record nor the schedule. It is the fallback if a Saturday digest fails to arrive.
+- A failed read of a source and a failed model call are retried. When one keeps failing, the league message is built from what succeeded: it says under its title what is missing, and lists the injury statuses Sleeper has for the roster after the lineup check. The leagues are independent, so one league's failure leaves the other's message as it would have been.
+- A run that cannot send a league's message at all, because Sleeper cannot be read or Telegram refuses the message, sends one short failure message naming the league and `/preview`. That league is not written to the sent record.
 
 ## How it is built
 
@@ -28,6 +30,7 @@ src/
   digest-time.ts     # When the automatic digest runs: the next Saturday 6:00 PM Pacific
   runs.ts            # The runs in progress and what each has gathered so far
   sent-record.ts     # Which leagues the automatic digest has gone out to, per NFL week
+  retry.ts           # Reading a source again when a read fails
   sleeper.ts         # Sleeper client: NFL week, leagues, rosters, this week's opponents, playoff bracket, player directory
   player-directory.ts # The stored copy of the Sleeper player directory
   espn.ts            # ESPN client: the week's byes and kickoffs, injury reports, league news, a player's overview

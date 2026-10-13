@@ -1,7 +1,7 @@
 import { Agent } from "agents";
 import { nextDigestTime } from "./digest-time";
-import { fetchWeekSchedule } from "./espn";
-import { composeLeagueMessage } from "./league-message";
+import { fetchWeekSchedule, NO_SCHEDULE } from "./espn";
+import { composeFailureMessage, composeLeagueMessage } from "./league-message";
 import { checkLineup } from "./lineup-check";
 import { gatherPlayerNews, gatherSharedNews } from "./news";
 import { playersById } from "./player-directory";
@@ -20,7 +20,8 @@ import {
   isEliminated,
   rosterSpots,
   type League,
-  type RosterSpot
+  type RosterSpot,
+  type UnreadLeague
 } from "./sleeper";
 import {
   hasWebhookSecret,
@@ -28,7 +29,7 @@ import {
   sendMessage,
   textFromMyChat
 } from "./telegram";
-import { NO_SECTIONS, writeSections } from "./writer";
+import { NO_SECTIONS, writeSections, type Sections } from "./writer";
 import { writerMaterial } from "./writer-material";
 
 // The system is single-user, so there is exactly one agent instance.
@@ -44,6 +45,10 @@ const NEWS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 // own page at ESPN is one of them. Read from Cloudflare's Workers limits page
 // on 2026-10-13.
 const LOOKUPS_PER_STEP = 25;
+
+// How many players whose page at ESPN could not be read a league message
+// names before it only counts them.
+const MOST_PAGES_NAMED = 5;
 
 // How many times the automatic digest takes a step before giving the run up.
 const STEP_ATTEMPTS = 3;
@@ -129,7 +134,18 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       if (run) await this.takeStep(run);
     } catch (error) {
       console.error("A step of the run failed", error);
-      if (run) await this.stepFailed(run);
+      // A run that ended before the failure, which sending its last message
+      // can be, is over: there is no step of it left to fail.
+      if (run && oldestRun(this.ctx.storage)?.id === run.id) {
+        try {
+          await this.stepFailed(run);
+        } catch (error) {
+          // A run that cannot even be failed must not be taken up for ever,
+          // ahead of every run after it.
+          console.error("The failed step could not be handled", error);
+          endRun(this.ctx.storage, run);
+        }
+      }
     } finally {
       if (oldestRun(this.ctx.storage)) {
         await this.scheduleStep({ fromStep: true });
@@ -137,21 +153,44 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     }
   }
 
-  // A preview that fails is reported, not retried, so a failure cannot send
-  // it twice. The automatic digest has nobody waiting to ask again, so its
-  // step is taken again.
+  // A preview's step that fails is not taken again, so a failure cannot send
+  // a message twice. The automatic digest has nobody waiting to ask again, so
+  // its step is. A step given up is never silent: a league that failed is
+  // passed over for the next and named at the end of the run, and a run that
+  // failed before reaching its leagues is reported at once.
   private async stepFailed(run: Run) {
-    if (run.preview) {
-      endRun(this.ctx.storage, run);
+    if (!run.preview && run.failures + 1 < STEP_ATTEMPTS) {
+      saveRun(this.ctx.storage, { ...run, failures: run.failures + 1 });
+      return;
+    }
+    const { gathered } = run;
+    if (gathered && gathered.news.lookups.length === 0) {
+      const [league, ...leagues] = gathered.leagues;
+      const failed = [...gathered.failed, league.name];
+      await this.leagueDone(run, { ...gathered, leagues, failed });
+    } else {
+      await this.finishRun(run, []);
+    }
+  }
+
+  // Ends a run, with one short message when it failed for the given leagues,
+  // or altogether. The run is ended first, so that the message failing to
+  // send does not leave it to be taken up again.
+  private async finishRun(run: Run, failed: string[] | null) {
+    endRun(this.ctx.storage, run);
+    if (failed) {
       await sendMessage(
         this.telegram,
-        "The preview failed. Send /preview to try again."
+        composeFailureMessage({ leagues: failed, preview: run.preview })
       );
-    } else if (run.failures + 1 < STEP_ATTEMPTS) {
-      saveRun(this.ctx.storage, { ...run, failures: run.failures + 1 });
-    } else {
-      endRun(this.ctx.storage, run);
     }
+  }
+
+  // Moves a run on from the league it was at: to the next one, or to its end.
+  private async leagueDone(run: Run, gathered: Gathered) {
+    const { leagues, failed } = gathered;
+    if (leagues.length > 0) this.stepTaken(run, gathered);
+    else await this.finishRun(run, failed.length > 0 ? failed : null);
   }
 
   // A run gathers the shared sources, then the per-player sources a batch at
@@ -161,9 +200,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   private async takeStep(run: Run) {
     const { gathered } = run;
     if (!gathered) {
-      const shared = await this.gatherShared(run);
-      if (shared) this.stepTaken(run, shared);
-      else endRun(this.ctx.storage, run);
+      await this.gatherShared(run);
       return;
     }
     if (gathered.news.lookups.length > 0) {
@@ -175,7 +212,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       this.stepTaken(run, { ...gathered, news });
       return;
     }
-    const [league, ...rest] = gathered.leagues;
+    const [league, ...leagues] = gathered.leagues;
     // Checked again here, in case the week's message went out while this run
     // was gathering.
     if (run.preview || !wasSent(this.ctx.storage, gathered.nfl, league.id)) {
@@ -187,8 +224,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       // the leagues it reached again when it is retried.
       if (!run.preview) recordSent(this.ctx.storage, gathered.nfl, league.id);
     }
-    if (rest.length > 0) this.stepTaken(run, { ...gathered, leagues: rest });
-    else endRun(this.ctx.storage, run);
+    await this.leagueDone(run, { ...gathered, leagues });
   }
 
   private stepTaken(run: Run, gathered: Gathered) {
@@ -196,25 +232,44 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   }
 
   // The first step: what Sleeper and ESPN report now, and the news from the
-  // sources shared by all players. Nothing when no league is due a message.
-  private async gatherShared(run: Run): Promise<Gathered | null> {
+  // sources shared by all players. The run ends here when no league is due a
+  // message, or none of those due one could be read.
+  private async gatherShared(run: Run) {
     const nfl = await fetchNflState();
-    if (!run.preview && !DIGEST_SEASON_TYPES.has(nfl.seasonType)) return null;
+    if (!run.preview && !DIGEST_SEASON_TYPES.has(nfl.seasonType)) {
+      return this.finishRun(run, null);
+    }
     const mine = await fetchMyLeagues(this.env.SLEEPER_USERNAME, nfl);
+    const due = (league: UnreadLeague) =>
+      run.preview ||
+      (league.status !== "complete" &&
+        !wasSent(this.ctx.storage, nfl, league.id));
     const leagues = [];
-    for (const league of mine) {
+    for (const league of mine.leagues.filter(due)) {
       if (!run.preview) {
-        if (league.status === "complete") continue;
-        if (wasSent(this.ctx.storage, nfl, league.id)) continue;
-        if (await isEliminated(league, nfl)) continue;
+        // A bracket that cannot be read does not show the team is out, and
+        // a message too many costs less than one too few.
+        const eliminated = await isEliminated(league, nfl).catch((error) => {
+          console.error("The playoff bracket could not be read", error);
+          return false;
+        });
+        if (eliminated) continue;
       }
       leagues.push(league);
     }
-    if (leagues.length === 0) return null;
+    const failed = mine.unread.filter(due).map(({ name }) => name);
+    if (leagues.length === 0) {
+      return this.finishRun(run, failed.length > 0 ? failed : null);
+    }
     const ids = (spots: RosterSpot[]) => spots.map(({ playerId }) => playerId);
     const myPlayers = leagues.flatMap((league) => ids(rosterSpots(league)));
-    const [schedule, players] = await Promise.all([
-      fetchWeekSchedule(nfl),
+    // The league messages are built from Sleeper, so they can go without the
+    // schedule, and on an old copy of the players, but not without players.
+    const [schedule, { players, stale }] = await Promise.all([
+      fetchWeekSchedule(nfl).catch((error) => {
+        console.error("The schedule could not be read", error);
+        return null;
+      }),
       playersById(this.ctx.storage, [
         ...myPlayers,
         ...leagues.flatMap((league) => ids(league.opponent))
@@ -223,20 +278,54 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     const news = await gatherSharedNews({
       players: [...players.values()],
       ownPages: new Set(myPlayers),
-      schedule,
+      schedule: schedule ?? NO_SCHEDULE,
       windowStart: run.windowStart
     });
-    return { nfl, leagues, schedule, players, news };
+    const missing = [];
+    if (!schedule) {
+      missing.push("ESPN's schedule (byes and kickoffs were not checked)");
+    }
+    if (stale) {
+      missing.push(
+        "a fresh copy of Sleeper's players (injury statuses may be out of date)"
+      );
+    }
+    this.stepTaken(run, {
+      nfl,
+      leagues,
+      failed,
+      schedule,
+      players,
+      news,
+      missing
+    });
   }
 
   // The message for one league, built from what was gathered and what the
-  // writer makes of the news.
+  // writer makes of the news. What could not be gathered or written is left
+  // out and named in the message, which is then a reduced one.
   private async leagueMessage(
     league: League,
-    { nfl, schedule, players, news }: Gathered,
+    gathered: Gathered,
     preview: boolean
   ) {
+    const { nfl, players, news } = gathered;
+    const schedule = gathered.schedule ?? NO_SCHEDULE;
     const roster = rosterSpots(league);
+    const missing = [...gathered.missing, ...news.missing];
+    const pagesUnread = roster.flatMap(({ playerId }) =>
+      news.pagesUnread.includes(playerId)
+        ? (players.get(playerId)?.name ?? [])
+        : []
+    );
+    if (pagesUnread.length > 0) {
+      // On a day ESPN's pages are down the names would fill the message.
+      missing.push(
+        pagesUnread.length > MOST_PAGES_NAMED
+          ? `ESPN's own pages for ${pagesUnread.length} of your players`
+          : `ESPN's own page for ${pagesUnread.join(", ")}`
+      );
+    }
     const { items, kickedOff } = writerMaterial({
       league,
       roster,
@@ -246,19 +335,26 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       now: new Date()
     });
     // The writer works only from source items, so with none it has nothing
-    // to write.
-    const sections =
-      items.length > 0
-        ? await writeSections(this.env.ANTHROPIC_API_KEY, {
-            league,
-            week: nfl.week,
-            roster,
-            kickedOff,
-            opponent: league.opponent,
-            players,
-            items
-          })
-        : NO_SECTIONS;
+    // to write. With none because something could not be read, nobody was
+    // looked at, and that is not the same as their having no news.
+    let sections: Sections | null = missing.length > 0 ? null : NO_SECTIONS;
+    if (items.length > 0) {
+      try {
+        sections = await writeSections(this.env.ANTHROPIC_API_KEY, {
+          league,
+          week: nfl.week,
+          roster,
+          kickedOff,
+          opponent: league.opponent,
+          players,
+          items
+        });
+      } catch (error) {
+        console.error("The writer failed", error);
+        sections = null;
+        missing.push("the written news sections (the model call failed)");
+      }
+    }
     return composeLeagueMessage({
       league,
       week: nfl.week,
@@ -267,6 +363,8 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       players,
       sections,
       unmatched: news.unmatched,
+      missing,
+      byesChecked: gathered.schedule !== null,
       preview
     });
   }

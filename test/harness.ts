@@ -73,7 +73,10 @@ export type WriterCall = {
   material: WriterMaterial;
 };
 
-/** Stands in for Claude: the sections it writes from the material handed over. */
+/**
+ * Stands in for Claude: the sections it writes from the material handed over.
+ * A stand-in that throws stands in for a model call that fails.
+ */
 export type WriterStandIn = (material: WriterMaterial) => WrittenSections;
 
 const writesNothing: WriterStandIn = () => ({
@@ -124,12 +127,21 @@ export function agent() {
  * `telegramMessages` as the bodies Telegram received, in order. They are kept
  * out of `requests`, which lists what the agent read.
  *
+ * A send that `rejectTelegram` picks out by its text is refused instead, as
+ * Telegram refuses a message it cannot take, and is not collected.
+ *
  * Calls to Claude are answered by `writer`, the stand-in for the model, and
- * collected in `writerCalls`. Unless a test gives one, it writes no sections.
+ * collected in `writerCalls`, the failed ones included. Unless a test gives one, it writes no sections.
  */
 export function fakeOutboundHttp(
   savedResponses: Record<string, unknown> = {},
-  { writer = writesNothing }: { writer?: WriterStandIn } = {}
+  {
+    writer = writesNothing,
+    rejectTelegram = () => false
+  }: {
+    writer?: WriterStandIn;
+    rejectTelegram?: (text: string) => boolean;
+  } = {}
 ) {
   const requests: string[] = [];
   const sent: unknown[] = [];
@@ -144,9 +156,15 @@ export function fakeOutboundHttp(
       const url = request.url;
       perInvocation[perInvocation.length - 1]++;
       if (url === TELEGRAM_SEND_MESSAGE) {
-        const message = await request.json();
+        const message = await request.json<{ text: string }>();
         // Telegram never answers within the tick that sent the request.
         await new Promise((resolve) => setTimeout(resolve, 0));
+        if (rejectTelegram(message.text)) {
+          return Response.json(
+            { ok: false, error_code: 400, description: "Bad Request" },
+            { status: 400 }
+          );
+        }
         sent.push(message);
         return Response.json({ ok: true, result: {} });
       }
@@ -162,6 +180,19 @@ export function fakeOutboundHttp(
           instructions: body.system,
           material
         });
+        let written: WrittenSections;
+        try {
+          written = writer(material);
+        } catch (error) {
+          return Response.json(
+            {
+              type: "error",
+              error: { type: "api_error", message: String(error) }
+            },
+            // The header keeps the SDK from waiting long before it retries.
+            { status: 500, headers: { "retry-after-ms": "1" } }
+          );
+        }
         return Response.json({
           id: "msg_stand_in",
           type: "message",
@@ -173,7 +204,7 @@ export function fakeOutboundHttp(
               text: JSON.stringify({
                 // What the model returns when it has no opponent note.
                 opponentNote: { text: "", sourceItemIds: [] },
-                ...writer(material)
+                ...written
               })
             }
           ],

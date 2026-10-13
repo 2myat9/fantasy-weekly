@@ -1,6 +1,8 @@
 // The ProFootballTalk client: the latest entries of its public feed. The feed
 // is RSS, and the runtime has no XML parser, so the few fields used are cut
 // out of the text.
+import { retried } from "./retry";
+
 const FEED = "https://www.nbcsports.com/profootballtalk.rss";
 
 /** One entry of the feed. */
@@ -42,11 +44,13 @@ function field(entry: string, tag: string) {
 
 /** The latest entries, about 30 of them, which is under a day of the feed. */
 export async function fetchProFootballTalk(): Promise<FeedEntry[]> {
-  const response = await fetch(FEED);
-  if (!response.ok) {
-    throw new Error(`ProFootballTalk returned ${response.status}`);
-  }
-  const feed = await response.text();
+  const feed = await retried(async () => {
+    const response = await fetch(FEED);
+    if (!response.ok) {
+      throw new Error(`ProFootballTalk returned ${response.status}`);
+    }
+    return response.text();
+  });
   return feed
     .split("<item>")
     .slice(1)

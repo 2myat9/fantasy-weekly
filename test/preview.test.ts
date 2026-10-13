@@ -222,20 +222,23 @@ it("the webhook answers Telegram before any message is sent, leaving the run on 
   expect(outbound.telegramMessages).toHaveLength(2);
 });
 
-it("a preview run that fails sends one short failure message and is not retried", async () => {
+it("a preview run that fails sends one short failure message and is not taken again", async () => {
   const sources = savedSources();
   const outbound = fakeOutboundHttp({
     ...sources,
-    [URLS.scoreboard]: new Response("Service Unavailable", { status: 503 })
+    [URLS.nflState]: new Response("Service Unavailable", { status: 503 })
   });
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
   expect(texts(outbound.telegramMessages)).toEqual([
-    "The preview failed. Send /preview to try again."
+    "The preview could not be built. Send /preview to try again."
   ]);
-  expect(outbound.requests.filter((url) => url === URLS.scoreboard)).toEqual([
-    URLS.scoreboard
+  // The read is retried, but the run is not started over.
+  expect(outbound.requests).toEqual([
+    URLS.nflState,
+    URLS.nflState,
+    URLS.nflState
   ]);
   // Nothing is left on the schedule but the week's automatic digest.
   const pending = (await pendingSchedule()).map(({ task }) => task);
