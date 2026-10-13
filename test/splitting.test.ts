@@ -7,7 +7,7 @@ import {
   triggerScheduledRun,
   type WriterStandIn
 } from "./harness";
-import { savedSources } from "./sources";
+import { savedSources, URLS } from "./sources";
 
 // The saved ESPN injuries were read that morning, before any game of week 6.
 const TUESDAY = "2026-10-13T16:00:00Z";
@@ -167,4 +167,163 @@ it("when a part of the automatic digest fails to send, the step taken again send
   );
   expect(reported).toEqual(written);
   expect(sent.join("\n")).not.toContain("could not be built");
+});
+
+/**
+ * One preview in which the writer writes one entry, with the given text, about
+ * the first dynasty player there is an item about: the texts sent for the
+ * dynasty league, in order.
+ */
+async function previewWithEntry(text: string, sources = savedSources()) {
+  setClock(TUESDAY);
+  const outbound = fakeOutboundHttp(sources, {
+    writer: (material) => ({
+      ...writesAtLength(material),
+      otherNews: writesAtLength(material)
+        .otherNews.slice(0, 1)
+        .map((entry) => ({ ...entry, text }))
+    })
+  });
+  await deliverTelegramUpdate(textMessage("/preview"));
+  const sent = outbound.telegramMessages.map(
+    (message) => (message as { text: string }).text
+  );
+  return sent.slice(
+    sent.findIndex((text) => text.startsWith("<b>Preview · Joel is the GOAT"))
+  );
+}
+
+/** Numbered words, so that a lost, repeated or broken one shows. */
+function numberedWords(prefix: string, count: number) {
+  return Array.from({ length: count }, (_, index) => `${prefix}${index + 1}`);
+}
+
+it("an entry over Telegram's limit is sent across several messages, divided between words, with nothing dropped", async () => {
+  const words = numberedWords("w", 1500);
+
+  const dynasty = await previewWithEntry(words.join(" "));
+
+  expect(dynasty.join("\n")).not.toContain("could not be built");
+  expect(
+    dynasty.filter((part) => /\bw\d+\b/.test(part)).length
+  ).toBeGreaterThan(1);
+  for (const part of dynasty) {
+    expect(part.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+    expect(isBalancedHtml(part), part).toBe(true);
+    expect(part).toBe(part.trim());
+  }
+  expect(dynasty.join("\n").match(/\bw\d+\b/g)).toEqual(words);
+  // The entry keeps its opening and its citation.
+  expect(dynasty.join("\n")).toMatch(/🟡 <b>[^<]+<\/b>: w1 /);
+  expect(dynasty.join("\n")).toMatch(/ w1500 \(<a href="[^"]+">[^<]+<\/a>/);
+});
+
+it("an entry over the limit is divided at a line break where it has one", async () => {
+  const lines = ["a", "b", "c"].map((prefix) =>
+    numberedWords(prefix, 300).join(" ")
+  );
+
+  const dynasty = await previewWithEntry(lines.join("\n"));
+
+  for (const part of dynasty) {
+    expect(part.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+  }
+  // No message holds all three lines, and each line is whole in one.
+  for (const line of lines) {
+    expect(dynasty.filter((part) => part.includes(line))).toHaveLength(1);
+  }
+});
+
+it("no division falls inside an HTML tag or an entity, even in text without a space to divide at", async () => {
+  const dynasty = await previewWithEntry("<&>".repeat(1000));
+
+  expect(dynasty.length).toBeGreaterThan(3);
+  for (const part of dynasty) {
+    expect(part.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+    expect(isBalancedHtml(part), part).toBe(true);
+    // With its whole tags and whole entities taken out, nothing of one is left.
+    expect(
+      part.replace(/<[^<>]*>/g, "").replace(/&(amp|lt|gt|quot);/g, "")
+    ).not.toMatch(/[<>&]/);
+  }
+  expect(dynasty.join("").match(/&lt;&amp;&gt;/g)).toHaveLength(1000);
+});
+
+/** The saved sources with every player's name replaced by the one given. */
+function sourcesWithNames(name: (playerId: string) => string) {
+  const sources = savedSources();
+  const players = sources[URLS.players] as Record<
+    string,
+    Record<string, unknown>
+  >;
+  for (const playerId of Object.keys(players)) {
+    players[playerId].full_name = name(playerId);
+  }
+  return sources;
+}
+
+it("formatting open where an entry is divided is closed in one message and opened again in the next", async () => {
+  const names = numberedWords("n", 1500);
+
+  const dynasty = await previewWithEntry(
+    "Limited in practice.",
+    sourcesWithNames(() => names.join(" "))
+  );
+
+  // The entry, whose bold name alone is over the limit, begins a message
+  // under its section's title.
+  const begun = dynasty.findIndex((part) => part.includes("🟡 <b>n1 "));
+  const [first, second] = dynasty.slice(begun);
+  expect(first).toMatch(
+    /^<b>Other news on your roster<\/b>\n🟡 <b>[n\d ]+<\/b>$/
+  );
+  expect(second).toMatch(/^<b>[n\d ]+<\/b>/);
+  for (const part of dynasty) {
+    expect(part.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+    expect(isBalancedHtml(part), part).toBe(true);
+  }
+  const shown = dynasty.slice(begun).join("\n");
+  expect(
+    shown.slice(0, shown.indexOf(": Limited in practice.")).match(/n\d+/g)
+  ).toEqual(names);
+});
+
+it("a list of names over the limit is divided between names", async () => {
+  const name = (playerId: string) =>
+    `First${playerId} ${"Middle ".repeat(40)}Last${playerId}`;
+  setClock(TUESDAY);
+  const outbound = fakeOutboundHttp(sourcesWithNames(name));
+
+  await deliverTelegramUpdate(textMessage("/preview"));
+
+  const sent = outbound.telegramMessages.map(
+    (message) => (message as { text: string }).text
+  );
+  expect(sent.join("\n")).not.toContain("could not be built");
+  for (const part of sent) {
+    expect(part.length).toBeLessThanOrEqual(TELEGRAM_LIMIT);
+  }
+  // Every name that is begun in the lists is whole in the message it is in.
+  const listed = sent.flatMap((part) =>
+    part
+      .split("\n")
+      .filter((line) => /^First\w+ /.test(line))
+      .flatMap((line) => line.split(/,\s*/).filter(Boolean))
+  );
+  expect(listed.length).toBeGreaterThan(30);
+  for (const one of listed) {
+    expect(one).toBe(name(/^First(\w+) /.exec(one)![1]));
+  }
+});
+
+it("the title of a section is not parted from an over-length first entry, and a comma early in the entry does not end a message", async () => {
+  const words = numberedWords("w", 1500);
+
+  const dynasty = await previewWithEntry(`However, ${words.join(" ")}`);
+
+  const begun = dynasty.find((part) => part.includes("However,"))!;
+  expect(begun).toMatch(
+    /^<b>Other news on your roster<\/b>\n🟡 <b>[^<]+<\/b>: However, w1 /
+  );
+  expect(begun.length).toBeGreaterThan(TELEGRAM_LIMIT - 20);
 });

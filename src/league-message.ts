@@ -79,7 +79,8 @@ function section(title: string, [first, ...rest]: string[]) {
 /**
  * The league message as Telegram HTML: one message, or several to be sent in
  * order when it is longer than Telegram takes, divided between sections or
- * between the lines of one, never within a player's entry.
+ * between the lines of one. A player's entry, or any other line, is divided
+ * only when it is itself longer than Telegram takes.
  *
  * It opens with the lineup check, which is always present: with no findings
  * it states that the lineup is clear.

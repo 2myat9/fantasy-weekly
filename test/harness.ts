@@ -128,7 +128,8 @@ export function agent() {
  * out of `requests`, which lists what the agent read.
  *
  * A send that `rejectTelegram` picks out by its text is refused instead, as
- * Telegram refuses a message it cannot take, and is not collected.
+ * Telegram refuses a message it cannot take, and is not collected. So is one
+ * over Telegram's limit.
  *
  * Calls to Claude are answered by `writer`, the stand-in for the model, and
  * collected in `writerCalls`, the failed ones included. Unless a test gives one, it writes no sections.
@@ -159,7 +160,8 @@ export function fakeOutboundHttp(
         const message = await request.json<{ text: string }>();
         // Telegram never answers within the tick that sent the request.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        if (rejectTelegram(message.text)) {
+        // Telegram takes no message over 4,096 characters.
+        if (message.text.length > 4096 || rejectTelegram(message.text)) {
           return Response.json(
             { ok: false, error_code: 400, description: "Bad Request" },
             { status: 400 }
