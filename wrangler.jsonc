@@ -28,6 +28,16 @@
       "tag": "v2"
     }
   ],
+  // Set with `wrangler secret put`, and mirrored in .dev.vars for local runs.
+  "secrets": {
+    "required": [
+      "ANTHROPIC_API_KEY",
+      "SLEEPER_USERNAME",
+      "TELEGRAM_BOT_TOKEN",
+      "TELEGRAM_CHAT_ID",
+      "TELEGRAM_WEBHOOK_SECRET"
+    ]
+  },
   "observability": {
     "enabled": true
   },

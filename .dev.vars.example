@@ -1,0 +1,7 @@
+# Copy to .dev.vars and fill in. .dev.vars is ignored by git.
+# The same names are set on the deployed Worker with `npx wrangler secret put`.
+ANTHROPIC_API_KEY=
+SLEEPER_USERNAME=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+TELEGRAM_WEBHOOK_SECRET=

@@ -1,4 +1,5 @@
 import { Agent } from "agents";
+import { hasWebhookSecret, sendMessage, textFromMyChat } from "./telegram";
 
 // The system is single-user, so there is exactly one agent instance.
 export const AGENT_NAME = "fantasy-weekly";
@@ -40,11 +41,49 @@ export class FantasyWeeklyAgent extends Agent<Env, State> {
   lastRun() {
     return this.state.lastRun;
   }
+
+  // Answers a message from the user's chat. `/preview` is the only command;
+  // anything else gets a hint, so the bot never behaves like a chat assistant.
+  async answerMessage(text: string) {
+    const telegram = {
+      botToken: this.env.TELEGRAM_BOT_TOKEN,
+      chatId: this.env.TELEGRAM_CHAT_ID
+    };
+    // Telegram appends the bot's name to a command picked from its menu.
+    if (!/^\/preview(@\w+)?$/.test(text.trim())) {
+      await sendMessage(
+        telegram,
+        "Send /preview to see the digest as it would be written now."
+      );
+      return;
+    }
+    // Placeholder preview: the league messages replace this text.
+    await sendMessage(
+      telegram,
+      "<b>Preview</b>\nThe league messages are not written yet."
+    );
+  }
 }
 
 export default {
-  // The HTTP surface is empty until the Telegram webhook is added.
-  async fetch() {
-    return new Response("Not found", { status: 404 });
+  // The HTTP surface is the Telegram webhook and nothing else.
+  async fetch(request, env, ctx) {
+    const { pathname } = new URL(request.url);
+    if (request.method !== "POST" || pathname !== "/telegram/webhook") {
+      return new Response("Not found", { status: 404 });
+    }
+    if (!hasWebhookSecret(request, env.TELEGRAM_WEBHOOK_SECRET ?? "")) {
+      return new Response("Forbidden", { status: 403 });
+    }
+    // A body that is not JSON is dropped like any other update we ignore.
+    const update = await request.json().catch(() => null);
+    const text = textFromMyChat(update, env.TELEGRAM_CHAT_ID);
+    // Updates from any other chat are dropped, and acknowledged so Telegram
+    // does not redeliver them.
+    if (text !== null) {
+      const agent = env.FantasyWeeklyAgent.getByName(AGENT_NAME);
+      ctx.waitUntil(agent.answerMessage(text));
+    }
+    return new Response(null, { status: 200 });
   }
 } satisfies ExportedHandler<Env>;
