@@ -19,7 +19,8 @@ import {
   fetchNflState,
   isEliminated,
   rosterSpots,
-  type League
+  type League,
+  type RosterSpot
 } from "./sleeper";
 import {
   hasWebhookSecret,
@@ -28,6 +29,7 @@ import {
   textFromMyChat
 } from "./telegram";
 import { NO_SECTIONS, writeSections } from "./writer";
+import { writerMaterial } from "./writer-material";
 
 // The system is single-user, so there is exactly one agent instance.
 export const AGENT_NAME = "fantasy-weekly";
@@ -198,7 +200,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   private async gatherShared(run: Run): Promise<Gathered | null> {
     const nfl = await fetchNflState();
     if (!run.preview && !DIGEST_SEASON_TYPES.has(nfl.seasonType)) return null;
-    const mine = await fetchMyLeagues(this.env.SLEEPER_USERNAME, nfl.season);
+    const mine = await fetchMyLeagues(this.env.SLEEPER_USERNAME, nfl);
     const leagues = [];
     for (const league of mine) {
       if (!run.preview) {
@@ -209,16 +211,21 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       leagues.push(league);
     }
     if (leagues.length === 0) return null;
+    const ids = (spots: RosterSpot[]) => spots.map(({ playerId }) => playerId);
+    const myPlayers = leagues.flatMap((league) => ids(rosterSpots(league)));
     const [schedule, players] = await Promise.all([
       fetchWeekSchedule(nfl),
-      playersById(
-        this.ctx.storage,
-        leagues.flatMap((league) =>
-          rosterSpots(league).map(({ playerId }) => playerId)
-        )
-      )
+      playersById(this.ctx.storage, [
+        ...myPlayers,
+        ...leagues.flatMap((league) => ids(league.opponent))
+      ])
     ]);
-    const news = await gatherSharedNews([...players.values()], run.windowStart);
+    const news = await gatherSharedNews({
+      players: [...players.values()],
+      ownPages: new Set(myPlayers),
+      schedule,
+      windowStart: run.windowStart
+    });
     return { nfl, leagues, schedule, players, news };
   }
 
@@ -230,10 +237,14 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     preview: boolean
   ) {
     const roster = rosterSpots(league);
-    // In roster order, so starters come first.
-    const items = roster.flatMap(({ playerId }) =>
-      news.items.filter((item) => item.playerId === playerId)
-    );
+    const { items, kickedOff } = writerMaterial({
+      league,
+      roster,
+      players,
+      schedule,
+      items: news.items,
+      now: new Date()
+    });
     // The writer works only from source items, so with none it has nothing
     // to write.
     const sections =
@@ -242,6 +253,8 @@ export class FantasyWeeklyAgent extends Agent<Env> {
             league,
             week: nfl.week,
             roster,
+            kickedOff,
+            opponent: league.opponent,
             players,
             items
           })

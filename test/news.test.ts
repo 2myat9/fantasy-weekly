@@ -97,15 +97,15 @@ it("the writer's sections follow the lineup check under their headings, in order
       '🟢 <b>Malik Willis</b>: Started and finished the game. (<a href="https://www.espn.com/nfl/player/_/id/4242512/malik-willis">ESPN, Oct 11</a>)',
       "",
       "<b>No significant news</b>",
-      "Jalen Hurts, Omarion Hampton, Cam Skattebo, Garrett Wilson, Bhayshul Tuten, Parker Washington, Makai Lemon, Trevor Lawrence, Chris Boswell, Ray Davis, Theo Johnson, Brian Thomas, Terrance Ferguson, James Conner, Greg Dortch, Jake Ferguson, Marvin Mims, Kayshon Boutte, Kyle Williams",
+      "Jalen Hurts, Omarion Hampton, Cam Skattebo, Garrett Wilson, Bhayshul Tuten, Parker Washington, Makai Lemon, Trevor Lawrence, Chris Boswell, Detroit Lions, Ray Davis, Theo Johnson, Brian Thomas, Terrance Ferguson, James Conner, Greg Dortch, Jake Ferguson, Marvin Mims, Kayshon Boutte, Kyle Williams",
       "",
       "<b>Couldn't check</b>",
-      "Detroit Lions, Andrei Iosivas, Eli Stowers, Jayden Higgins, Tai Felton"
+      "Andrei Iosivas, Eli Stowers, Jayden Higgins, Tai Felton"
     ].join("\n")
   );
 });
 
-it("the writer is called once per league, with only that league's roster players and only source items inside the news window", async () => {
+it("the writer is called once per league, with only that league's roster players and their opponent's, and only source items inside the news window", async () => {
   setClock(TUESDAY);
   const outbound = fakeOutboundHttp(savedSources());
 
@@ -120,16 +120,27 @@ it("the writer is called once per league, with only that league's roster players
     .sort((a, b) => b.league.format.localeCompare(a.league.format));
   expect(redraft.league).toEqual({ name: "Duffy Redraft", format: "redraft" });
   expect(redraft.week).toBe(6);
-  for (const { roster, sourceItems } of [redraft, dynasty]) {
-    const onRoster = new Set(roster.map(({ playerId }) => playerId));
-    expect(sourceItems.filter((item) => !onRoster.has(item.playerId))).toEqual(
-      []
-    );
+  const onRoster = ({ roster }: WriterMaterial) =>
+    new Set(roster.map(({ playerId }) => playerId));
+  for (const material of [redraft, dynasty]) {
+    const inLeague = new Set([
+      ...onRoster(material),
+      ...material.opponent.map(({ playerId }) => playerId)
+    ]);
+    expect(
+      material.sourceItems.filter((item) => !inLeague.has(item.playerId))
+    ).toEqual([]);
   }
-  // The players with an ESPN injury report inside the window, in roster order.
+  // The roster players with an ESPN injury report inside the window, in
+  // roster order. A kicker's report on a game played is not handed over, and
+  // a defense's is on a player of the offense it faces.
   const reportedOn = (material: WriterMaterial) =>
     material.sourceItems
-      .filter(({ link }) => link.includes("espn.com/nfl/player/"))
+      .filter(
+        ({ link, playerId }) =>
+          link.includes("espn.com/nfl/player/") &&
+          onRoster(material).has(playerId)
+      )
       .map((item) => item.playerId);
   // Alec Pierce's report is from 28 September, before the window opened.
   expect(reportedOn(redraft)).toEqual([
@@ -141,7 +152,7 @@ it("the writer is called once per league, with only that league's roster players
     "8130",
     "10859",
     "11584",
-    "11539",
+    "SEA",
     "11564",
     "12519",
     "5947",
@@ -158,7 +169,6 @@ it("the writer is called once per league, with only that league's roster players
     "9487",
     "13294",
     "7523",
-    "1945",
     "11631",
     "12487",
     "7021",
@@ -194,7 +204,9 @@ it("the writer is handed the roster with each player's slot, including bench, IR
     position: "WR",
     team: "CLE",
     slot: "REC_FLEX",
-    sleeperStatus: "Out"
+    sleeperStatus: "Out",
+    decisionCandidate: true,
+    gameKickedOff: false
   });
   const slotOf = (playerId: string) =>
     dynasty.roster.find((spot) => spot.playerId === playerId)!.slot;
@@ -257,8 +269,8 @@ it("a player whose ESPN ID in Sleeper finds no report is still matched by name",
 it("a player without an ESPN ID is matched by normalised name, team and position, and is unmatched when one of them differs", async () => {
   setClock(TUESDAY);
   const sources = savedSources();
-  // ESPN calls him Luther Burden III of CHI, and has a kicker as PK.
-  // Sleeper has Drake Maye on a team ESPN does not.
+  // ESPN calls him Luther Burden III of CHI, and has Jake Bates, a kicker, as
+  // PK. Sleeper has Drake Maye on a team ESPN does not.
   sleeperPlayer(sources, "11564").team = "NYJ";
   const outbound = fakeOutboundHttp(sources);
 
@@ -272,19 +284,17 @@ it("a player without an ESPN ID is matched by normalised name, team and position
   expect(linkAbout("12519")).toBe(
     "https://www.espn.com/nfl/player/_/id/4685278/luther-burden-iii"
   );
-  expect(linkAbout("11539")).toBe(
-    "https://www.espn.com/nfl/player/_/id/4689936/jake-bates"
-  );
   expect(linkAbout("11564")).toBeUndefined();
-  // The unmatched player is not reported as having no news.
+  // The unmatched player is not reported as having no news, and the kicker,
+  // whose report on a game played is not handed to the writer, is matched.
   const text = texts(outbound.telegramMessages)[0];
   expect(text).toContain(
     [
       "<b>No significant news</b>",
-      "Jared Goff, Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",
+      "Jared Goff, Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Seattle Seahawks, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",
       "",
       "<b>Couldn't check</b>",
-      "Seattle Seahawks, Drake Maye"
+      "Drake Maye"
     ].join("\n")
   );
   expect(text).not.toContain("<b>Needs a decision</b>");
@@ -354,10 +364,7 @@ it("an entry about a player with no source item, or about a player who is not on
     '🟡 <b>Bijan Robinson</b>: Limited in practice. (<a href="https://www.espn.com/nfl/player/_/id/4430807/bijan-robinson">ESPN, Oct 11</a>, <a href="https://www.espn.com/espn/betting/story/_/id/48476156/2026-nfl-awards-betting-odds-mvp-rookie-year-offensive-defensive-player-coach">ESPN, Oct 13</a>, <a href="https://www.espn.com/espn/betting/story/_/id/50085010/nfl-week-5-odds-betting-tips-ravens-falcons">ESPN, Oct 11</a>, <a href="https://www.espn.com/nfl/story/_/id/50118457/how-do-baltimore-ravens-plan-stop-bijan-robinson-week-5">ESPN, Oct 8</a>)',
     "",
     "<b>No significant news</b>",
-    "Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",
-    "",
-    "<b>Couldn't check</b>",
-    "Seattle Seahawks"
+    "Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Seattle Seahawks, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed"
   ]);
 });
 
@@ -372,10 +379,7 @@ it("with no source items inside the news window the writer is not called, and ev
   expect(texts(outbound.telegramMessages)[0].split("\n").slice(7)).toEqual([
     "",
     "<b>No significant news</b>",
-    "Jared Goff, Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",
-    "",
-    "<b>Couldn't check</b>",
-    "Seattle Seahawks"
+    "Jared Goff, Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Seattle Seahawks, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed"
   ]);
 });
 

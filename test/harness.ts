@@ -32,6 +32,18 @@ export type WrittenSections = {
   needsDecision: WrittenEntry[];
   stillUnresolved: WrittenEntry[];
   otherNews: WrittenEntry[];
+  /** Left out by a stand-in that writes no opponent note. */
+  opponentNote?: { text: string; sourceItemIds: string[] };
+};
+
+/** A player as the writer is told of them. */
+export type WriterPlayer = {
+  playerId: string;
+  name: string;
+  position: string | null;
+  team: string | null;
+  slot: string;
+  sleeperStatus: string | null;
 };
 
 /** The material the writer is handed for one league. */
@@ -39,14 +51,11 @@ export type WriterMaterial = {
   league: { name: string; format: string };
   week: number;
   today: string;
-  roster: {
-    playerId: string;
-    name: string;
-    position: string | null;
-    team: string | null;
-    slot: string;
-    sleeperStatus: string | null;
-  }[];
+  roster: (WriterPlayer & {
+    decisionCandidate: boolean;
+    gameKickedOff: boolean;
+  })[];
+  opponent: WriterPlayer[];
   sourceItems: {
     id: string;
     playerId: string;
@@ -158,7 +167,16 @@ export function fakeOutboundHttp(
           type: "message",
           role: "assistant",
           model: body.model,
-          content: [{ type: "text", text: JSON.stringify(writer(material)) }],
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                // What the model returns when it has no opponent note.
+                opponentNote: { text: "", sourceItemIds: [] },
+                ...writer(material)
+              })
+            }
+          ],
           stop_reason: "end_turn",
           stop_sequence: null,
           usage: { input_tokens: 0, output_tokens: 0 }

@@ -1,5 +1,5 @@
-// The Sleeper client: the NFL week, the user's leagues and rosters, and the
-// player directory. It only reads Sleeper and shapes what it reads; it stores
+// The Sleeper client: the NFL week, the user's leagues and rosters, this
+// week's opponents and the player directory. It only reads Sleeper and shapes what it reads; it stores
 // nothing and knows nothing about digests.
 const SLEEPER = "https://api.sleeper.app/v1";
 
@@ -46,6 +46,11 @@ export type League = {
   bench: string[];
   ir: string[];
   taxi: string[];
+  /**
+   * The roster the user's team plays this week, without its taxi squad, which
+   * cannot play. Empty in a week the team has no game.
+   */
+  opponent: RosterSpot[];
 };
 
 type SleeperLeague = {
@@ -70,6 +75,7 @@ type SleeperRoster = {
 const FORMATS: LeagueFormat[] = ["redraft", "keeper", "dynasty"];
 // Sleeper lists bench places among a league's roster positions.
 const BENCH_SLOT = "BN";
+const TAXI_SLOT = "TAXI";
 // Sleeper fills an empty starting slot with this ID.
 const NO_PLAYER = "0";
 
@@ -118,23 +124,54 @@ export type RosterSpot = {
   slot: string;
 };
 
-/** Every player on the user's roster: starters in slot order, then bench, IR and taxi squad. */
-export function rosterSpots(league: League): RosterSpot[] {
+/** A roster as the league has it placed. */
+type Placement = Pick<League, "lineup" | "bench" | "ir" | "taxi">;
+
+function placement(slots: string[], roster: SleeperRoster): Placement {
+  const starters = roster.starters ?? [];
+  const lineup = slots
+    .filter((slot) => slot !== BENCH_SLOT)
+    .map((slot, index) => {
+      const playerId = starters[index] ?? NO_PLAYER;
+      return { slot, playerId: playerId === NO_PLAYER ? null : playerId };
+    });
+  const ir = roster.reserve ?? [];
+  const taxi = roster.taxi ?? [];
+  const placed = new Set([...starters, ...ir, ...taxi]);
+  return {
+    lineup,
+    bench: (roster.players ?? []).filter((id) => !placed.has(id)),
+    ir,
+    taxi
+  };
+}
+
+/** Every player on a roster: starters in slot order, then bench, IR and taxi squad. */
+export function rosterSpots(roster: Placement): RosterSpot[] {
   const placed = (slot: string) => (playerId: string) => ({ playerId, slot });
   return [
-    ...league.lineup.flatMap(({ slot, playerId }) =>
+    ...roster.lineup.flatMap(({ slot, playerId }) =>
       playerId === null ? [] : [{ playerId, slot }]
     ),
-    ...league.bench.map(placed(BENCH_SLOT)),
-    ...league.ir.map(placed("IR")),
-    ...league.taxi.map(placed("TAXI"))
+    ...roster.bench.map(placed(BENCH_SLOT)),
+    ...roster.ir.map(placed("IR")),
+    ...roster.taxi.map(placed(TAXI_SLOT))
   ];
 }
 
-/** The user's leagues for a season, each with their roster as it is set now. */
+type SleeperMatchup = {
+  roster_id: number;
+  /** Shared by the two rosters that play each other, or null without a game. */
+  matchup_id: number | null;
+};
+
+/**
+ * The user's leagues for the NFL season, each with their roster as it is set
+ * now and the roster it plays in the NFL week.
+ */
 export async function fetchMyLeagues(
   username: string,
-  season: string
+  { season, seasonType, week }: NflState
 ): Promise<League[]> {
   const user = await read<{ user_id: string } | null>(
     `/user/${encodeURIComponent(username)}`
@@ -145,25 +182,40 @@ export async function fetchMyLeagues(
   );
   return Promise.all(
     leagues.map(async (league) => {
-      const rosters = await read<SleeperRoster[]>(
-        `/league/${league.league_id}/rosters`
-      );
+      const [rosters, matchups] = await Promise.all([
+        read<SleeperRoster[]>(`/league/${league.league_id}/rosters`),
+        // Leagues play in the weeks of the regular season: outside it the
+        // NFL's week number is not one of theirs. The opponent only adds to
+        // the message, so a league is not lost over failing to read it.
+        seasonType === "regular"
+          ? read<SleeperMatchup[] | null>(
+              `/league/${league.league_id}/matchups/${week}`
+            )
+              .then((matchups) => matchups ?? [])
+              .catch((error) => {
+                console.error("The matchups could not be read", error);
+                return [];
+              })
+          : []
+      ]);
       const mine = rosters.find(
         (roster) =>
           roster.owner_id === user.user_id ||
           roster.co_owners?.includes(user.user_id)
       );
       if (!mine) throw new Error(`No roster of mine in league ${league.name}`);
-      const starters = mine.starters ?? [];
-      const lineup = league.roster_positions
-        .filter((slot) => slot !== BENCH_SLOT)
-        .map((slot, index) => {
-          const playerId = starters[index] ?? NO_PLAYER;
-          return { slot, playerId: playerId === NO_PLAYER ? null : playerId };
-        });
-      const ir = mine.reserve ?? [];
-      const taxi = mine.taxi ?? [];
-      const placed = new Set([...starters, ...ir, ...taxi]);
+      const game = matchups.find(
+        (matchup) => matchup.roster_id === mine.roster_id
+      )?.matchup_id;
+      const opponentId = matchups.find(
+        (matchup) =>
+          game != null &&
+          matchup.matchup_id === game &&
+          matchup.roster_id !== mine.roster_id
+      )?.roster_id;
+      const opponent = rosters.find(
+        (roster) => roster.roster_id === opponentId
+      );
       return {
         id: league.league_id,
         name: league.name,
@@ -171,10 +223,12 @@ export async function fetchMyLeagues(
         status: league.status,
         rosterId: mine.roster_id,
         firstPlayoffWeek: league.settings.playoff_week_start ?? 0,
-        lineup,
-        bench: (mine.players ?? []).filter((id) => !placed.has(id)),
-        ir,
-        taxi
+        ...placement(league.roster_positions, mine),
+        opponent: opponent
+          ? rosterSpots(placement(league.roster_positions, opponent)).filter(
+              ({ slot }) => slot !== TAXI_SLOT
+            )
+          : []
       };
     })
   );

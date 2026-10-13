@@ -1,10 +1,12 @@
 // Saved copies of what the agent reads on a run, keyed by the URL it reads
 // them from. They are trimmed real responses for the user's two leagues in
 // week 6 of 2026: three redraft starters are on bye, and in the dynasty league
-// one starter is ruled out and the defense is on bye. The ESPN injuries were
-// read on 13 October 2026 and hold one dated report per player. Four dynasty
-// players without an ESPN ID in Sleeper have no report, so they cannot be
-// matched, and neither can a team defense. The ESPN league news, the ESPN
+// one starter is ruled out and the defense is on bye. The rosters and matchups
+// also hold that week's opponent in each league. The ESPN injuries were read
+// on 13 October 2026 and hold one dated report per player, for the user's
+// players, the opponents' and the injured of two teams the user's defenses can
+// be set against, Denver and Tampa Bay. Four dynasty players without an ESPN
+// ID in Sleeper have no report, so they cannot be matched. The ESPN league news, the ESPN
 // overview of each matched player and the ProFootballTalk feed were read the
 // same day, and are trimmed to the fields the agent reads.
 import { env } from "cloudflare:workers";
@@ -14,6 +16,8 @@ import overviews from "./fixtures/espn/overviews.json";
 import scoreboard from "./fixtures/espn/scoreboard-2026-week-6.json";
 import proFootballTalk from "./fixtures/pft/profootballtalk.rss?raw";
 import leagues from "./fixtures/sleeper/leagues.json";
+import matchupsDynasty from "./fixtures/sleeper/matchups-dynasty-week-6.json";
+import matchupsRedraft from "./fixtures/sleeper/matchups-redraft-week-6.json";
 import players from "./fixtures/sleeper/players.json";
 import rostersDynasty from "./fixtures/sleeper/rosters-dynasty.json";
 import rostersRedraft from "./fixtures/sleeper/rosters-redraft.json";
@@ -28,6 +32,10 @@ export const URLS = {
   leagues: `${SLEEPER}/user/${user.user_id}/leagues/nfl/2026`,
   rostersRedraft: `${SLEEPER}/league/1364555323238551552/rosters`,
   rostersDynasty: `${SLEEPER}/league/1353515683878559744/rosters`,
+  matchupsRedraft: `${SLEEPER}/league/1364555323238551552/matchups/6`,
+  matchupsDynasty: `${SLEEPER}/league/1353515683878559744/matchups/6`,
+  matchupsRedraftWeek15: `${SLEEPER}/league/1364555323238551552/matchups/15`,
+  matchupsDynastyWeek15: `${SLEEPER}/league/1353515683878559744/matchups/15`,
   // Read only once a league's playoffs have started.
   bracketRedraft: `${SLEEPER}/league/1364555323238551552/winners_bracket`,
   bracketDynasty: `${SLEEPER}/league/1353515683878559744/winners_bracket`,
@@ -62,6 +70,8 @@ export function savedSources(): Record<string, unknown> {
     [URLS.leagues]: leagues,
     [URLS.rostersRedraft]: rostersRedraft,
     [URLS.rostersDynasty]: rostersDynasty,
+    [URLS.matchupsRedraft]: matchupsRedraft,
+    [URLS.matchupsDynasty]: matchupsDynasty,
     [URLS.players]: players as Record<string, Record<string, unknown>>,
     [URLS.scoreboard]: scoreboard,
     [URLS.injuries]: injuries,

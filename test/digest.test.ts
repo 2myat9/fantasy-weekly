@@ -170,6 +170,8 @@ it("nothing is sent for a league where my team is eliminated from the playoffs",
   const outbound = fakeOutboundHttp({
     ...sources,
     [URLS.scoreboardWeek15]: sources[URLS.scoreboard],
+    [URLS.matchupsRedraftWeek15]: sources[URLS.matchupsRedraft],
+    [URLS.matchupsDynastyWeek15]: sources[URLS.matchupsDynasty],
     // Six teams made the redraft playoffs and mine is not one of them.
     [URLS.bracketRedraft]: [
       { m: 1, r: 1, l: null, w: null, t1: 4, t2: 2 },
@@ -217,6 +219,8 @@ it("a team left with only a placement game counts as eliminated, and one in the 
   const outbound = fakeOutboundHttp({
     ...sources,
     [URLS.scoreboardWeek15]: sources[URLS.scoreboard],
+    [URLS.matchupsRedraftWeek15]: sources[URLS.matchupsRedraft],
+    [URLS.matchupsDynastyWeek15]: sources[URLS.matchupsDynasty],
     // I lost the redraft semifinal and play for third place.
     [URLS.bracketRedraft]: lastRound(7, 9),
     // I won the dynasty semifinal and play for the title.

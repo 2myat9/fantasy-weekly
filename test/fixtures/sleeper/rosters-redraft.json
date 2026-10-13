@@ -146,5 +146,63 @@
       "PIT"
     ],
     "taxi": null
+  },
+  {
+    "co_owners": null,
+    "keepers": null,
+    "league_id": "1364555323238551552",
+    "metadata": {
+      "record": "LLWLL",
+      "streak": "2L"
+    },
+    "owner_id": "1135441493621420032",
+    "player_map": null,
+    "players": [
+      "10219",
+      "11786",
+      "11834",
+      "12474",
+      "12490",
+      "12533",
+      "12545",
+      "3634",
+      "5859",
+      "6786",
+      "6804",
+      "8155",
+      "9484",
+      "9754",
+      "9997",
+      "PHI"
+    ],
+    "reserve": ["5859"],
+    "roster_id": 10,
+    "settings": {
+      "fpts": 592,
+      "fpts_against": 728,
+      "fpts_against_decimal": 76,
+      "fpts_decimal": 38,
+      "losses": 4,
+      "ppts": 655,
+      "ppts_decimal": 80,
+      "ties": 0,
+      "total_moves": 0,
+      "waiver_budget_used": 0,
+      "waiver_position": 5,
+      "wins": 1
+    },
+    "starters": [
+      "12545",
+      "12533",
+      "12490",
+      "6786",
+      "11834",
+      "9484",
+      "9997",
+      "3634",
+      "11786",
+      "PHI"
+    ],
+    "taxi": null
   }
 ]

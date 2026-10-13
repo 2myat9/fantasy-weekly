@@ -381,6 +381,40 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "641503",
+          "longComment": "Lamb was deemed questionable to return to Thursday's loss to the Buccaneers after -- per the Cowboys' official website -- taking a \"hit on the same quad that got hit last week,\" and although he briefly got back out there he was not on the field for his team's final drive. Lamb does not appear to be facing an extended absence and will have extra time to rest and recover before the Cowboys face the Packers in Week 6, but it could be a few days until the next update on his status arrives.",
+          "shortComment": "Lamb is believed to be dealing with a \"quad bruise\" that is \"not considered to be serious,\" Ian Rapoport of NFL Network reports.",
+          "status": "Questionable",
+          "date": "2026-10-09T12:44Z",
+          "athlete": {
+            "firstName": "CeeDee",
+            "lastName": "Lamb",
+            "displayName": "CeeDee Lamb",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4241389/ceedee-lamb",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "6",
+              "abbreviation": "DAL",
+              "displayName": "Dallas Cowboys"
+            }
+          },
+          "type": {
+            "id": "2",
+            "name": "INJURY_STATUS_QUESTIONABLE",
+            "description": "questionable",
+            "abbreviation": "Q"
+          }
         }
       ]
     },
@@ -420,6 +454,278 @@
             "name": "INJURY_STATUS_ACTIVE",
             "description": "active",
             "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642241",
+          "longComment": "Moss was unavailable for Sunday's 23-17 win over the Chargers as a result of an injury to his ribs that he suffered in Week 4. The cornerback was unable to practice at all last week, so Monday's estimated participation is a step in the right direction. Moss will have two more chances to officially practice before Thursday's matchup with the Seahawks.",
+          "shortComment": "Moss (ribs) was listed as a limited participant on the Broncos' estimated practice report Monday, Aric DiLalla of the team's official website reports.",
+          "status": "Out",
+          "date": "2026-10-12T23:26Z",
+          "athlete": {
+            "firstName": "Riley",
+            "lastName": "Moss",
+            "displayName": "Riley Moss",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4382401/riley-moss",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Cornerback",
+              "abbreviation": "CB"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "642238",
+          "longComment": "Hufanga suffered an ankle injury during the team's 23-17 win over the Chargers on Sunday, and the team will have a short week prior to facing the Seahawks on Thursday night. The safety will have two more chances to participate at practice this week, and if he can't go Thursday,  Devon Key would be the top candidate to draw a start in Hufanga's place within Denver's secondary.",
+          "shortComment": "Hufanga (ankle) was listed as a non-participant on the Broncos' estimated injury report Monday, Aric DiLalla of the team's official website reports.",
+          "status": "Questionable",
+          "date": "2026-10-12T23:21Z",
+          "athlete": {
+            "firstName": "Talanoa",
+            "lastName": "Hufanga",
+            "displayName": "Talanoa Hufanga",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4360853/talanoa-hufanga",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Safety",
+              "abbreviation": "S"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "2",
+            "name": "INJURY_STATUS_QUESTIONABLE",
+            "description": "questionable",
+            "abbreviation": "Q"
+          }
+        },
+        {
+          "id": "-2038642",
+          "longComment": "questionable",
+          "shortComment": "questionable",
+          "status": "Questionable",
+          "date": "2026-10-12T20:52Z",
+          "athlete": {
+            "firstName": "Sai'vion",
+            "lastName": "Jones",
+            "displayName": "Sai'vion Jones",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4603189/saivion-jones",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Defensive End",
+              "abbreviation": "DE"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "2",
+            "name": "INJURY_STATUS_QUESTIONABLE",
+            "description": "questionable",
+            "abbreviation": "Q"
+          }
+        },
+        {
+          "id": "-2038110",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:05Z",
+          "athlete": {
+            "firstName": "Pat",
+            "lastName": "Surtain II",
+            "displayName": "Pat Surtain II",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4372012/pat-surtain-ii",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Cornerback",
+              "abbreviation": "CB"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "642110",
+          "longComment": "After being targeted a whopping 17 times over the previous two games, Harvey experienced a change in fortunes Sunday as no Bronco earned more than WR Jaylen Waddle's five looks from QB Bo Nix. Harvey hasn't been able to get anything going on the ground this season (3.7 YPC) in his four appearances while Dobbins has earned the more consistent workload (13.8 touches per game), leaving the former a distant second in the pecking order out of Denver's backfield.",
+          "shortComment": "Harvey notched three carries for seven yards and didn't haul in his only target during Sunday's 23-17 road win versus the Chargers.",
+          "status": "Active",
+          "date": "2026-10-12T01:15Z",
+          "athlete": {
+            "firstName": "RJ",
+            "lastName": "Harvey",
+            "displayName": "RJ Harvey",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4568490/rj-harvey",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642104",
+          "longComment": "Waddle has hit once (8-138-0 on 10 targets in Week 2 against the Jaguars) and otherwise hasn't done much (10-66-1 on 21 targets) in his other four appearances in his first campaign with the Broncos. It didn't help any of Denver's skill-position players that QB Bo Nix's 27 passes went for only 123 yards, and a quick turnaround to face the Seahawks defense Thursday isn't a recipe for Waddle or any of his teammates to turn around their fortunes to begin the 2026 season.",
+          "shortComment": "Waddle corralled two of five targets for 19 yards and also had a nine-yard carry during Sunday's 23-17 road win against the Chargers.",
+          "status": "Active",
+          "date": "2026-10-12T01:07Z",
+          "athlete": {
+            "firstName": "Jaylen",
+            "lastName": "Waddle",
+            "displayName": "Jaylen Waddle",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4372016/jaylen-waddle",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642080",
+          "longComment": "Dobbins easily led both teams in touches with 20, which marked a season high, and he also reached the end zone for the first time in the current campaign. Meanwhile, fellow RB RJ Harvey was contained to three rushes for seven yards, marking his lowest touch count of 2026. Dobbins has received a more consistent workload among the two players with 13.8 touches per game (as opposed to 8.8 per contest for Harvey), making him the more appealing of the two backfield options in Denver.",
+          "shortComment": "Dobbins recorded 18 carries for 68 yards and one touchdown and gathered in both targets for six yards during Sunday's 23-17 win at the Chargers.",
+          "status": "Active",
+          "date": "2026-10-12T00:24Z",
+          "athlete": {
+            "firstName": "J.K.",
+            "lastName": "Dobbins",
+            "displayName": "J.K. Dobbins",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4241985/jk-dobbins",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "641600",
+          "longComment": "Because of his placement on IR due to an ankle injury, Bryant will be required to miss at least the next four games. The earliest he can return is Week 9 against the Panthers on Sunday, Nov. 11, but with the Broncos on bye for Week 10, the second-year wide receiver could be held out until Week 11 against the Raiders in late November. Troy Franklin figures to step into the WR3 role behind Courtland Sutton and Jaylen Waddle for as long as Bryant is sidelined.",
+          "shortComment": "Bryant (ankle) was placed on the Broncos' injured reserve Friday.",
+          "status": "Injured Reserve",
+          "date": "2026-10-09T21:47Z",
+          "athlete": {
+            "firstName": "Pat",
+            "lastName": "Bryant",
+            "displayName": "Pat Bryant",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4600981/pat-bryant",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "7",
+              "abbreviation": "DEN",
+              "displayName": "Denver Broncos"
+            }
+          },
+          "type": {
+            "id": "5",
+            "name": "INJURY_STATUS_IR",
+            "description": "Injured Reserve",
+            "abbreviation": "IR"
           }
         }
       ]
@@ -529,6 +835,40 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "642087",
+          "longComment": "St. Brown fell below his usual lofty standards with his numbers, but the star receiver still finished with team-high reception and target totals while also slotting in as the runner-up in receiving yards. St. Brown remains as integral a component of the Lions' air attack as ever, as he now has back-to-back 11-target games and has already seen 57 passes come his way overall in the first five contests of the campaign. St. Brown has turned those opportunities into a 37-372-5 line, and he'll be looking to snap a two-game touchdown drought when the Lions return to action in a NFC North home clash against the Packers on Sunday, Oct. 25, following a Week 6 bye.",
+          "shortComment": "St. Brown secured six of 11 targets for 69 yards and committed two fumbles that remained with Detroit in the Lions' 45-21 win over the Cardinals on Sunday.",
+          "status": "Active",
+          "date": "2026-10-12T00:32Z",
+          "athlete": {
+            "firstName": "Amon-Ra",
+            "lastName": "St. Brown",
+            "displayName": "Amon-Ra St. Brown",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4374302/amon-ra-st-brown",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "8",
+              "abbreviation": "DET",
+              "displayName": "Detroit Lions"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
         }
       ]
     },
@@ -556,6 +896,74 @@
             "position": {
               "name": "Wide Receiver",
               "abbreviation": "WR"
+            },
+            "team": {
+              "id": "9",
+              "abbreviation": "GB",
+              "displayName": "Green Bay Packers"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642036",
+          "longComment": "Kraft was an ideal complementary piece alongside top receivers Christian Watson and Matthew Golden, who combined for 12 receptions for 266 yards and two touchdowns (Watson) on the afternoon. Kraft still managed to finish with his second-highest reception and receiving yardage totals of the season, and he should remain busy in what is likely to be a high-scoring Week 6 home showdown against the Cowboys next Sunday night.",
+          "shortComment": "Kraft brought in all five targets for 64 yards and rushed once for two yards in the Packers' 31-7 win over the Bears on Sunday.",
+          "status": "Active",
+          "date": "2026-10-11T22:47Z",
+          "athlete": {
+            "firstName": "Tucker",
+            "lastName": "Kraft",
+            "displayName": "Tucker Kraft",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4572680/tucker-kraft",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Tight End",
+              "abbreviation": "TE"
+            },
+            "team": {
+              "id": "9",
+              "abbreviation": "GB",
+              "displayName": "Green Bay Packers"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642005",
+          "longComment": "Love was in prime form all afternoon against the Packers' long-time arch-rival, finishing with the third-highest single-game passing yardage total of his career while facilitating 100-yard efforts for both Christian Watson and Matthew Golden. The veteran signal-caller connected with the former for both of his touchdown passes, which came from 42 and 53 yards out in the first and third quarters, respectively. Love already has a trio of 300-yard games on the season and a 10:3 TD:INT heading into a Week 6 home matchup against the Cowboys next Sunday night.",
+          "shortComment": "Love completed 25 of 31 passes for 367 yards with two touchdowns and no interceptions while adding one carry for six yards in the Packers' 31-7 win over the Bears on Sunday. He also fumbled once but recovered.",
+          "status": "Active",
+          "date": "2026-10-11T21:02Z",
+          "athlete": {
+            "firstName": "Jordan",
+            "lastName": "Love",
+            "displayName": "Jordan Love",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4036378/jordan-love",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
             },
             "team": {
               "id": "9",
@@ -609,6 +1017,74 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "642156",
+          "longComment": "Fairbairn got the Texans on the board with a 45-yard field goal late in the first quarter before making each of his next three field goals in the second, which ended with a 53-yard kick. His four made field goals were his most since Week 18 of the 2025 season against the Colts (six), and Fairbarin has gone 7-for-7 on field-goal attempts and 5-for-5 on extra-point tries over Houston's last two games. The Texans will cross the pond for a Week 6 AFC South showdown against the Jaguars on Oct. 18 in London.",
+          "shortComment": "Fairbairn converted on all six of his kicks (four field goals, two extra points) during the Texans' 26-3 win over the Titans on Sunday.",
+          "status": "Active",
+          "date": "2026-10-12T14:21Z",
+          "athlete": {
+            "firstName": "Ka'imi",
+            "lastName": "Fairbairn",
+            "displayName": "Ka'imi Fairbairn",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/2971573/kaimi-fairbairn",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Place kicker",
+              "abbreviation": "PK"
+            },
+            "team": {
+              "id": "34",
+              "abbreviation": "HOU",
+              "displayName": "Houston Texans"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642044",
+          "longComment": "The 19 touches and 85 scrimmage yards were season highs for Marks, and the added volume came after David Montgomery left the game in the second quarter due to a groin strain and didn't return. Marks has been trending toward taking on a larger share of the load anyway as a result of Montgomery's ineffectiveness, but if the veteran back is forced to miss any additional time, the decision on who the Texans' No. 1 RB is would be made for coach DeMeco Ryans. Through five games, Marks has 149 rushing yards and two TDs along with an 11-54-0 line through the air on 13 targets, but his 3.5 yards per carry is a reflection of the offensive line's struggles. If he does take on the top job in the backfield in Week 6, it'll come against a very stingy Jaguars run defense.",
+          "shortComment": "Marks carried the ball 15 times for 62 yards and caught all four of his targets for 23 yards in Sunday's 26-3 win over the Titans.",
+          "status": "Active",
+          "date": "2026-10-11T23:12Z",
+          "athlete": {
+            "firstName": "Woody",
+            "lastName": "Marks",
+            "displayName": "Woody Marks",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4429059/woody-marks",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "34",
+              "abbreviation": "HOU",
+              "displayName": "Houston Texans"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
         }
       ]
     },
@@ -648,6 +1124,40 @@
             "name": "INJURY_STATUS_IR",
             "description": "Injured Reserve",
             "abbreviation": "IR"
+          }
+        },
+        {
+          "id": "642281",
+          "longComment": "Allen missed Week 4 due to a groin injury but was able to return to action Sunday. His nine targets tied for the top mark on the Colts, and his five receptions were second behind tight end Tyler Warren. Allen has been relatively consistent this season with at least five catches in three of his four contests, but he's averaging a meager 8.1 yards per reception, which is on pace for a career low.",
+          "shortComment": "Allen caught five of nine targets for 45 yards in Sunday's Week 5 loss to Pittsburgh.",
+          "status": "Active",
+          "date": "2026-10-13T03:31Z",
+          "athlete": {
+            "firstName": "Keenan",
+            "lastName": "Allen",
+            "displayName": "Keenan Allen",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/15818/keenan-allen",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "11",
+              "abbreviation": "IND",
+              "displayName": "Indianapolis Colts"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
           }
         }
       ]
@@ -825,6 +1335,40 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "642153",
+          "longComment": "The Jaguars looked dead in the water after Eagles' kicker Jake Elliott connected on a 48-yard field goal to give Philadelphia a 17-16 lead with only eight seconds left in the fourth quarter. However, Ameer Abdullah gave Jacksonville hope with a 53-yard return on the ensuing kickoff, and Little answered the call with a 57-yard field goal to seal the victory for the Jaguars. Little is 9-for-11 on field-goal attempts through five regular-season games, with both of those misses coming from 50-plus yards. The Jaguars will stay in London for Week 6 to face the Texans in an AFC South showdown.",
+          "shortComment": "Little made both of his field goals and went 1-for-2 on extra-point tries during the Jaguars' 19-17 win over the Eagles on Sunday in London.",
+          "status": "Active",
+          "date": "2026-10-12T14:08Z",
+          "athlete": {
+            "firstName": "Cam",
+            "lastName": "Little",
+            "displayName": "Cam Little",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4686361/cam-little",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Place kicker",
+              "abbreviation": "PK"
+            },
+            "team": {
+              "id": "30",
+              "abbreviation": "JAX",
+              "displayName": "Jacksonville Jaguars"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
         }
       ]
     },
@@ -865,6 +1409,74 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "-2038273",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:18Z",
+          "athlete": {
+            "firstName": "Brenen",
+            "lastName": "Thompson",
+            "displayName": "Brenen Thompson",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4685553/brenen-thompson",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "24",
+              "abbreviation": "LAC",
+              "displayName": "Los Angeles Chargers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "-2038269",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:18Z",
+          "athlete": {
+            "firstName": "Quentin",
+            "lastName": "Johnston",
+            "displayName": "Quentin Johnston",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4429025/quentin-johnston",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "24",
+              "abbreviation": "LAC",
+              "displayName": "Los Angeles Chargers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
         }
       ]
     },
@@ -904,6 +1516,40 @@
             "name": "INJURY_STATUS_IR",
             "description": "Injured Reserve",
             "abbreviation": "IR"
+          }
+        },
+        {
+          "id": "642231",
+          "longComment": "Simpson will continue to operate as the Rams' emergency QB3, which means he cannot play Monday unless both Matthew Stafford and Stetson Bennett leave the game due to injury, illness or ejection.",
+          "shortComment": "Simpson (coach's decision) is inactive but will serve as the Rams' emergency third quarterback against the Bills on Monday, Nate Atkins of The Athletic reports.",
+          "status": "Out",
+          "date": "2026-10-12T23:00Z",
+          "athlete": {
+            "firstName": "Ty",
+            "lastName": "Simpson",
+            "displayName": "Ty Simpson",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4685522/ty-simpson",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
+            },
+            "team": {
+              "id": "14",
+              "abbreviation": "LAR",
+              "displayName": "Los Angeles Rams"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
           }
         }
       ]
@@ -985,6 +1631,40 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "-2038304",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:22Z",
+          "athlete": {
+            "firstName": "Jordan",
+            "lastName": "Addison",
+            "displayName": "Jordan Addison",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4429205/jordan-addison",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "16",
+              "abbreviation": "MIN",
+              "displayName": "Minnesota Vikings"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
         }
       ]
     },
@@ -1058,6 +1738,40 @@
             "name": "INJURY_STATUS_ACTIVE",
             "description": "active",
             "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642173",
+          "longComment": "After landing on injured reserve following the Patriots' season-opening loss to the Seahawks, Brown now has missed the required four games and is eligible for activation beginning this week. Before the Patriots consider adding him back to the 53-man roster, however, Brown will need to have his 21-day practice window opened. The wideout was spotted walking without a limp last week, which suggests that he's made good progress in his recovery from a right high-ankle sprain and may be ready to mix into drills. If Brown ends up getting cleared to practice this week and looks good during his on-field work, he could be a realistic candidate to suit up this Sunday versus the Jets.",
+          "shortComment": "Patriots head coach Mike Vrabel said Monday that Brown (ankle) has \"a chance\" to return to practice this week, Mark Daniels of MassLive.com reports.",
+          "status": "Injured Reserve",
+          "date": "2026-10-12T15:40Z",
+          "athlete": {
+            "firstName": "A.J.",
+            "lastName": "Brown",
+            "displayName": "A.J. Brown",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4047646/aj-brown",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "17",
+              "abbreviation": "NE",
+              "displayName": "New England Patriots"
+            }
+          },
+          "type": {
+            "id": "5",
+            "name": "INJURY_STATUS_IR",
+            "description": "Injured Reserve",
+            "abbreviation": "IR"
           }
         }
       ]
@@ -1133,6 +1847,40 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "642054",
+          "longComment": "Likely's career-high 11 receptions included a three-yard touchdown catch in the third quarter and a 17-yard touchdown reception in the fourth, which helped the Giants erase a 19-6 second-half deficit. The shifty TE has drawn double-digit targets in three of his first five games with the Giants, producing 33 catches for 284 yards and four TDs. Likely needs 193 receiving yards to match his 2024 regular-season career high from the third of his four seasons in Baltimore. He and Malik Nabers should continue to work as the Giants' top two pass catchers in Week 6 against the Saints.",
+          "shortComment": "Likely caught 11 of 13 targets for 94 yards and two touchdowns in Sunday's 27-27 tie against the Commanders.",
+          "status": "Active",
+          "date": "2026-10-11T23:30Z",
+          "athlete": {
+            "firstName": "Isaiah",
+            "lastName": "Likely",
+            "displayName": "Isaiah Likely",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4361050/isaiah-likely",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Tight End",
+              "abbreviation": "TE"
+            },
+            "team": {
+              "id": "19",
+              "abbreviation": "NYG",
+              "displayName": "New York Giants"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
         }
       ]
     },
@@ -1160,6 +1908,74 @@
             "position": {
               "name": "Wide Receiver",
               "abbreviation": "WR"
+            },
+            "team": {
+              "id": "20",
+              "abbreviation": "NYJ",
+              "displayName": "New York Jets"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "-2038391",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:32Z",
+          "athlete": {
+            "firstName": "Breece",
+            "lastName": "Hall",
+            "displayName": "Breece Hall",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4427366/breece-hall",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "20",
+              "abbreviation": "NYJ",
+              "displayName": "New York Jets"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "642012",
+          "longComment": "Smith threw a 32-yard touchdown pass to Garrett Wilson on the team's first drive, but New York's passing game was quiet the rest of the way while playing through rainy conditions for the second time in as many home games. The veteran QB, who celebrated his 36th birthday Saturday, has a tidy 6:0 TD:INT, though Smith has put the ball on the ground in all but one game while losing two of four fumbles. Smith and the Jets will hope to get some of their injured skill-position players back in Week 6 against the Patriots. Kenyon Sadiq (concussion) joined that growing list during Sunday's win.",
+          "shortComment": "Smith completed 17 of 30 pass attempts for 182 yards and a touchdown in Sunday's 17-12 win over the Browns. He also rushed five times for seven yards and lost a fumble.",
+          "status": "Active",
+          "date": "2026-10-11T21:29Z",
+          "athlete": {
+            "firstName": "Geno",
+            "lastName": "Smith",
+            "displayName": "Geno Smith",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/15864/geno-smith",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
             },
             "team": {
               "id": "20",
@@ -1401,6 +2217,176 @@
             "description": "active",
             "abbreviation": "A"
           }
+        },
+        {
+          "id": "642233",
+          "longComment": "Sills has been on injured reserve since late August while nursing a hamstring injury, but he will now have the chance to return to practice. The wide receiver played in all 17 of the Falcons' regular-season contests in 2025, and once healthy, he'll provide Tampa Bay with another veteran option on offense.",
+          "shortComment": "Sills (hamstring) had his 21-day practice window opened by the Buccaneers on Monday, Scott Smith &amp; Brianna Dix of the team's official website reports.",
+          "status": "Injured Reserve",
+          "date": "2026-10-12T23:06Z",
+          "athlete": {
+            "firstName": "David",
+            "lastName": "Sills V",
+            "displayName": "David Sills V",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/3871102/david-sills-v",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "27",
+              "abbreviation": "TB",
+              "displayName": "Tampa Bay Buccaneers"
+            }
+          },
+          "type": {
+            "id": "5",
+            "name": "INJURY_STATUS_IR",
+            "description": "Injured Reserve",
+            "abbreviation": "IR"
+          }
+        },
+        {
+          "id": "-2038517",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:43Z",
+          "athlete": {
+            "firstName": "Antoine",
+            "lastName": "Winfield Jr.",
+            "displayName": "Antoine Winfield Jr.",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4034790/antoine-winfield-jr",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Safety",
+              "abbreviation": "S"
+            },
+            "team": {
+              "id": "27",
+              "abbreviation": "TB",
+              "displayName": "Tampa Bay Buccaneers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "-2038511",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:43Z",
+          "athlete": {
+            "firstName": "Baker",
+            "lastName": "Mayfield",
+            "displayName": "Baker Mayfield",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/3052587/baker-mayfield",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
+            },
+            "team": {
+              "id": "27",
+              "abbreviation": "TB",
+              "displayName": "Tampa Bay Buccaneers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "-2038512",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:43Z",
+          "athlete": {
+            "firstName": "Benjamin",
+            "lastName": "Morrison",
+            "displayName": "Benjamin Morrison",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4816107/benjamin-morrison",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Cornerback",
+              "abbreviation": "CB"
+            },
+            "team": {
+              "id": "27",
+              "abbreviation": "TB",
+              "displayName": "Tampa Bay Buccaneers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
+        },
+        {
+          "id": "-2038507",
+          "longComment": "out",
+          "shortComment": "out",
+          "status": "Out",
+          "date": "2026-10-12T19:43Z",
+          "athlete": {
+            "firstName": "SirVocea",
+            "lastName": "Dennis",
+            "displayName": "SirVocea Dennis",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4429511/sirvocea-dennis",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Linebacker",
+              "abbreviation": "LB"
+            },
+            "team": {
+              "id": "27",
+              "abbreviation": "TB",
+              "displayName": "Tampa Bay Buccaneers"
+            }
+          },
+          "type": {
+            "id": "4",
+            "name": "INJURY_STATUS_OUT",
+            "description": "out",
+            "abbreviation": "O"
+          }
         }
       ]
     },
@@ -1440,6 +2426,376 @@
             "name": "INJURY_STATUS_IR",
             "description": "Injured Reserve",
             "abbreviation": "IR"
+          }
+        },
+        {
+          "id": "642113",
+          "longComment": "White recorded 20 scrimmage yards on seven touches in his return from a one-game absence due to a shoulder injury. Jacory Croskey-Merritt led Washington's running backs with 11 carries for 82 yards and a touchdown, while White and Austin Ekeler each drew one target out of the backfield. Ekeler's return to Washington could prove problematic for White, as the two veteran running backs could split passing-down work while Croskey-Merritt continues to get most of the carries. White could get more opportunities if the Commanders are forced to play catch-up against the 5-0 49ers in Week 6.",
+          "shortComment": "White (shoulder) rushed seven times for 18 yards while catching his only target for two yards in Sunday's 27-27 tie against the Giants.",
+          "status": "Active",
+          "date": "2026-10-12T01:19Z",
+          "athlete": {
+            "firstName": "Rachaad",
+            "lastName": "White",
+            "displayName": "Rachaad White",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4697815/rachaad-white",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "28",
+              "abbreviation": "WSH",
+              "displayName": "Washington Commanders"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642065",
+          "longComment": "Croskey-Merritt had a 33-yard touchdown run on his first carry just two minutes into the game and ultimately set a new season high in rushing yards despite tying for his fewest touches of the season with just 11. Rachaad White and Austin Ekeler combined for 10 carries and two targets, while Jayden Daniels led Washington's ground game with 103 rushing yards and two rushing touchdowns on nine attempts. Given Croskey-Merritt's lack of involvement in the passing game, he may not get many opportunities if the Commanders fall behind as expected when they visit the undefeated 49ers in Week 6.",
+          "shortComment": "Croskey-Merritt rushed 11 times for 82 yards and a touchdown but wasn't targeted in Sunday's 27-27 tie against the Giants.",
+          "status": "Active",
+          "date": "2026-10-11T23:56Z",
+          "athlete": {
+            "firstName": "Jacory",
+            "lastName": "Croskey-Merritt",
+            "displayName": "Jacory Croskey-Merritt",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4575131/jacory-croskey-merritt",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Running Back",
+              "abbreviation": "RB"
+            },
+            "team": {
+              "id": "28",
+              "abbreviation": "WSH",
+              "displayName": "Washington Commanders"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        }
+      ]
+    },
+    {
+      "id": "33",
+      "displayName": "Baltimore Ravens",
+      "injuries": [
+        {
+          "id": "642143",
+          "longComment": "Flowers led the Ravens in catches and targets from backup QB Tyler Huntley while finishing nine receiving yards short of Rashod Bateman's team-leading total as the Ravens escaped with a road win Sunday night despite the absence of starting QB Lamar Jackson (ankle). Jackson reportedly has a chance to return as soon as Week 6 in Cleveland, but Flowers showed he can still be reasonably productive with Huntley throwing him passes. Flowers also took a two-yard sack on a trick play and had a would-be 26-yard catch negated on Baltimore's final drive of regulation because the Ravens instead accepted a 29-yard pass-interference penalty that he drew. The speedy wideout sat out Week 2 due to a hamstring injury and was listed as questionable heading into Sunday's OT win due to a foot injury, but he should be expected to continue suiting up barring a setback.",
+          "shortComment": "Flowers (foot) caught eight of nine targets for 53 yards and added a 13-yard rush in Sunday's 30-23 overtime win over the Falcons.",
+          "status": "Active",
+          "date": "2026-10-12T04:25Z",
+          "athlete": {
+            "firstName": "Zay",
+            "lastName": "Flowers",
+            "displayName": "Zay Flowers",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4429615/zay-flowers",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "33",
+              "abbreviation": "BAL",
+              "displayName": "Baltimore Ravens"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "displayName": "Kansas City Chiefs",
+      "injuries": [
+        {
+          "id": "640790",
+          "longComment": "Kelce was surprisingly quiet in this battle between AFC West rivals that both entered the game with 3-0 records. This was the second consecutive game in which Kelce was held to two catches, but he was averaging 77 receiving yards per game prior to Sunday's 15-yard performance. He will celebrate his 37th birthday Monday and will have a chance to rest up during a Week 5 bye before the Chiefs return to action in Week 6 against the Chargers.",
+          "shortComment": "Kelce caught two of four targets for 15 yards in Sunday's 30-27 win over the Raiders.",
+          "status": "Active",
+          "date": "2026-10-05T01:05Z",
+          "athlete": {
+            "firstName": "Travis",
+            "lastName": "Kelce",
+            "displayName": "Travis Kelce",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/15847/travis-kelce",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Tight End",
+              "abbreviation": "TE"
+            },
+            "team": {
+              "id": "12",
+              "abbreviation": "KC",
+              "displayName": "Kansas City Chiefs"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "displayName": "Las Vegas Raiders",
+      "injuries": [
+        {
+          "id": "642142",
+          "longComment": "Tucker finished second on the team in receptions behind star tight end Brock Bowers (eight) while his 41 receiving yards ranked fourth on the day for Las Vegas. The wide receiver has now posted nearly identical production in three straight contests, finishing with exactly four receptions for a little over 40 yards in each game. Through five games this season, Tucker has caught 19 of 27 targets for 274 yards and a touchdown while operating as the Raiders' top option at wide receiver.",
+          "shortComment": "Tucker caught four of five targets for 41 yards during Sunday's 45-17 loss to the Patriots.",
+          "status": "Active",
+          "date": "2026-10-12T04:21Z",
+          "athlete": {
+            "firstName": "Tre",
+            "lastName": "Tucker",
+            "displayName": "Tre Tucker",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4428718/tre-tucker",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "13",
+              "abbreviation": "LV",
+              "displayName": "Las Vegas Raiders"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642099",
+          "longComment": "The lopsided result owed much more to the fact that the Raiders defense couldn't stop Drake Maye than it did to Cousins' performance, but it still provided coach Klint Kubiak with an opportunity to give Fernando Mendoza his first snaps in the NFL on the team's final drive. Las Vegas has lost two straight games with Cousins under center after a 3-0 start, and while the veteran QB has a more than respectable 12:4 TD:INT and 65.1 percent completion rate in his five starts, he was always going to be a placeholder until the first overall pick in the 2026 draft is deemed ready to take over. A switch at quarterback may not be imminent, but the clock may be ticking on Cousins' tenure as the starter heading into a Week 6 battle with the Bills.",
+          "shortComment": "Cousins completed 19 of 28 passes for 243 yards and a touchdown in Sunday's 45-17 loss to the Patriots.",
+          "status": "Active",
+          "date": "2026-10-12T01:00Z",
+          "athlete": {
+            "firstName": "Kirk",
+            "lastName": "Cousins",
+            "displayName": "Kirk Cousins",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/14880/kirk-cousins",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
+            },
+            "team": {
+              "id": "13",
+              "abbreviation": "LV",
+              "displayName": "Las Vegas Raiders"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "displayName": "New Orleans Saints",
+      "injuries": [
+        {
+          "id": "642071",
+          "longComment": "Vele finished in a three-way tie with Chris Olave and Juwan Johnson for the team lead in receptions and also drew even with Olave for top slotting in targets. However, that meant little on a day when Tyler Shough was held to 3.8 yards per attempt by an aggressive Vikings defense and finished with just 96 passing yards overall. Vele's quiet afternoon notwithstanding, the third-year wideout has now seen at least six targets in each game and has impressively converted 14 of his 25 receptions into first downs. Vele will take a 25-252-2 line on 37 targets into a Week 6 road matchup against the Giants next Sunday.",
+          "shortComment": "Vele secured four of six targets for 26 yards in the Saints' 23-13 loss to the Vikings on Sunday.",
+          "status": "Active",
+          "date": "2026-10-12T00:08Z",
+          "athlete": {
+            "firstName": "Devaughn",
+            "lastName": "Vele",
+            "displayName": "Devaughn Vele",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4569559/devaughn-vele",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "18",
+              "abbreviation": "NO",
+              "displayName": "New Orleans Saints"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "642014",
+          "longComment": "Shough's final line underscores the duress he was under throughout the afternoon from an aggressive Vikings defense, even as he took just one sack. Shough nevertheless was intent on getting ball out quickly, leading to him averaging just 3.8 yards per attempt. The second-year quarterback's pair of interceptions didn't lead to any Minnesota points, but they did saddle Shough with his first multi-INT tally since Week 1. Despite Sunday's stumble, Shough and the rest of his teammates on the offensive side of the ball will have a good opportunity to bounce back in a favorable Week 6 road matchup against the Giants next Sunday.",
+          "shortComment": "Shough completed 16 of 25 passes for 96 yards with no touchdowns and two interceptions in the Saints' 23-13 loss to the Vikings on Sunday.",
+          "status": "Active",
+          "date": "2026-10-11T21:41Z",
+          "athlete": {
+            "firstName": "Tyler",
+            "lastName": "Shough",
+            "displayName": "Tyler Shough",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4360689/tyler-shough",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
+            },
+            "team": {
+              "id": "18",
+              "abbreviation": "NO",
+              "displayName": "New Orleans Saints"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        },
+        {
+          "id": "641998",
+          "longComment": "Olave found himself in the familiar position of either tying for the team lead or setting the pace for the Saints in receptions, receiving yards and targets, but the numbers he generated in each of those categories left plenty to be desired. His sub-standard production should be taken in context, however, considering Tyler Shough threw for only 96 yards at 3.8 yards per attempt and was picked off twice as well. Olave's numbers were easily season lows across the board, but he should have a good chance to bounce back in a Week 6 road matchup against the Giants next Sunday.",
+          "shortComment": "Olave secured four of six targets for 46 yards in the Saints' 23-13 loss to the Vikings on Sunday.",
+          "status": "Active",
+          "date": "2026-10-11T20:33Z",
+          "athlete": {
+            "firstName": "Chris",
+            "lastName": "Olave",
+            "displayName": "Chris Olave",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4361370/chris-olave",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Wide Receiver",
+              "abbreviation": "WR"
+            },
+            "team": {
+              "id": "18",
+              "abbreviation": "NO",
+              "displayName": "New Orleans Saints"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
+          }
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "displayName": "Tennessee Titans",
+      "injuries": [
+        {
+          "id": "642049",
+          "longComment": "The second-year QB led the Titans to a 30-yard Joey Slye field goal on their first possession and then had trouble even getting the ball into Texans territory the rest of the game. Ward does have a 63.2 percent completion rate through five games, a step up from his 59.8 percent mark as a rookie, but it comes with just a 3:3 TD:INT and 5.8 YPA as the rest of his numbers have regressed. Per Terry McCormick of TitanInsider.com, coach Robert Saleh said after the game that he's given no thought to replacing Ward under center, and the 0-5 Titans wouldn't have a lot to gain by switching to veteran backup Mitchell Trubisky as they muddle through a rebuild. Ward will try to find some confidence in a Week 6 road trip to Indianapolis.",
+          "shortComment": "Ward completed 23 of 36 passes for 170 yards and an interception in Sunday's 26-3 loss to the Texans. He added two yards on his lone carry.",
+          "status": "Active",
+          "date": "2026-10-11T23:20Z",
+          "athlete": {
+            "firstName": "Cam",
+            "lastName": "Ward",
+            "displayName": "Cam Ward",
+            "links": [
+              {
+                "rel": ["playercard", "desktop", "athlete"],
+                "href": "https://www.espn.com/nfl/player/_/id/4688380/cam-ward",
+                "text": "Player Card"
+              }
+            ],
+            "position": {
+              "name": "Quarterback",
+              "abbreviation": "QB"
+            },
+            "team": {
+              "id": "10",
+              "abbreviation": "TEN",
+              "displayName": "Tennessee Titans"
+            }
+          },
+          "type": {
+            "id": "0",
+            "name": "INJURY_STATUS_ACTIVE",
+            "description": "active",
+            "abbreviation": "A"
           }
         }
       ]

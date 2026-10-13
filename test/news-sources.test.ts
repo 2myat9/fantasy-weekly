@@ -101,8 +101,12 @@ it("a ProFootballTalk entry that names a roster player reaches the writer as a s
 
   const dynasty = await previewMaterial("dynasty");
 
+  const onRoster = new Set(dynasty.roster.map(({ playerId }) => playerId));
   expect(
-    dynasty.sourceItems.filter(({ source }) => source === "ProFootballTalk")
+    dynasty.sourceItems.filter(
+      ({ source, playerId }) =>
+        source === "ProFootballTalk" && onRoster.has(playerId)
+    )
   ).toEqual([
     {
       id: expect.any(String),
@@ -217,8 +221,9 @@ it("items from the new sources that are dated before the news window are not han
 
 /**
  * The saved sources with every one of my 43 roster players resolved to an
- * ESPN record, so that each of them has a page of their own to read. The six
- * that ESPN has no report on are given an ESPN ID and an empty overview.
+ * ESPN record, so that each of them but the two team defenses, which have no
+ * page, has a page of their own to read. The four that ESPN has no report on
+ * are given an ESPN ID and an empty overview.
  */
 function sourcesWithEveryPlayerMatched() {
   const sources = savedSources();
@@ -226,7 +231,7 @@ function sourcesWithEveryPlayerMatched() {
     string,
     Record<string, unknown>
   >;
-  ["SEA", "DET", "10226", "12484", "12496", "13349"].forEach((id, index) => {
+  ["10226", "12484", "12496", "13349"].forEach((id, index) => {
     const espnId = String(9000001 + index);
     players[id].espn_id = espnId;
     sources[overviewUrl(espnId)] = { news: [], rotowire: null };
@@ -236,14 +241,14 @@ function sourcesWithEveryPlayerMatched() {
 
 const isOverview = (url: string) => url.endsWith("/overview");
 
-it("a run covering 43 roster players reads every player's overview without making more than 50 outbound requests in one invocation, and sends one league message per league", async () => {
+it("a run covering 43 roster players reads the overview of each of the 41 that are not team defenses without making more than 50 outbound requests in one invocation, and sends one league message per league", async () => {
   const outbound = fakeOutboundHttp(sourcesWithEveryPlayerMatched());
 
   // Saturday 19 October 2030, 6:00 PM Pacific.
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
-  expect(new Set(outbound.requests.filter(isOverview)).size).toBe(43);
-  expect(outbound.requests.filter(isOverview)).toHaveLength(43);
+  expect(new Set(outbound.requests.filter(isOverview)).size).toBe(41);
+  expect(outbound.requests.filter(isOverview)).toHaveLength(41);
   expect(Math.max(...outbound.requestsPerInvocation)).toBeLessThanOrEqual(50);
   // The run did not fit in one invocation.
   expect(
@@ -262,7 +267,7 @@ it("/preview covering 43 roster players stays within 50 outbound requests in one
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
-  expect(outbound.requests.filter(isOverview)).toHaveLength(43);
+  expect(outbound.requests.filter(isOverview)).toHaveLength(41);
   expect(Math.max(...outbound.requestsPerInvocation)).toBeLessThanOrEqual(50);
   expect(outbound.telegramMessages).toHaveLength(2);
 });

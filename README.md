@@ -28,12 +28,13 @@ src/
   digest-time.ts     # When the automatic digest runs: the next Saturday 6:00 PM Pacific
   runs.ts            # The runs in progress and what each has gathered so far
   sent-record.ts     # Which leagues the automatic digest has gone out to, per NFL week
-  sleeper.ts         # Sleeper client: NFL week, leagues, rosters, playoff bracket, player directory
+  sleeper.ts         # Sleeper client: NFL week, leagues, rosters, this week's opponents, playoff bracket, player directory
   player-directory.ts # The stored copy of the Sleeper player directory
-  espn.ts            # ESPN client: the week's byes, injury reports, league news, a player's overview
+  espn.ts            # ESPN client: the week's byes and kickoffs, injury reports, league news, a player's overview
   pft.ts             # ProFootballTalk client: the latest entries of its feed
   news.ts            # News gathering: source items about players, from all the news sources
   writer.ts          # The writer: the Claude call that writes the news sections
+  writer-material.ts # Which source items the writer is handed for a league
   lineup-check.ts    # The lineup check
   league-message.ts  # Digest composer: the message for one league
   telegram.ts        # Telegram client: sends messages, verifies webhook requests

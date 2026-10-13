@@ -23,14 +23,35 @@ const SLEEPER_TEAM: Record<string, string> = { WSH: "WAS" };
 // Where ESPN abbreviates a position differently from Sleeper.
 const SLEEPER_POSITION: Record<string, string> = { PK: "K" };
 
+/** One game of an NFL week. */
+export type Game = {
+  /** The two teams, as Sleeper abbreviates them. */
+  teams: string[];
+  kickoff: Date;
+};
+
 export type WeekSchedule = {
   /** The teams with no game this week, as Sleeper abbreviates them. */
   teamsOnBye: string[];
+  games: Game[];
 };
 
 type Scoreboard = {
   week?: { teamsOnBye?: { abbreviation: string }[] };
+  events?: {
+    date?: string;
+    competitions?: {
+      competitors?: { team?: { abbreviation?: string } }[];
+    }[];
+  }[];
 };
+
+/** The game a team plays in the week, if it has one. */
+export function gameOf(schedule: WeekSchedule, team: string | null) {
+  return team === null
+    ? undefined
+    : schedule.games.find((game) => game.teams.includes(team));
+}
 
 export async function fetchWeekSchedule(nfl: NflState): Promise<WeekSchedule> {
   const seasonType = SEASON_TYPES[nfl.seasonType];
@@ -47,11 +68,23 @@ export async function fetchWeekSchedule(nfl: NflState): Promise<WeekSchedule> {
     throw new Error(`ESPN scoreboard returned ${response.status}`);
   }
   const scoreboard = await response.json<Scoreboard>();
+  const sleeperTeam = (abbreviation: string) =>
+    SLEEPER_TEAM[abbreviation] ?? abbreviation;
   return {
     // ESPN leaves the list out in a week without byes.
-    teamsOnBye: (scoreboard.week?.teamsOnBye ?? []).map(
-      ({ abbreviation }) => SLEEPER_TEAM[abbreviation] ?? abbreviation
-    )
+    teamsOnBye: (scoreboard.week?.teamsOnBye ?? []).map(({ abbreviation }) =>
+      sleeperTeam(abbreviation)
+    ),
+    games: (scoreboard.events ?? []).flatMap((event) => {
+      const kickoff = new Date(event.date ?? "");
+      const teams = (event.competitions?.[0]?.competitors ?? []).flatMap(
+        ({ team }) => (team?.abbreviation ? sleeperTeam(team.abbreviation) : [])
+      );
+      // A game without a time or its two teams says nothing usable.
+      return isNaN(kickoff.getTime()) || teams.length !== 2
+        ? []
+        : { teams, kickoff };
+    })
   };
 }
 

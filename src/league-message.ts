@@ -59,7 +59,8 @@ function section(title: string, lines: string[]) {
  * is always present: with no findings it states that the lineup is clear.
  * The news sections follow, each left out when it has nothing to report.
  * Every roster player is in one of them: the writer's sections, or the lists
- * of players it did not cover and of players that could not be checked.
+ * of players it did not cover and of players that could not be checked. The
+ * writer's note on this week's opponent, when it has one, comes last.
  */
 export function composeLeagueMessage({
   league,
@@ -88,8 +89,9 @@ export function composeLeagueMessage({
     escapeHtml(players.get(playerId)?.name ?? `Player ${playerId}`);
   const entryLine = ({ playerId, status, text, sources }: Entry) =>
     `${MARKER[status]} <b>${name(playerId)}</b>: ${escapeHtml(text)} (${sources.map(citation).join(", ")})`;
+  const { needsDecision, stillUnresolved, otherNews, opponentNote } = sections;
   const covered = new Set(
-    Object.values(sections).flatMap((entries) =>
+    [needsDecision, stillUnresolved, otherNews].flatMap((entries) =>
       entries.map(({ playerId }) => playerId)
     )
   );
@@ -110,16 +112,24 @@ export function composeLeagueMessage({
       : [
           "✅ Lineup clear: no starter is on bye, ruled out or on IR, and every slot is filled."
         ]),
-    ...section("Needs a decision", sections.needsDecision.map(entryLine)),
+    ...section("Needs a decision", needsDecision.map(entryLine)),
     ...section(
       "Still unresolved, check before kickoff",
-      sections.stillUnresolved.map(entryLine)
+      stillUnresolved.map(entryLine)
     ),
-    ...section("Other news on your roster", sections.otherNews.map(entryLine)),
+    ...section("Other news on your roster", otherNews.map(entryLine)),
     ...section("No significant news", names(uncovered.filter(checkable))),
     ...section(
       "Couldn't check",
       names(uncovered.filter((playerId) => !checkable(playerId)))
+    ),
+    ...section(
+      "Opponent note",
+      opponentNote
+        ? [
+            `${escapeHtml(opponentNote.text)} (${opponentNote.sources.map(citation).join(", ")})`
+          ]
+        : []
     )
   ].join("\n");
 }

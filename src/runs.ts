@@ -11,7 +11,7 @@ export type Gathered = {
   /** The leagues still owed a league message, in the order they are sent. */
   leagues: League[];
   schedule: WeekSchedule;
-  /** The players on those leagues' rosters, by Sleeper ID. */
+  /** The players on those leagues' rosters and their opponents', by Sleeper ID. */
   players: Map<string, Player>;
   news: Gathering;
 };
