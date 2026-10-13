@@ -120,8 +120,19 @@ it("the writer is called once per league, with only that league's roster players
     .sort((a, b) => b.league.format.localeCompare(a.league.format));
   expect(redraft.league).toEqual({ name: "Duffy Redraft", format: "redraft" });
   expect(redraft.week).toBe(6);
+  for (const { roster, sourceItems } of [redraft, dynasty]) {
+    const onRoster = new Set(roster.map(({ playerId }) => playerId));
+    expect(sourceItems.filter((item) => !onRoster.has(item.playerId))).toEqual(
+      []
+    );
+  }
+  // The players with an ESPN injury report inside the window, in roster order.
+  const reportedOn = (material: WriterMaterial) =>
+    material.sourceItems
+      .filter(({ link }) => link.includes("espn.com/nfl/player/"))
+      .map((item) => item.playerId);
   // Alec Pierce's report is from 28 September, before the window opened.
-  expect(redraft.sourceItems.map((item) => item.playerId)).toEqual([
+  expect(reportedOn(redraft)).toEqual([
     "3163",
     "9509",
     "13287",
@@ -137,7 +148,7 @@ it("the writer is called once per league, with only that league's roster players
     "8676"
   ]);
   // Ray Davis, Theo Johnson and Marvin Mims have reports older than a week.
-  expect(dynasty.sourceItems.map((item) => item.playerId)).toEqual([
+  expect(reportedOn(dynasty)).toEqual([
     "6904",
     "12507",
     "12481",
@@ -157,8 +168,8 @@ it("the writer is called once per league, with only that league's roster players
     "12547",
     "12641"
   ]);
-  expect(dynasty.sourceItems[5]).toEqual({
-    id: "6",
+  expect(dynasty.sourceItems).toContainEqual({
+    id: expect.any(String),
     playerId: "13298",
     date: "Sunday, October 11, 2026 at 1:48 PM PDT",
     source: "ESPN",
@@ -340,7 +351,7 @@ it("an entry about a player with no source item, or about a player who is not on
     "",
     "<b>Other news on your roster</b>",
     // Shown with the items about the player in place of the bad citation.
-    '🟡 <b>Bijan Robinson</b>: Limited in practice. (<a href="https://www.espn.com/nfl/player/_/id/4430807/bijan-robinson">ESPN, Oct 11</a>)',
+    '🟡 <b>Bijan Robinson</b>: Limited in practice. (<a href="https://www.espn.com/nfl/player/_/id/4430807/bijan-robinson">ESPN, Oct 11</a>, <a href="https://www.espn.com/espn/betting/story/_/id/48476156/2026-nfl-awards-betting-odds-mvp-rookie-year-offensive-defensive-player-coach">ESPN, Oct 13</a>, <a href="https://www.espn.com/espn/betting/story/_/id/50085010/nfl-week-5-odds-betting-tips-ravens-falcons">ESPN, Oct 11</a>, <a href="https://www.espn.com/nfl/story/_/id/50118457/how-do-baltimore-ravens-plan-stop-bijan-robinson-week-5">ESPN, Oct 8</a>)',
     "",
     "<b>No significant news</b>",
     "Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",

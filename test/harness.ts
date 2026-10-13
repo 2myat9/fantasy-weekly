@@ -10,7 +10,7 @@ import {
 } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { afterEach, vi } from "vitest";
-import worker, { AGENT_NAME, type FantasyWeeklyAgent } from "../src/server";
+import worker, { AGENT_NAME, FantasyWeeklyAgent } from "../src/server";
 
 /** The chat the bot answers: the one configured as the user's. */
 export const MY_CHAT_ID = Number(env.TELEGRAM_CHAT_ID);
@@ -78,11 +78,23 @@ let telegramMessages: unknown[] = [];
 
 let unanswered: string[] = [];
 
+// How many outbound requests each invocation of the agent has made, in order.
+// The platform caps them per invocation, whatever they are to.
+let requestsPerInvocation: number[] = [0];
+
+// The agent's work happens in alarm invocations, so each alarm starts a count.
+const alarm = FantasyWeeklyAgent.prototype.alarm;
+FantasyWeeklyAgent.prototype.alarm = function (...args) {
+  requestsPerInvocation.push(0);
+  return alarm.apply(this, args);
+};
+
 afterEach(async () => {
   vi.unstubAllGlobals();
   vi.useRealTimers();
   unanswered = [];
   telegramMessages = [];
+  requestsPerInvocation = [0];
   // Each test starts with an agent that has no state and nothing scheduled.
   await reset();
 });
@@ -94,7 +106,10 @@ export function agent() {
 /**
  * Answers the agent's outbound HTTP from saved responses, keyed by URL.
  * A request to any other URL throws, so a test never reaches the network, and
- * fails the run that made it.
+ * fails the run that made it. A saved string is answered as text, anything
+ * else as JSON, and a saved function is called for the response to give.
+ * `requestsPerInvocation` counts every outbound request, Telegram's and
+ * Claude's included, by the invocation of the agent that made it.
  *
  * Telegram sends are accepted without a saved response and collected in
  * `telegramMessages` as the bodies Telegram received, in order. They are kept
@@ -110,12 +125,15 @@ export function fakeOutboundHttp(
   const requests: string[] = [];
   const sent: unknown[] = [];
   const writerCalls: WriterCall[] = [];
+  const perInvocation: number[] = [0];
   telegramMessages = sent;
+  requestsPerInvocation = perInvocation;
   vi.stubGlobal(
     "fetch",
     async (input: RequestInfo | URL, init?: RequestInit) => {
       const request = new Request(input, init);
       const url = request.url;
+      perInvocation[perInvocation.length - 1]++;
       if (url === TELEGRAM_SEND_MESSAGE) {
         const message = await request.json();
         // Telegram never answers within the tick that sent the request.
@@ -151,12 +169,23 @@ export function fakeOutboundHttp(
         unanswered.push(url);
         throw new Error(`No saved response for ${url}`);
       }
-      const saved = savedResponses[url];
+      const saved =
+        typeof savedResponses[url] === "function"
+          ? (savedResponses[url] as () => unknown)()
+          : savedResponses[url];
       // A saved `Response` is returned as it is, to stand in for a failing source.
-      return saved instanceof Response ? saved.clone() : Response.json(saved);
+      if (saved instanceof Response) return saved.clone();
+      return typeof saved === "string"
+        ? new Response(saved)
+        : Response.json(saved);
     }
   );
-  return { requests, telegramMessages: sent, writerCalls };
+  return {
+    requests,
+    telegramMessages: sent,
+    writerCalls,
+    requestsPerInvocation: perInvocation
+  };
 }
 
 /** A Telegram update carrying one text message from the given chat. */
@@ -206,15 +235,18 @@ export async function deliverTelegramUpdate(
 }
 
 /**
- * Lets the tasks that are due on the agent's schedule run to the end. A task
- * due now may already be running, because the runtime fires an alarm that is
- * due without being asked, so firing the alarm here is not enough: a task
- * stays on the schedule until it has finished, and that is what is waited for.
+ * Lets the tasks that are due on the agent's schedule run to the end,
+ * including those they put on the schedule in turn, so a run that spans
+ * several invocations is seen through. A task due now may already be running,
+ * because the runtime fires an alarm that is due without being asked, so
+ * firing the alarm here is not enough: a task stays on the schedule until it
+ * has finished, and that is what is waited for.
  */
 async function finishDueTasks() {
-  await runDurableObjectAlarm(agent());
   const isDue = (task: { at: string }) => new Date(task.at) <= new Date();
-  for (let waited = 0; (await pendingSchedule()).some(isDue); waited++) {
+  for (let waited = 0; ; waited++) {
+    await runDurableObjectAlarm(agent());
+    if (!(await pendingSchedule()).some(isDue)) return;
     if (waited === 1000) throw new Error("A due task did not finish");
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
@@ -254,13 +286,15 @@ export function setClock(instant: string) {
 
 /**
  * Triggers a scheduled run at the given instant: the clock is moved there, a
- * run is put on the agent's own schedule for that instant, and its alarm fires.
+ * run is put on the agent's own schedule for that instant, and its alarm
+ * fires. The run is then seen through to its end.
  */
 export async function triggerScheduledRun(instant: string) {
   setClock(instant);
   await scheduleRun(instant);
   const ran = await runDurableObjectAlarm(agent());
   if (!ran) throw new Error(`No alarm was pending for ${instant}`);
+  await finishDueTasks();
   // The agent's scheduler swallows a failed run, so surface the cause here.
   if (unanswered.length > 0) {
     throw new Error(`No saved response for: ${unanswered.join(", ")}`);

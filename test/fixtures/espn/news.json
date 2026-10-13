@@ -1,0 +1,947 @@
+{
+  "articles": [
+    {
+      "type": "HeadlineNews",
+      "headline": "Sources: Patriots' TreVeyon Henderson out multiple weeks with high ankle sprain",
+      "description": "Patriots running back TreVeyon Henderson is expected to miss multiple weeks because of a high ankle sprain, sources told ESPN.",
+      "published": "2026-10-13T14:50:40Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50173985/sources-patriots-treveyon-henderson-high-ankle-sprain"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4432710,
+          "description": "TreVeyon Henderson"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Stephen A. to Canty: It's kind of hard not to trust Josh Allen",
+      "description": "Stephen A. to Canty: It's kind of hard not to trust Josh Allen",
+      "published": "2026-10-13T14:56:46Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50173928/kind-hard-not-trust-josh-allen"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "2026 NFL awards tracker: Odds for MVP, Rookie of the Year and more",
+      "description": "Who are the favorites to win seasonlong honors? Here are the odds for MVP, Rookie of the Year and more.",
+      "published": "2026-10-13T14:46:55Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/espn/betting/story/_/id/48476156/2026-nfl-awards-betting-odds-mvp-rookie-year-offensive-defensive-player-coach"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4361741,
+          "description": "Brock Purdy"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 3139477,
+          "description": "Patrick Mahomes"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4567048,
+          "description": "Kenneth Walker III"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4429795,
+          "description": "Jahmyr Gibbs"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4431452,
+          "description": "Drake Maye"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4430807,
+          "description": "Bijan Robinson"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4685724,
+          "description": "Will Anderson Jr"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4832800,
+          "description": "Denzel Boston"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4870808,
+          "description": "Jeremiyah Love"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4871023,
+          "description": "Carnell Tate"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "What punishment should Alaric Jackson face after punching Bradley Chubb postgame?",
+      "description": "What punishment should Alaric Jackson face after punching Bradley Chubb postgame?",
+      "published": "2026-10-13T14:49:29Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50173897/what-punishment-alaric-jackson-face-punching-bradley-chubb-postgame"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4036135,
+          "description": "Alaric Jackson"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 3116733,
+          "description": "Bradley Chubb"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Super Bowl LXI odds: All 32 teams' odds to win the championship",
+      "description": "Every NFL team's win total, as well as odds to win the division, the conference and Super Bowl LXI.",
+      "published": "2026-10-13T14:33:03Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/espn/betting/story/_/id/47809892/2026-super-bowl-lxi-odds-nfl-sports-betting-season-win-totals-playoffs"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "NFL Week 6 betting: Odds, lines and totals for every game",
+      "description": "A look at the odds, spreads, totals and FPI predictions for every NFL game in Week 6.",
+      "published": "2026-10-13T14:11:56Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/espn/betting/story/_/id/50147670/2026-nfl-week-6-schedule-odds-point-spreads-totals"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "2026 NFL pass rush, run stop, blocking win rate rankings",
+      "description": "Our win rate metrics stack the NFL's top teams and players in run blocking, run stopping, pass protection and pass rushing.",
+      "published": "2026-10-13T13:46:24Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/49742016/2026-win-rates-team-player-rankings-pass-rush-run-stop-blocking"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Media",
+      "headline": "Jeff Saturday: The Rams will figure it out",
+      "description": "Jeff Saturday: The Rams will figure it out",
+      "published": "2026-10-13T12:51:58Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50173097/rams-figure-out"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Sources: Jaguars LT Anton Harrison to undergo knee surgery",
+      "description": "Jaguars left tackle Anton Harrison will have arthroscopic surgery on his right knee when the team returns from London next week, league sources told NFL Network's Ian Rapoport and ESPN's Jeremy Fowler.",
+      "published": "2026-10-13T11:41:27Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50172717/sources-jaguars-lt-anton-harrison-undergo-knee-surgery"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4692525,
+          "description": "Anton Harrison"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Fantasy football recap: Monday night sees Bills, Rams put on offensive show",
+      "description": "Week 5 in fantasy football wrapped up with an offensive slugfest between the Bills and Rams.",
+      "published": "2026-10-13T11:21:50Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/fantasy/football/story/_/id/40699880/fantasy-football-injuries-position-battles-nfl-news-analysis"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "Fantasy football: Live Week 6 free agent pickups advice with ESPN expert",
+      "description": "ESPN fantasy football expert Eric Moody is here to answer your pressing questions live from noon to 1 p.m. ET.",
+      "published": "2026-10-13T11:10:53Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/fantasy/football/story/_/id/49998196/fantasy-football-waiver-wire-pickups-week"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "Seven things Solak thinks entering NFL Week 6: Time for Mendoza? Cowboys issues?",
+      "description": "Get ready for Week 6 with takes on two QB situations, two teams with defensive issues, two coaches on the hot seat and more.",
+      "published": "2026-10-13T14:48:21Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50166233/week-6-seven-things-solak-thinks-raiders-eagles-cowboys"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "2026 NFL Power Rankings: How all 32 teams stack up for Week 6",
+      "description": "How does every NFL team stack up heading into Week 6? We made our 1-32 list and picked the biggest defensive problem for every team.",
+      "published": "2026-10-13T14:44:32Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50166454/nfl-power-rankings-week-6-teams-biggest-issue-defense"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "Broncos offense searching for more big plays, ready for Bo Nix to 'let it rip'",
+      "description": "Changing playcallers wasn't an immediate fix for the Broncos' offense, which still suffers from a lack of big plays and a QB who hasn't found his rhythm.",
+      "published": "2026-10-13T10:00:10Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167288/broncos-quarterback-bo-nix-struggles-slower-progressions"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4426338,
+          "description": "Bo Nix"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Removing 'a dark cloud': How the Ravens' clutch play ended a 581-game streak",
+      "description": "Baltimore became the first team to win a game down by eight or more points in the final minute in four years.",
+      "published": "2026-10-13T12:46:55Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168194/baltimore-ravens-clutch-play-falcons-remove-dark-cloud"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4575517,
+          "description": "Kyle Hamilton"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "2027 NFL draft order projections for Round 1, chances for top pick, more",
+      "description": "ESPN's Football Power Index projects the 2027 NFL draft order for Round 1, complete with each team's chances to pick in the top five, in the top 10 and at No. 1.",
+      "published": "2026-10-13T14:19:51Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/draft2027/story/_/id/49794361/2027-nfl-draft-order-projections-first-round-picks"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "Dolphins not worried about young roster getting discouraged by losses",
+      "description": "Miami coach Jeff Hafley doesn't believe his players will grow discouraged by the lack of results so far this season.",
+      "published": "2026-10-13T10:00:02Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168846/miami-dolphins-youngest-roster-excuses"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4242512,
+          "description": "Malik Willis"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4869645,
+          "description": "Caleb Douglas"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4879212,
+          "description": "Trey Moore"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4566094,
+          "description": "Jacob Rodriguez"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Packers' Watson-Golden WR combo reminiscent of Nelson-Cobb",
+      "description": "It has been more than a decade since Green Bay had a dominant WR duo, but Watson and Golden are making their mark.",
+      "published": "2026-10-13T10:00:10Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167436/green-bay-packers-christian-watson-matthew-golden-nelson-cobb"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4036378,
+          "description": "Jordan Love"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4248528,
+          "description": "Christian Watson"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4701936,
+          "description": "Matthew Golden"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Sean McVay says Rams to 'evaluate everything' about kicking unit after OT loss",
+      "description": "After the Rams missed a field goal attempt and had another blocked in Monday night's 37-34 overtime loss to the Bills, coach Sean McVay said Los Angeles will \"evaluate everything\" about the kicking unit.",
+      "published": "2026-10-13T06:49:30Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50171556/sean-mcvay-says-rams-evaluate-everything-kicking-unit-ot-loss-bills"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4574716,
+          "description": "Harrison Mevis"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Bills QB Josh Allen earns first overtime win of career vs. Rams on MNF",
+      "description": "Josh Allen came through with his usual late-game theatrics in leading the Bills to a 37-34 overtime win against the Rams on \"Monday Night Football,\" breaking his careerlong winless streak in OT.",
+      "published": "2026-10-13T13:35:21Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50171513/bills-josh-allen-earns-first-career-win-vs-rams-mnf"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Rams' Alaric Jackson punches Bills' Bradley Chubb after MNF",
+      "description": "On the field after the Los Angeles Rams' 37-34 overtime loss to the Buffalo Bills on Monday night, Rams left tackle Alaric Jackson punched Bills outside linebacker Bradley Chubb in a scene captured by ESPN's cameras at SoFi Stadium.",
+      "published": "2026-10-13T06:49:20Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50171415/rams-alaric-jackson-punches-bills-bradley-chubb-mnf"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3116733,
+          "description": "Bradley Chubb"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4036135,
+          "description": "Alaric Jackson"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Alaric Jackson throws a punch at Bradley Chubb after Bills-Rams",
+      "description": "Alaric Jackson throws a punch at Bradley Chubb after Bills-Rams",
+      "published": "2026-10-13T12:21:09Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50171237/alaric-jackson-throws-punch-bradley-chubb-bills-rams"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3116733,
+          "description": "Bradley Chubb"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4036135,
+          "description": "Alaric Jackson"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Bills, Josh Allen outlast Rams in overtime on MNF",
+      "description": "Using a throwback offense with downhill runs and scrambles from their star QB, the Bills escape with the win.",
+      "published": "2026-10-13T05:49:58Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50170290/buffalo-bills-los-angeles-rams-mnf-week-5-ot-josh-allen"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 12483,
+          "description": "Matthew Stafford"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 16800,
+          "description": "Davante Adams"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4379399,
+          "description": "James Cook III"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Peyton Manning has his head in his hands after James Cook III's OT fumble",
+      "description": "Peyton Manning has his head in his hands after James Cook III's OT fumble",
+      "published": "2026-10-13T14:03:08Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50171166/peyton-manning-head-hands-james-cook-iii-ot-fumble"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Media",
+      "headline": "Josh Allen: 'Feels good' to be on winning side of OT",
+      "description": "Josh Allen: 'Feels good' to be on winning side of OT",
+      "published": "2026-10-13T12:24:39Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50171162/feels-good-winning-side-ot"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Bills win OT thriller over the Rams to move to 4-1",
+      "description": "Bills win OT thriller over the Rams to move to 4-1",
+      "published": "2026-10-13T12:24:13Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50171089/bills-win-ot-thriller-rams-move-4-1"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3917232,
+          "description": "Tyler Bass"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4426515,
+          "description": "Puka Nacua"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 3918298,
+          "description": "Josh Allen"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4379399,
+          "description": "James Cook III"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4430737,
+          "description": "Kyren Williams"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 16800,
+          "description": "Davante Adams"
+        }
+      ]
+    },
+    {
+      "type": "Recap",
+      "headline": "Josh Allen racks up 331 yards and Bills outlast Rams with help from blocked FG for 37-34 win in OT",
+      "description": "— Josh Allen realized that his extraordinary efforts throughout this frenetic game might all amount to nothing Monday night when the Buffalo Bills fumbled deep in Rams territory early in overtime.",
+      "published": "2026-10-13T06:17:34Z",
+      "links": {
+        "web": {
+          "href": "http://www.espn.com/nfl/recap?gameId=401872994"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Media",
+      "headline": "Peyton Manning draws up Brenda Song's play for the Rams",
+      "description": "Peyton Manning draws up Brenda Song's play for the Rams",
+      "published": "2026-10-13T12:26:19Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50170610/peyton-manning-draws-brenda-song-play-rams"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "ManningCast 2026 schedule: How to watch MNF games and guests",
+      "description": "Monday Night Football with Eli and Peyton Manning is back. Here's the 2026 game lineup, special guests and more.",
+      "published": "2026-10-13T01:34:10Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/34636537/maningcast-schedule-monday-night-football-guests-mnf"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Jim Harbaugh says he, Chargers ownership 'in this fight together' amid 0-5 start",
+      "description": "With the Chargers off to an 0-5 start for the first time since 2003, coach Jim Harbaugh said Monday that he and the team's ownership group are \"shoulder to shoulder where we're in this fight together.\"",
+      "published": "2026-10-13T06:07:09Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50170100/amid-0-5-start-jim-harbaugh-chargers-ownership-fight-together"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "NFL Week 5 arrivals: Ravens trio channels early 2000s style ahead of 'SNF'",
+      "description": "NFL stars continue to turn game-day arrivals into their own weekly fashion showcase.",
+      "published": "2026-10-13T00:14:19Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50135612/nfl-week-5-fashionable-arrivals"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "LaFleur: 1-4 Cardinals not planning to change playcallers",
+      "description": "Mike LaFleur says he does not plan on making changes to Arizona's coaching duties after a 1-4 start.",
+      "published": "2026-10-13T00:45:20Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50169700/lafleur-cardinals-not-planning-change-playcallers"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Story",
+      "headline": "Fantasy football Week 5 inactives: Moore ruled out for Monday Night Football",
+      "description": "Updated inactives and analysis based on the latest reports and official announcements leading up to kickoff.",
+      "published": "2026-10-12T23:36:19Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/fantasy/football/story/_/page/FFSundayInactives-50116111/fantasy-football-injuries-nfl-week-5-inactive-active"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Commanders' Quinn says 'no one is pleased' after botched play fuels fan angst",
+      "description": "Commanders coach Dann Quinn explained the breakdown that caused a botched final play in Sunday's overtime tie, saying it's ultimately his responsibility.",
+      "published": "2026-10-12T22:58:39Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168989/quinn-commanders-botched-final-play-starts-me"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4426348,
+          "description": "Jayden Daniels"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Dolphins' Jeff Hafley says he's not mulling QB change entering bye",
+      "description": "Dolphins coach Jeff Hafley is not considering a quarterback change heading into their Week 6 bye, but he did say the passing offense must improve.",
+      "published": "2026-10-12T23:34:30Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168959/dolphins-hafley-says-not-mulling-qb-change-entering-bye"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4242512,
+          "description": "Malik Willis"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4433971,
+          "description": "Kyle McCord"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Get ready for exciting London, MNF games in Week 6",
+      "description": "Get ready for exciting London, MNF games in Week 6",
+      "published": "2026-10-13T12:46:22Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50168927/get-ready-exciting-london-mnf-games-week-6"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Cowboys bring in Mike Pettine to assist first-year DC Christian Parker",
+      "description": "The struggling Dallas Cowboys are bringing in longtime NFL coach Mike Pettine as a senior defensive assistant to work with first-year DC Christian Parker.",
+      "published": "2026-10-12T23:15:33Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168837/cowboys-bring-mike-pettine-assist-first-year-dc-christian-parker"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Bears' Johnson undecided on QB vs. Falcons if Williams can't go",
+      "description": "Bears coach Ben Johnson was noncommittal Monday on which quarterback will start against the Falcons.",
+      "published": "2026-10-12T21:51:55Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168772/bears-johnson-undecided-qb-vs-falcons-williams-go"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Shanahan says 49ers WR Deebo Samuel to miss time with hamstring injury",
+      "description": "49ers WR Deebo Samuel is expected to miss \"at least a couple of weeks\" with the hamstring injury he suffered Sunday in Seattle, coach Kyle Shanahan said Monday.",
+      "published": "2026-10-12T20:42:41Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168446/shanahan-49ers-wr-samuel-miss-hamstring-injury"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3126486,
+          "description": "Deebo Samuel Sr"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Sources: Falcons QB Michael Penix's rib injury not considered serious",
+      "description": "Falcons quarterback Michael Penix Jr.'s rib injury is not considered serious, sources told ESPN's Adam Schefter.",
+      "published": "2026-10-12T20:10:16Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50168293/falcons-qb-penix-rib-injury-not-considered-serious"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4360423,
+          "description": "Michael Penix Jr"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Judkins, Schwesinger (ankles) add to injury woes for Browns",
+      "description": "Browns RB Quinshon Judkins and LB Carson Schwesinger are day-to-day after injuring their ankles against the Jets on Sunday. The Browns next host the Ravens.",
+      "published": "2026-10-12T19:00:05Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167865/judkins-schwesinger-ankles-add-injury-woes-browns"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4685702,
+          "description": "Quinshon Judkins"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4876017,
+          "description": "Carson Schwesinger"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4870653,
+          "description": "KC Concepcion"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4873232,
+          "description": "Mason Graham"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4600415,
+          "description": "Mike Hall Jr"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 3131498,
+          "description": "Tytus Howard"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "How Dion Dawkins is using his past mistakes to help mentor kids in similar situations",
+      "description": "How Dion Dawkins is using his past mistakes to help mentor kids in similar situations",
+      "published": "2026-10-13T05:20:40Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50167803/how-dion-dawkins-using-mistakes-help-mentor-kids-similar-situations"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3051324,
+          "description": "Dion Dawkins"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Packers' Micah Parsons won't play against Cowboys but return 'getting closer'",
+      "description": "Not only will Micah Parsons not make his season debut this week vs. his old team, but the Packers edge rusher still isn't ready to practice.",
+      "published": "2026-10-12T21:21:08Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167779/source-packers-not-anticipating-parsons-return-snf"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4361423,
+          "description": "Micah Parsons"
+        }
+      ]
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "49ers' Dre Greenlaw suspended one game for head-butting helmetless Seahawks LB",
+      "description": "49ers linebacker Dre Greenlaw has been suspended for one game without pay for unsportsmanlike conduct during Sunday's game against the Seahawks.",
+      "published": "2026-10-13T00:25:40Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167745/49ers-greenlaw-suspended-head-butting-helmetless-jones"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3916903,
+          "description": "Dre Greenlaw"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4362851,
+          "description": "Ernest Jones IV"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Which NFL teams are undefeated this season?",
+      "description": "These teams have yet to lose a game in the 2026 NFL season.",
+      "published": "2026-10-12T17:25:07Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50166789/nfl-teams-undefeated-2026-season"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "Media",
+      "headline": "What does Eagles' RB situation look like with Will Shipley injured?",
+      "description": "What does Eagles' RB situation look like with Will Shipley injured?",
+      "published": "2026-10-12T17:18:39Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50167346/what-does-eagles-rb-situation-look-shipley-injured"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 4431545,
+          "description": "Will Shipley"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 12689,
+          "description": "Pat McAfee"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Samaje Perine gives Bengals a strong jolt to end 2-game skid",
+      "description": "When the run game was struggling, the Bengals turned to Perine, whose downhill style paid dividends.",
+      "published": "2026-10-12T17:41:53Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167310/samaje-perine-bengals-chase-brown-run-game"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3116389,
+          "description": "Samaje Perine"
+        },
+        {
+          "type": "athlete",
+          "athleteId": 4362238,
+          "description": "Chase Brown"
+        }
+      ]
+    },
+    {
+      "type": "Media",
+      "headline": "Stephen A. is all smiles over Michael Irvin's Cowboys' disappointment",
+      "description": "Stephen A. is all smiles over Michael Irvin's Cowboys' disappointment",
+      "published": "2026-10-12T16:35:41Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50167073/stephen-all-smiles-michael-irvin-cowboys-disappointment"
+        }
+      },
+      "categories": []
+    },
+    {
+      "type": "HeadlineNews",
+      "headline": "Source: Packers lose DT Javon Hargrave for season to torn Achilles",
+      "description": "Tests confirmed Monday that Packers defensive tackle Javon Hargrave suffered a season-ending torn Achilles in Sunday's victory over the Bears, a source told ESPN's Adam Schefter.",
+      "published": "2026-10-12T18:09:11Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50167021/source-packers-lose-hargrave-season-ending-torn-achilles"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 2983055,
+          "description": "Javon Hargrave"
+        }
+      ]
+    },
+    {
+      "type": "Story",
+      "headline": "Can the Seahawks overcome their turnover problem? 'We're not panicking'",
+      "description": "Seattle has committed the fifth-most turnovers in the NFL so far this season -- and it cost the team a win Sunday.",
+      "published": "2026-10-12T16:00:01Z",
+      "links": {
+        "web": {
+          "href": "https://www.espn.com/nfl/story/_/id/50164049/seattle-seahawks-49ers-week-5-turnovers-qb-sam-darnold"
+        }
+      },
+      "categories": [
+        {
+          "type": "athlete",
+          "athleteId": 3912547,
+          "description": "Sam Darnold"
+        }
+      ]
+    }
+  ]
+}

@@ -20,15 +20,20 @@ The digest goes out on its own every Saturday at 6:00 PM Pacific, one message pe
 - The webhook accepts a request only if it carries the webhook secret, and acts on an update only if it comes from the configured chat. It acknowledges Telegram straight away and the agent sends the reply afterwards.
 - `/preview` is the only command. Any other message from the configured chat gets a one-line hint.
 - There is no web interface.
+- A run is taken in steps, each its own invocation of the agent, because Cloudflare's free plan allows one invocation 50 outbound requests: the shared sources first, then each player's own page at ESPN in batches, then one league message per step. What a run has gathered is kept in the agent's storage in between. The automatic digest and `/preview` go through the same steps.
 
 ```
 src/
   server.ts          # The agent and the Worker entry point (the webhook)
   digest-time.ts     # When the automatic digest runs: the next Saturday 6:00 PM Pacific
+  runs.ts            # The runs in progress and what each has gathered so far
   sent-record.ts     # Which leagues the automatic digest has gone out to, per NFL week
   sleeper.ts         # Sleeper client: NFL week, leagues, rosters, playoff bracket, player directory
   player-directory.ts # The stored copy of the Sleeper player directory
-  espn.ts            # ESPN scoreboard: the week's byes
+  espn.ts            # ESPN client: the week's byes, injury reports, league news, a player's overview
+  pft.ts             # ProFootballTalk client: the latest entries of its feed
+  news.ts            # News gathering: source items about players, from all the news sources
+  writer.ts          # The writer: the Claude call that writes the news sections
   lineup-check.ts    # The lineup check
   league-message.ts  # Digest composer: the message for one league
   telegram.ts        # Telegram client: sends messages, verifies webhook requests
@@ -37,6 +42,8 @@ test/
   fixtures/          # Saved copies of real responses
   sources.ts         # The saved responses a run reads, keyed by URL
   digest.test.ts
+  news.test.ts
+  news-sources.test.ts
   preview.test.ts
   telegram.test.ts
 ```

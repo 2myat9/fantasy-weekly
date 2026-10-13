@@ -216,10 +216,9 @@ it("the webhook answers Telegram before any message is sent, leaving the run on 
 
   expect(delivery.status).toBe(200);
   expect(delivery.sentWhenAcknowledged).toBe(0);
-  expect(delivery.scheduledWhenAcknowledged).toContainEqual({
-    task: "runPreview",
-    at: "2030-10-13T16:00:00.000Z"
-  });
+  expect(delivery.scheduledWhenAcknowledged.map(({ at }) => at)).toContain(
+    "2030-10-13T16:00:00.000Z"
+  );
   expect(outbound.telegramMessages).toHaveLength(2);
 });
 
@@ -238,8 +237,9 @@ it("a preview run that fails sends one short failure message and is not retried"
   expect(outbound.requests.filter((url) => url === URLS.scoreboard)).toEqual([
     URLS.scoreboard
   ]);
+  // Nothing is left on the schedule but the week's automatic digest.
   const pending = (await pendingSchedule()).map(({ task }) => task);
-  expect(pending).not.toContain("runPreview");
+  expect(pending).toEqual(["runDigest"]);
 });
 
 it("/preview changes neither the next scheduled time nor what the automatic digest sends", async () => {

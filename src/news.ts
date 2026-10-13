@@ -1,7 +1,15 @@
 // The news about a set of players: source items gathered from the news
-// sources, each tied to the Sleeper player it is about. ESPN's injury reports
-// are the only source so far.
-import { fetchInjuryReports, type InjuryReport } from "./espn";
+// sources, each tied to the Sleeper player it is about. The sources shared by
+// all players are read first, then each player's own page at ESPN, a batch at
+// a time, because there are more players than one invocation may make
+// requests.
+import {
+  fetchInjuryReports,
+  fetchLeagueNews,
+  fetchPlayerOverview,
+  type InjuryReport
+} from "./espn";
+import { fetchProFootballTalk } from "./pft";
 import type { Player } from "./sleeper";
 
 /** One dated piece of material about a player, with its link. */
@@ -15,7 +23,11 @@ export type SourceItem = {
   source: string;
 };
 
-export type News = {
+/** A player whose own page at ESPN is still to be read. */
+export type Lookup = { playerId: string; espnId: string };
+
+/** The news gathered so far, and what is left to gather. */
+export type Gathering = {
   /** The items dated at or after the start of the news window. */
   items: SourceItem[];
   /**
@@ -23,7 +35,12 @@ export type News = {
    * known about them, which is not the same as their having no news.
    */
   unmatched: Set<string>;
+  /** Empty once the news is complete. */
+  lookups: Lookup[];
 };
+
+// Where a player's page at ESPN is, before the ID.
+const PLAYER_PAGE = "https://www.espn.com/nfl/player/_/id";
 
 const SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
 
@@ -44,16 +61,55 @@ function nameKey(name: string, team: string | null, position: string | null) {
   return `${normaliseName(name)}|${team}|${position}`;
 }
 
+// Whether a text names the player. ProFootballTalk does not tag its entries
+// with players, so the full name is all there is to go by. A team defense is
+// left out, because its name is the team's and would claim all the team's
+// news.
+function names(text: string, player: Player) {
+  const name = normaliseName(player.name);
+  if (player.position === "DEF" || !name.includes(" ")) return false;
+  // Without the possessive, so "Goff's" reads as "Goff", and with anything
+  // that separates words turned into a space, so that they are not joined.
+  const words = normaliseName(
+    text.replaceAll(/['’]s\b/g, "").replaceAll(/[^\p{L}'’.\- ]/gu, " ")
+  );
+  return ` ${words} `.includes(` ${name} `);
+}
+
+// Adds to the items the articles about a player that are inside the news
+// window. The same article can come from more than one source, and is kept
+// once.
+function addArticles(
+  items: SourceItem[],
+  windowStart: Date,
+  playerId: string,
+  source: string,
+  articles: { date: Date; text: string; link: string }[]
+) {
+  for (const { date, text, link } of articles) {
+    if (date < windowStart) continue;
+    const have = items.some(
+      (item) => item.playerId === playerId && item.link === link
+    );
+    if (!have) items.push({ playerId, date, text, link, source });
+  }
+}
+
 /**
- * Gathers the news on the given players since the start of the news window.
- * A player is resolved to an ESPN record by ESPN ID when Sleeper has one,
- * otherwise by normalised name, team and position.
+ * Gathers the news on the given players since the start of the news window
+ * from the sources shared by all players. A player is resolved to an ESPN
+ * record by ESPN ID when Sleeper has one, otherwise by normalised name, team
+ * and position.
  */
-export async function gatherNews(
+export async function gatherSharedNews(
   players: Player[],
   windowStart: Date
-): Promise<News> {
-  const reports = await fetchInjuryReports();
+): Promise<Gathering> {
+  const [reports, leagueNews, feed] = await Promise.all([
+    fetchInjuryReports(),
+    fetchLeagueNews(),
+    fetchProFootballTalk()
+  ]);
   const byEspnId = new Map<string, InjuryReport[]>();
   const byName = new Map<string, InjuryReport[]>();
   const add = (
@@ -68,6 +124,9 @@ export async function gatherNews(
 
   const items: SourceItem[] = [];
   const unmatched = new Set<string>();
+  // The resolved players by their ESPN ID.
+  const resolved = new Map<string, string>();
+  const lookups: Lookup[] = [];
   for (const player of players) {
     // With an ESPN ID the player is resolved even when ESPN has no report on
     // them. Without one, a report found by name is the only ESPN record
@@ -82,6 +141,12 @@ export async function gatherNews(
       unmatched.add(player.id);
       continue;
     }
+    // A report carries the ID ESPN uses now.
+    const espnId = found[0]?.espnId ?? player.espnId;
+    if (espnId) {
+      resolved.set(espnId, player.id);
+      lookups.push({ playerId: player.id, espnId });
+    }
     for (const report of found) {
       if (report.date < windowStart) continue;
       items.push({
@@ -95,5 +160,58 @@ export async function gatherNews(
       });
     }
   }
-  return { items, unmatched };
+
+  for (const { espnIds, ...article } of leagueNews) {
+    for (const espnId of espnIds) {
+      const playerId = resolved.get(espnId);
+      if (playerId)
+        addArticles(items, windowStart, playerId, "ESPN", [article]);
+    }
+  }
+  for (const { title, summary, date, link } of feed) {
+    const text = summary ? `${title}\n${summary}` : title;
+    for (const player of players) {
+      if (!names(`${title} ${summary}`, player)) continue;
+      addArticles(items, windowStart, player.id, "ProFootballTalk", [
+        { date, text, link }
+      ]);
+    }
+  }
+  return { items, unmatched, lookups };
+}
+
+/**
+ * Reads the own pages of the next players waiting for it, at most `limit` of
+ * them with one request each, and returns the gathering with their news added.
+ */
+export async function gatherPlayerNews(
+  gathering: Gathering,
+  windowStart: Date,
+  limit: number
+): Promise<Gathering> {
+  const lookups = gathering.lookups.slice(0, limit);
+  const overviews = await Promise.all(
+    lookups.map(({ espnId }) => fetchPlayerOverview(espnId))
+  );
+  const items = [...gathering.items];
+  lookups.forEach(({ playerId, espnId }, index) => {
+    const { articles, note } = overviews[index];
+    addArticles(items, windowStart, playerId, "ESPN", articles);
+    // ESPN's injury report on a player is usually this same note.
+    const reported =
+      note &&
+      items.some(
+        (item) => item.playerId === playerId && item.text.includes(note.text)
+      );
+    if (note && !reported && note.date >= windowStart) {
+      items.push({
+        playerId,
+        date: note.date,
+        text: note.text,
+        link: `${PLAYER_PAGE}/${espnId}`,
+        source: "Rotowire"
+      });
+    }
+  });
+  return { ...gathering, items, lookups: gathering.lookups.slice(limit) };
 }

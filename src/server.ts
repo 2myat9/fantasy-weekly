@@ -3,16 +3,23 @@ import { nextDigestTime } from "./digest-time";
 import { fetchWeekSchedule } from "./espn";
 import { composeLeagueMessage } from "./league-message";
 import { checkLineup } from "./lineup-check";
-import { gatherNews } from "./news";
+import { gatherPlayerNews, gatherSharedNews } from "./news";
 import { playersById } from "./player-directory";
+import {
+  endRun,
+  oldestRun,
+  saveRun,
+  startRun,
+  type Gathered,
+  type Run
+} from "./runs";
 import { recordSent, wasSent } from "./sent-record";
 import {
   fetchMyLeagues,
   fetchNflState,
   isEliminated,
   rosterSpots,
-  type League,
-  type NflState
+  type League
 } from "./sleeper";
 import {
   hasWebhookSecret,
@@ -30,6 +37,14 @@ const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
 
 // How far back news is considered.
 const NEWS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+// The free plan allows one invocation 50 outbound requests, and each player's
+// own page at ESPN is one of them. Read from Cloudflare's Workers limits page
+// on 2026-10-13.
+const LOOKUPS_PER_STEP = 25;
+
+// How many times the automatic digest takes a step before giving the run up.
+const STEP_ATTEMPTS = 3;
 
 export class FantasyWeeklyAgent extends Agent<Env> {
   // Puts the next digest run on the schedule unless it is already there.
@@ -54,23 +69,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     // Armed before anything can fail, so a failed run still leaves next
     // week's on the schedule.
     await this.armDigest();
-    const nfl = await fetchNflState();
-    if (!DIGEST_SEASON_TYPES.has(nfl.seasonType)) return;
-    const leagues = await fetchMyLeagues(this.env.SLEEPER_USERNAME, nfl.season);
-    const due = [];
-    for (const league of leagues) {
-      if (league.status === "complete") continue;
-      if (wasSent(this.ctx.storage, nfl, league.id)) continue;
-      if (await isEliminated(league, nfl)) continue;
-      due.push(league);
-    }
-    const messages = await this.leagueMessages(nfl, due, { preview: false });
-    for (const { league, message } of messages) {
-      await sendMessage(this.telegram, message);
-      // Recorded league by league, so a run that fails part-way does not send
-      // the leagues it reached again when it is retried.
-      recordSent(this.ctx.storage, nfl, league.id);
-    }
+    await this.startRun({ preview: false });
   }
 
   private get telegram() {
@@ -95,95 +94,168 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   // tied to the webhook request and its 30 seconds of background work.
   async requestPreview() {
     await this.armDigest();
-    // A preview that fails is reported, not retried, so a failure cannot send
-    // it twice. The scheduler still runs the task again if the agent is reset
-    // mid-run, so that a preview is never lost silently.
-    await this.schedule(0, "runPreview", undefined, {
+    await this.startRun({ preview: true });
+  }
+
+  // The automatic digest and the preview are the same run, taken through the
+  // same steps, so a preview shows what the digest would say at that moment.
+  private async startRun({ preview }: { preview: boolean }) {
+    startRun(this.ctx.storage, {
+      preview,
+      windowStart: new Date(Date.now() - NEWS_WINDOW_MS)
+    });
+    await this.scheduleStep({ fromStep: false });
+  }
+
+  // One task takes every step, so that two steps never share an invocation
+  // and its allowance of outbound requests. A step schedules the next one
+  // itself: its own task is still on the schedule while it runs, and would be
+  // taken for the next one if tasks were matched up.
+  private async scheduleStep({ fromStep }: { fromStep: boolean }) {
+    await this.schedule(0, "runStep", undefined, {
+      idempotent: !fromStep,
+      // The scheduler retries within the invocation, which would spend the
+      // allowance twice. A failed step is taken again in a later one.
       retry: { maxAttempts: 1 }
     });
   }
 
-  async runPreview() {
+  // Takes one step of the oldest run in progress.
+  async runStep() {
+    const run = oldestRun(this.ctx.storage);
     try {
-      const nfl = await fetchNflState();
-      const leagues = await fetchMyLeagues(
-        this.env.SLEEPER_USERNAME,
-        nfl.season
-      );
-      const messages = await this.leagueMessages(nfl, leagues, {
-        preview: true
-      });
-      for (const { message } of messages) {
-        await sendMessage(this.telegram, message);
-      }
+      if (run) await this.takeStep(run);
     } catch (error) {
-      console.error("The preview run failed", error);
+      console.error("A step of the run failed", error);
+      if (run) await this.stepFailed(run);
+    } finally {
+      if (oldestRun(this.ctx.storage)) {
+        await this.scheduleStep({ fromStep: true });
+      }
+    }
+  }
+
+  // A preview that fails is reported, not retried, so a failure cannot send
+  // it twice. The automatic digest has nobody waiting to ask again, so its
+  // step is taken again.
+  private async stepFailed(run: Run) {
+    if (run.preview) {
+      endRun(this.ctx.storage, run);
       await sendMessage(
         this.telegram,
         "The preview failed. Send /preview to try again."
       );
+    } else if (run.failures + 1 < STEP_ATTEMPTS) {
+      saveRun(this.ctx.storage, { ...run, failures: run.failures + 1 });
+    } else {
+      endRun(this.ctx.storage, run);
     }
   }
 
-  // One message per given league, built from what Sleeper and ESPN report
-  // now and what the writer makes of the news. The automatic digest and the
-  // preview share it.
-  private async leagueMessages(
-    nfl: NflState,
-    leagues: League[],
-    { preview }: { preview: boolean }
-  ) {
-    if (leagues.length === 0) return [];
-    const rosters = new Map(
-      leagues.map((league) => [league.id, rosterSpots(league)])
-    );
+  // A run gathers the shared sources, then the per-player sources a batch at
+  // a time, then writes and sends one league message per step. What a step
+  // produced is stored only once it has succeeded, so a step that is taken
+  // again starts from the same place.
+  private async takeStep(run: Run) {
+    const { gathered } = run;
+    if (!gathered) {
+      const shared = await this.gatherShared(run);
+      if (shared) this.stepTaken(run, shared);
+      else endRun(this.ctx.storage, run);
+      return;
+    }
+    if (gathered.news.lookups.length > 0) {
+      const news = await gatherPlayerNews(
+        gathered.news,
+        run.windowStart,
+        LOOKUPS_PER_STEP
+      );
+      this.stepTaken(run, { ...gathered, news });
+      return;
+    }
+    const [league, ...rest] = gathered.leagues;
+    // Checked again here, in case the week's message went out while this run
+    // was gathering.
+    if (run.preview || !wasSent(this.ctx.storage, gathered.nfl, league.id)) {
+      await sendMessage(
+        this.telegram,
+        await this.leagueMessage(league, gathered, run.preview)
+      );
+      // Recorded league by league, so a run that fails part-way does not send
+      // the leagues it reached again when it is retried.
+      if (!run.preview) recordSent(this.ctx.storage, gathered.nfl, league.id);
+    }
+    if (rest.length > 0) this.stepTaken(run, { ...gathered, leagues: rest });
+    else endRun(this.ctx.storage, run);
+  }
+
+  private stepTaken(run: Run, gathered: Gathered) {
+    saveRun(this.ctx.storage, { ...run, failures: 0, gathered });
+  }
+
+  // The first step: what Sleeper and ESPN report now, and the news from the
+  // sources shared by all players. Nothing when no league is due a message.
+  private async gatherShared(run: Run): Promise<Gathered | null> {
+    const nfl = await fetchNflState();
+    if (!run.preview && !DIGEST_SEASON_TYPES.has(nfl.seasonType)) return null;
+    const mine = await fetchMyLeagues(this.env.SLEEPER_USERNAME, nfl.season);
+    const leagues = [];
+    for (const league of mine) {
+      if (!run.preview) {
+        if (league.status === "complete") continue;
+        if (wasSent(this.ctx.storage, nfl, league.id)) continue;
+        if (await isEliminated(league, nfl)) continue;
+      }
+      leagues.push(league);
+    }
+    if (leagues.length === 0) return null;
     const [schedule, players] = await Promise.all([
       fetchWeekSchedule(nfl),
       playersById(
         this.ctx.storage,
-        [...rosters.values()].flatMap((roster) =>
-          roster.map(({ playerId }) => playerId)
+        leagues.flatMap((league) =>
+          rosterSpots(league).map(({ playerId }) => playerId)
         )
       )
     ]);
-    const news = await gatherNews(
-      [...players.values()],
-      new Date(Date.now() - NEWS_WINDOW_MS)
+    const news = await gatherSharedNews([...players.values()], run.windowStart);
+    return { nfl, leagues, schedule, players, news };
+  }
+
+  // The message for one league, built from what was gathered and what the
+  // writer makes of the news.
+  private async leagueMessage(
+    league: League,
+    { nfl, schedule, players, news }: Gathered,
+    preview: boolean
+  ) {
+    const roster = rosterSpots(league);
+    // In roster order, so starters come first.
+    const items = roster.flatMap(({ playerId }) =>
+      news.items.filter((item) => item.playerId === playerId)
     );
-    return Promise.all(
-      leagues.map(async (league) => {
-        const roster = rosters.get(league.id)!;
-        // In roster order, so starters come first.
-        const items = roster.flatMap(({ playerId }) =>
-          news.items.filter((item) => item.playerId === playerId)
-        );
-        // The writer works only from source items, so with none it has
-        // nothing to write.
-        const sections =
-          items.length > 0
-            ? await writeSections(this.env.ANTHROPIC_API_KEY, {
-                league,
-                week: nfl.week,
-                roster,
-                players,
-                items
-              })
-            : NO_SECTIONS;
-        return {
-          league,
-          message: composeLeagueMessage({
+    // The writer works only from source items, so with none it has nothing
+    // to write.
+    const sections =
+      items.length > 0
+        ? await writeSections(this.env.ANTHROPIC_API_KEY, {
             league,
             week: nfl.week,
-            findings: checkLineup(league.lineup, players, schedule),
             roster,
             players,
-            sections,
-            unmatched: news.unmatched,
-            preview
+            items
           })
-        };
-      })
-    );
+        : NO_SECTIONS;
+    return composeLeagueMessage({
+      league,
+      week: nfl.week,
+      findings: checkLineup(league.lineup, players, schedule),
+      roster,
+      players,
+      sections,
+      unmatched: news.unmatched,
+      preview
+    });
   }
 }
 
