@@ -2,7 +2,6 @@ import { expect, it } from "vitest";
 import {
   deliverTelegramUpdate,
   fakeOutboundHttp,
-  MY_CHAT_ID,
   pendingSchedule,
   setClock,
   textMessage,
@@ -17,6 +16,11 @@ function titles(messages: unknown[]) {
   );
 }
 
+/** A league message up to the end of its lineup check: its first two blocks. */
+function throughLineupCheck(text: string) {
+  return text.split("\n\n").slice(0, 2).join("\n\n");
+}
+
 // The instants are years ahead of the runtime's clock, so that a run starts
 // only when a test triggers it. The saved sources still report week 6 of 2026.
 
@@ -26,34 +30,28 @@ it("a scheduled run on Saturday at 6:00 PM Pacific sends one league message per 
   // Saturday 19 October 2030, 6:00 PM Pacific.
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
-  expect(outbound.telegramMessages).toEqual([
-    {
-      chat_id: String(MY_CHAT_ID),
-      text: [
-        "<b>Duffy Redraft</b>",
-        "Redraft · Week 6",
-        "",
-        "<b>Lineup check</b>",
-        "🔴 QB <b>Jared Goff</b> (DET) is on bye",
-        "🔴 FLEX <b>Sam LaPorta</b> (DET) is on bye",
-        "🔴 K <b>Jake Bates</b> (DET) is on bye"
-      ].join("\n"),
-      parse_mode: "HTML",
-      link_preview_options: { is_disabled: true }
-    },
-    {
-      chat_id: String(MY_CHAT_ID),
-      text: [
-        "<b>Joel is the GOAT</b>",
-        "Dynasty · Week 6",
-        "",
-        "<b>Lineup check</b>",
-        "🔴 REC FLEX <b>KC Concepcion</b> (CLE) is ruled out",
-        "🔴 DEF <b>Detroit Lions</b> (DET) is on bye"
-      ].join("\n"),
-      parse_mode: "HTML",
-      link_preview_options: { is_disabled: true }
-    }
+  expect(
+    outbound.telegramMessages.map((message) =>
+      throughLineupCheck((message as { text: string }).text)
+    )
+  ).toEqual([
+    [
+      "<b>Duffy Redraft</b>",
+      "Redraft · Week 6",
+      "",
+      "<b>Lineup check</b>",
+      "🔴 QB <b>Jared Goff</b> (DET) is on bye",
+      "🔴 FLEX <b>Sam LaPorta</b> (DET) is on bye",
+      "🔴 K <b>Jake Bates</b> (DET) is on bye"
+    ].join("\n"),
+    [
+      "<b>Joel is the GOAT</b>",
+      "Dynasty · Week 6",
+      "",
+      "<b>Lineup check</b>",
+      "🔴 REC FLEX <b>KC Concepcion</b> (CLE) is ruled out",
+      "🔴 DEF <b>Detroit Lions</b> (DET) is on bye"
+    ].join("\n")
   ]);
 });
 

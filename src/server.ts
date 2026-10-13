@@ -3,12 +3,14 @@ import { nextDigestTime } from "./digest-time";
 import { fetchWeekSchedule } from "./espn";
 import { composeLeagueMessage } from "./league-message";
 import { checkLineup } from "./lineup-check";
+import { gatherNews } from "./news";
 import { playersById } from "./player-directory";
 import { recordSent, wasSent } from "./sent-record";
 import {
   fetchMyLeagues,
   fetchNflState,
   isEliminated,
+  rosterSpots,
   type League,
   type NflState
 } from "./sleeper";
@@ -18,12 +20,16 @@ import {
   sendMessage,
   textFromMyChat
 } from "./telegram";
+import { NO_SECTIONS, writeSections } from "./writer";
 
 // The system is single-user, so there is exactly one agent instance.
 export const AGENT_NAME = "fantasy-weekly";
 
 // The parts of the NFL season, as Sleeper names them, that get a digest.
 const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
+
+// How far back news is considered.
+const NEWS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 export class FantasyWeeklyAgent extends Agent<Env> {
   // Puts the next digest run on the schedule unless it is already there.
@@ -120,31 +126,64 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   }
 
   // One message per given league, built from what Sleeper and ESPN report
-  // now. The automatic digest and the preview share it.
+  // now and what the writer makes of the news. The automatic digest and the
+  // preview share it.
   private async leagueMessages(
     nfl: NflState,
     leagues: League[],
     { preview }: { preview: boolean }
   ) {
     if (leagues.length === 0) return [];
+    const rosters = new Map(
+      leagues.map((league) => [league.id, rosterSpots(league)])
+    );
     const [schedule, players] = await Promise.all([
       fetchWeekSchedule(nfl),
       playersById(
         this.ctx.storage,
-        leagues.flatMap((league) =>
-          league.lineup.flatMap(({ playerId }) => playerId ?? [])
+        [...rosters.values()].flatMap((roster) =>
+          roster.map(({ playerId }) => playerId)
         )
       )
     ]);
-    return leagues.map((league) => ({
-      league,
-      message: composeLeagueMessage({
-        league,
-        week: nfl.week,
-        findings: checkLineup(league.lineup, players, schedule),
-        preview
+    const news = await gatherNews(
+      [...players.values()],
+      new Date(Date.now() - NEWS_WINDOW_MS)
+    );
+    return Promise.all(
+      leagues.map(async (league) => {
+        const roster = rosters.get(league.id)!;
+        // In roster order, so starters come first.
+        const items = roster.flatMap(({ playerId }) =>
+          news.items.filter((item) => item.playerId === playerId)
+        );
+        // The writer works only from source items, so with none it has
+        // nothing to write.
+        const sections =
+          items.length > 0
+            ? await writeSections(this.env.ANTHROPIC_API_KEY, {
+                league,
+                week: nfl.week,
+                roster,
+                players,
+                items
+              })
+            : NO_SECTIONS;
+        return {
+          league,
+          message: composeLeagueMessage({
+            league,
+            week: nfl.week,
+            findings: checkLineup(league.lineup, players, schedule),
+            roster,
+            players,
+            sections,
+            unmatched: news.unmatched,
+            preview
+          })
+        };
       })
-    }));
+    );
   }
 }
 

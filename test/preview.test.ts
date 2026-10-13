@@ -16,6 +16,11 @@ function texts(messages: unknown[]) {
   return messages.map((message) => (message as { text: string }).text);
 }
 
+/** A league message up to the end of its lineup check: its first two blocks. */
+function throughLineupCheck(text: string) {
+  return text.split("\n\n").slice(0, 2).join("\n\n");
+}
+
 /** Sets my lineup in the saved rosters of one league. */
 function setMyStarters(
   sources: ReturnType<typeof savedSources>,
@@ -64,31 +69,35 @@ it("/preview sends one preview-marked message per league, each opening with its 
   expect(outbound.telegramMessages).toEqual([
     {
       chat_id: String(MY_CHAT_ID),
-      text: [
-        "<b>Preview · Duffy Redraft</b>",
-        "Redraft · Week 6",
-        "",
-        "<b>Lineup check</b>",
-        "🔴 QB <b>Jared Goff</b> (DET) is on bye",
-        "🔴 FLEX <b>Sam LaPorta</b> (DET) is on bye",
-        "🔴 K <b>Jake Bates</b> (DET) is on bye"
-      ].join("\n"),
+      text: expect.any(String),
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true }
     },
     {
       chat_id: String(MY_CHAT_ID),
-      text: [
-        "<b>Preview · Joel is the GOAT</b>",
-        "Dynasty · Week 6",
-        "",
-        "<b>Lineup check</b>",
-        "🔴 REC FLEX <b>KC Concepcion</b> (CLE) is ruled out",
-        "🔴 DEF <b>Detroit Lions</b> (DET) is on bye"
-      ].join("\n"),
+      text: expect.any(String),
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true }
     }
+  ]);
+  expect(texts(outbound.telegramMessages).map(throughLineupCheck)).toEqual([
+    [
+      "<b>Preview · Duffy Redraft</b>",
+      "Redraft · Week 6",
+      "",
+      "<b>Lineup check</b>",
+      "🔴 QB <b>Jared Goff</b> (DET) is on bye",
+      "🔴 FLEX <b>Sam LaPorta</b> (DET) is on bye",
+      "🔴 K <b>Jake Bates</b> (DET) is on bye"
+    ].join("\n"),
+    [
+      "<b>Preview · Joel is the GOAT</b>",
+      "Dynasty · Week 6",
+      "",
+      "<b>Lineup check</b>",
+      "🔴 REC FLEX <b>KC Concepcion</b> (CLE) is ruled out",
+      "🔴 DEF <b>Detroit Lions</b> (DET) is on bye"
+    ].join("\n")
   ]);
 });
 
@@ -110,7 +119,7 @@ it("a starter on IR and an empty starting slot are flagged", async () => {
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
-  expect(texts(outbound.telegramMessages)[0]).toBe(
+  expect(throughLineupCheck(texts(outbound.telegramMessages)[0])).toBe(
     [
       "<b>Preview · Duffy Redraft</b>",
       "Redraft · Week 6",
@@ -132,7 +141,7 @@ it("a lineup with nothing to flag is reported as clear", async () => {
 
   const clear =
     "✅ Lineup clear: no starter is on bye, ruled out or on IR, and every slot is filled.";
-  expect(texts(outbound.telegramMessages)).toEqual([
+  expect(texts(outbound.telegramMessages).map(throughLineupCheck)).toEqual([
     `<b>Preview · Duffy Redraft</b>\nRedraft · Week 6\n\n<b>Lineup check</b>\n${clear}`,
     `<b>Preview · Joel is the GOAT</b>\nDynasty · Week 6\n\n<b>Lineup check</b>\n${clear}`
   ]);
@@ -148,7 +157,7 @@ it("lineup slots are read from the league, so a changed league is checked by its
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
-  expect(texts(outbound.telegramMessages)[0]).toBe(
+  expect(throughLineupCheck(texts(outbound.telegramMessages)[0])).toBe(
     [
       "<b>Preview · Duffy Redraft</b>",
       "Redraft · Week 6",
@@ -193,7 +202,8 @@ it("only the reduced fields of a player are stored", async () => {
     name: "KC Concepcion",
     position: "WR",
     team: "CLE",
-    injury_status: "Out"
+    injury_status: "Out",
+    espn_id: null
   });
 });
 

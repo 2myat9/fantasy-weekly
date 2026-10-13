@@ -17,6 +17,61 @@ export const MY_CHAT_ID = Number(env.TELEGRAM_CHAT_ID);
 
 const TELEGRAM_SEND_MESSAGE = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`;
 const TELEGRAM_WEBHOOK = "https://fantasy-weekly.example/telegram/webhook";
+const CLAUDE_MESSAGES = "https://api.anthropic.com/v1/messages";
+
+/** One entry of a model-written section, as the writer returns it. */
+export type WrittenEntry = {
+  playerId: string;
+  status: "out" | "questionable" | "cleared" | "none";
+  text: string;
+  sourceItemIds: string[];
+};
+
+/** The model-written sections, as the writer returns them. */
+export type WrittenSections = {
+  needsDecision: WrittenEntry[];
+  stillUnresolved: WrittenEntry[];
+  otherNews: WrittenEntry[];
+};
+
+/** The material the writer is handed for one league. */
+export type WriterMaterial = {
+  league: { name: string; format: string };
+  week: number;
+  today: string;
+  roster: {
+    playerId: string;
+    name: string;
+    position: string | null;
+    team: string | null;
+    slot: string;
+    sleeperStatus: string | null;
+  }[];
+  sourceItems: {
+    id: string;
+    playerId: string;
+    date: string;
+    source: string;
+    link: string;
+    text: string;
+  }[];
+};
+
+/** One call to the writer: the request as Claude received it. */
+export type WriterCall = {
+  model: string;
+  instructions: string;
+  material: WriterMaterial;
+};
+
+/** Stands in for Claude: the sections it writes from the material handed over. */
+export type WriterStandIn = (material: WriterMaterial) => WrittenSections;
+
+const writesNothing: WriterStandIn = () => ({
+  needsDecision: [],
+  stillUnresolved: [],
+  otherNews: []
+});
 
 // The outbound fake of the current test, so a delivery can read what was sent.
 let telegramMessages: unknown[] = [];
@@ -44,10 +99,17 @@ export function agent() {
  * Telegram sends are accepted without a saved response and collected in
  * `telegramMessages` as the bodies Telegram received, in order. They are kept
  * out of `requests`, which lists what the agent read.
+ *
+ * Calls to Claude are answered by `writer`, the stand-in for the model, and
+ * collected in `writerCalls`. Unless a test gives one, it writes no sections.
  */
-export function fakeOutboundHttp(savedResponses: Record<string, unknown> = {}) {
+export function fakeOutboundHttp(
+  savedResponses: Record<string, unknown> = {},
+  { writer = writesNothing }: { writer?: WriterStandIn } = {}
+) {
   const requests: string[] = [];
   const sent: unknown[] = [];
+  const writerCalls: WriterCall[] = [];
   telegramMessages = sent;
   vi.stubGlobal(
     "fetch",
@@ -61,6 +123,29 @@ export function fakeOutboundHttp(savedResponses: Record<string, unknown> = {}) {
         sent.push(message);
         return Response.json({ ok: true, result: {} });
       }
+      if (url.split("?")[0] === CLAUDE_MESSAGES) {
+        const body = await request.json<{
+          model: string;
+          system: string;
+          messages: { content: string }[];
+        }>();
+        const material = JSON.parse(body.messages[0].content);
+        writerCalls.push({
+          model: body.model,
+          instructions: body.system,
+          material
+        });
+        return Response.json({
+          id: "msg_stand_in",
+          type: "message",
+          role: "assistant",
+          model: body.model,
+          content: [{ type: "text", text: JSON.stringify(writer(material)) }],
+          stop_reason: "end_turn",
+          stop_sequence: null,
+          usage: { input_tokens: 0, output_tokens: 0 }
+        });
+      }
       requests.push(url);
       if (!(url in savedResponses)) {
         unanswered.push(url);
@@ -71,7 +156,7 @@ export function fakeOutboundHttp(savedResponses: Record<string, unknown> = {}) {
       return saved instanceof Response ? saved.clone() : Response.json(saved);
     }
   );
-  return { requests, telegramMessages: sent };
+  return { requests, telegramMessages: sent, writerCalls };
 }
 
 /** A Telegram update carrying one text message from the given chat. */

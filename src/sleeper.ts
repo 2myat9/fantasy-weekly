@@ -111,6 +111,26 @@ export async function isEliminated(league: League, nfl: NflState) {
   );
 }
 
+/** A player on the user's roster and where the league has them placed. */
+export type RosterSpot = {
+  playerId: string;
+  /** The starting slot, such as `QB` or `REC_FLEX`, or `BN`, `IR` or `TAXI`. */
+  slot: string;
+};
+
+/** Every player on the user's roster: starters in slot order, then bench, IR and taxi squad. */
+export function rosterSpots(league: League): RosterSpot[] {
+  const placed = (slot: string) => (playerId: string) => ({ playerId, slot });
+  return [
+    ...league.lineup.flatMap(({ slot, playerId }) =>
+      playerId === null ? [] : [{ playerId, slot }]
+    ),
+    ...league.bench.map(placed(BENCH_SLOT)),
+    ...league.ir.map(placed("IR")),
+    ...league.taxi.map(placed("TAXI"))
+  ];
+}
+
 /** The user's leagues for a season, each with their roster as it is set now. */
 export async function fetchMyLeagues(
   username: string,
@@ -169,6 +189,8 @@ export type Player = {
   team: string | null;
   /** Sleeper's injury designation, such as `Out` or `IR`, or null. */
   injuryStatus: string | null;
+  /** The player's ID at ESPN. Sleeper has one for a minority of players. */
+  espnId: string | null;
 };
 
 type SleeperPlayer = {
@@ -178,6 +200,7 @@ type SleeperPlayer = {
   position?: string | null;
   team?: string | null;
   injury_status?: string | null;
+  espn_id?: number | string | null;
 };
 
 /**
@@ -194,6 +217,7 @@ export async function fetchPlayerDirectory(): Promise<Player[]> {
       `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim(),
     position: player.position ?? null,
     team: player.team ?? null,
-    injuryStatus: player.injury_status || null
+    injuryStatus: player.injury_status || null,
+    espnId: player.espn_id ? String(player.espn_id) : null
   }));
 }

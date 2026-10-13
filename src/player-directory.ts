@@ -4,7 +4,9 @@
 import { fetchPlayerDirectory, type Player } from "./sleeper";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const FETCHED_AT = "playerDirectoryFetchedAt";
+// The key names the stored shape. A copy stored in an earlier shape is under
+// another key, so it reads as absent and is replaced.
+const FETCHED_AT = "playerDirectoryWithEspnIdFetchedAt";
 // Rows per insert, to stay well under the size limit of one statement.
 const BATCH = 1000;
 
@@ -27,6 +29,7 @@ export async function playersById(
     position: string | null;
     team: string | null;
     injury_status: string | null;
+    espn_id: string | null;
   }>(
     "SELECT * FROM players WHERE id IN (SELECT value FROM json_each(?))",
     JSON.stringify(ids)
@@ -38,7 +41,8 @@ export async function playersById(
       name: row.name,
       position: row.position,
       team: row.team,
-      injuryStatus: row.injury_status
+      injuryStatus: row.injury_status,
+      espnId: row.espn_id
     });
   }
   return players;
@@ -48,21 +52,23 @@ export async function playersById(
 // of one.
 function store(storage: DurableObjectStorage, players: Player[]) {
   storage.transactionSync(() => {
+    storage.sql.exec("DROP TABLE IF EXISTS players");
     storage.sql.exec(
-      `CREATE TABLE IF NOT EXISTS players (
+      `CREATE TABLE players (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         position TEXT,
         team TEXT,
-        injury_status TEXT
+        injury_status TEXT,
+        espn_id TEXT
       )`
     );
-    storage.sql.exec("DELETE FROM players");
     for (let start = 0; start < players.length; start += BATCH) {
       storage.sql.exec(
-        `INSERT INTO players (id, name, position, team, injury_status)
+        `INSERT INTO players
+          (id, name, position, team, injury_status, espn_id)
         SELECT value ->> 'id', value ->> 'name', value ->> 'position',
-          value ->> 'team', value ->> 'injuryStatus'
+          value ->> 'team', value ->> 'injuryStatus', value ->> 'espnId'
         FROM json_each(?)`,
         JSON.stringify(players.slice(start, start + BATCH))
       );

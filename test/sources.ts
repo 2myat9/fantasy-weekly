@@ -1,8 +1,12 @@
 // Saved copies of what the agent reads on a run, keyed by the URL it reads
 // them from. They are trimmed real responses for the user's two leagues in
 // week 6 of 2026: three redraft starters are on bye, and in the dynasty league
-// one starter is ruled out and the defense is on bye.
+// one starter is ruled out and the defense is on bye. The ESPN injuries were
+// read on 13 October 2026 and hold one dated report per player. Four dynasty
+// players without an ESPN ID in Sleeper have no report, so they cannot be
+// matched, and neither can a team defense.
 import { env } from "cloudflare:workers";
+import injuries from "./fixtures/espn/injuries.json";
 import scoreboard from "./fixtures/espn/scoreboard-2026-week-6.json";
 import leagues from "./fixtures/sleeper/leagues.json";
 import players from "./fixtures/sleeper/players.json";
@@ -23,6 +27,8 @@ export const URLS = {
   bracketRedraft: `${SLEEPER}/league/1364555323238551552/winners_bracket`,
   bracketDynasty: `${SLEEPER}/league/1353515683878559744/winners_bracket`,
   players: `${SLEEPER}/players/nfl`,
+  injuries:
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
   scoreboard:
     "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=6",
   scoreboardWeek15:
@@ -44,6 +50,7 @@ export function savedSources() {
     [URLS.rostersRedraft]: rostersRedraft,
     [URLS.rostersDynasty]: rostersDynasty,
     [URLS.players]: players as Record<string, Record<string, unknown>>,
-    [URLS.scoreboard]: scoreboard
+    [URLS.scoreboard]: scoreboard,
+    [URLS.injuries]: injuries
   });
 }
