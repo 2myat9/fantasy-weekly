@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // Adds the `cloudflare:test` module on top of the runtime types.
+    "types": ["node", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": [".", "../src", "../env.d.ts", "../vitest.config.ts"]
+}

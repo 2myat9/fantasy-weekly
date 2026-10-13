@@ -1,13 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "jsx-a11y", "typescript"],
+  "plugins": ["typescript"],
   "categories": {
     "correctness": "error"
   },
   "rules": {
     "no-explicit-any": "error",
     "no-unused-expressions": "off",
-    "react-hooks/exhaustive-deps": "warn",
     "no-unused-vars": [
       "error",
       {
