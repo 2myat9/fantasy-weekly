@@ -2,6 +2,7 @@
 import type { Finding } from "./lineup-check";
 import type { SourceItem } from "./news";
 import type { League, Player, RosterSpot } from "./sleeper";
+import { layOutMessages } from "./telegram";
 import { NO_SECTIONS, type Entry, type Sections, type Status } from "./writer";
 
 const PROBLEM: Record<Exclude<Finding["kind"], "empty">, string> = {
@@ -66,14 +67,22 @@ export function composeFailureMessage({
   return `The ${what} could not be built${which}. Send /preview to try again.`;
 }
 
-/** A titled section, or nothing when it has no lines. */
-function section(title: string, lines: string[]) {
-  return lines.length > 0 ? ["", `<b>${title}</b>`, ...lines] : [];
+/**
+ * A titled section as a paragraph of blocks, one per line, or nothing when it
+ * has no lines. The title is part of the first block, so it is never left at
+ * the foot of one message with its lines in the next.
+ */
+function section(title: string, [first, ...rest]: string[]) {
+  return first === undefined ? [] : [[`<b>${title}</b>\n${first}`, ...rest]];
 }
 
 /**
- * The league message as Telegram HTML. It opens with the lineup check, which
- * is always present: with no findings it states that the lineup is clear.
+ * The league message as Telegram HTML: one message, or several to be sent in
+ * order when it is longer than Telegram takes, divided between sections or
+ * between the lines of one, never within a player's entry.
+ *
+ * It opens with the lineup check, which is always present: with no findings
+ * it states that the lineup is clear.
  * The news sections follow, each left out when it has nothing to report.
  * Every roster player is in one of them: the writer's sections, or the lists
  * of players it did not cover and of players that could not be checked. The
@@ -140,16 +149,20 @@ export function composeLeagueMessage({
     const where = player.team ? ` (${escapeHtml(player.team)})` : "";
     return `<b>${escapeHtml(player.name)}</b>${where}: ${escapeHtml(player.injuryStatus)}`;
   });
-  return [
-    `<b>${preview ? `Preview · ${title}` : title}</b>`,
-    `${capitalise(league.format)} · Week ${week}`,
-    ...(missing.length > 0
-      ? [`⚠️ Missing from this message: ${escapeHtml(missing.join("; "))}.`]
-      : []),
-    "",
-    "<b>Lineup check</b>",
-    ...(findings.length > 0 ? findings.map(findingLine) : [clear]),
-    ...(byesChecked ? [] : ["⚠️ Byes could not be checked."]),
+  return layOutMessages([
+    [
+      [
+        `<b>${preview ? `Preview · ${title}` : title}</b>`,
+        `${capitalise(league.format)} · Week ${week}`,
+        ...(missing.length > 0
+          ? [`⚠️ Missing from this message: ${escapeHtml(missing.join("; "))}.`]
+          : [])
+      ].join("\n")
+    ],
+    ...section("Lineup check", [
+      ...(findings.length > 0 ? findings.map(findingLine) : [clear]),
+      ...(byesChecked ? [] : ["⚠️ Byes could not be checked."])
+    ]),
     ...(missing.length > 0
       ? section(
           "Injury statuses from Sleeper",
@@ -182,5 +195,5 @@ export function composeLeagueMessage({
           ]
         : []
     )
-  ].join("\n");
+  ]);
 }

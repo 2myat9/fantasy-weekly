@@ -136,9 +136,11 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       console.error("A step of the run failed", error);
       // A run that ended before the failure, which sending its last message
       // can be, is over: there is no step of it left to fail.
-      if (run && oldestRun(this.ctx.storage)?.id === run.id) {
+      // The run is read again, for what the step stored before it failed.
+      const failed = oldestRun(this.ctx.storage);
+      if (run && failed?.id === run.id) {
         try {
-          await this.stepFailed(run);
+          await this.stepFailed(failed);
         } catch (error) {
           // A run that cannot even be failed must not be taken up for ever,
           // ahead of every run after it.
@@ -189,8 +191,9 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   // Moves a run on from the league it was at: to the next one, or to its end.
   private async leagueDone(run: Run, gathered: Gathered) {
     const { leagues, failed } = gathered;
-    if (leagues.length > 0) this.stepTaken(run, gathered);
-    else await this.finishRun(run, failed.length > 0 ? failed : null);
+    if (leagues.length > 0) {
+      this.stepTaken(run, { ...gathered, unsent: undefined });
+    } else await this.finishRun(run, failed.length > 0 ? failed : null);
   }
 
   // A run gathers the shared sources, then the per-player sources a batch at
@@ -216,10 +219,19 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     // Checked again here, in case the week's message went out while this run
     // was gathering.
     if (run.preview || !wasSent(this.ctx.storage, gathered.nfl, league.id)) {
-      await sendMessage(
-        this.telegram,
-        await this.leagueMessage(league, gathered, run.preview)
-      );
+      let unsent =
+        gathered.unsent ??
+        (await this.leagueMessage(league, gathered, run.preview));
+      while (unsent.length > 0) {
+        await sendMessage(this.telegram, unsent[0]);
+        unsent = unsent.slice(1);
+        // Kept part by part, so a step that is taken again sends only the
+        // parts that have not gone out, as they were first written.
+        saveRun(this.ctx.storage, {
+          ...run,
+          gathered: { ...gathered, unsent }
+        });
+      }
       // Recorded league by league, so a run that fails part-way does not send
       // the leagues it reached again when it is retried.
       if (!run.preview) recordSent(this.ctx.storage, gathered.nfl, league.id);

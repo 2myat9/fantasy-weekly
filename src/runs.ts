@@ -22,6 +22,11 @@ export type Gathered = {
    * names it.
    */
   missing: string[];
+  /**
+   * The parts of the first league's message that are still to be sent, once
+   * the message has been written. Absent until then.
+   */
+  unsent?: string[];
 };
 
 export type Run = {

@@ -29,6 +29,37 @@ export async function sendMessage(config: TelegramConfig, html: string) {
   }
 }
 
+// The most characters Telegram takes in one message. It counts them after
+// the formatting is read, so a text that fits with its tags always fits.
+const MESSAGE_LIMIT = 4096;
+
+/**
+ * Lays a text out as messages within the limit, in order, each filled before
+ * the next is begun. The text is given as paragraphs, each a list of blocks:
+ * a block is never divided, so one whose HTML is complete keeps every message
+ * valid on its own. Blocks are set on lines of their own, with a blank line
+ * between paragraphs.
+ *
+ * A single block over the limit is left as a message Telegram will refuse.
+ */
+export function layOutMessages(paragraphs: string[][]) {
+  const messages: string[] = [];
+  let message = "";
+  for (const blocks of paragraphs) {
+    blocks.forEach((block, index) => {
+      const extended = message + (index === 0 ? "\n\n" : "\n") + block;
+      if (message === "") message = block;
+      else if (extended.length <= MESSAGE_LIMIT) message = extended;
+      else {
+        messages.push(message);
+        message = block;
+      }
+    });
+  }
+  if (message !== "") messages.push(message);
+  return messages;
+}
+
 type Update = {
   message?: { chat?: { id?: number }; text?: string };
 };
