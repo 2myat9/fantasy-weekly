@@ -1,0 +1,635 @@
+{
+  "season": {
+    "type": 2,
+    "year": 2026
+  },
+  "week": {
+    "number": 6,
+    "teamsOnBye": [
+      {
+        "id": "4",
+        "abbreviation": "CIN",
+        "displayName": "Cincinnati Bengals"
+      },
+      {
+        "id": "8",
+        "abbreviation": "DET",
+        "displayName": "Detroit Lions"
+      },
+      {
+        "id": "15",
+        "abbreviation": "MIA",
+        "displayName": "Miami Dolphins"
+      },
+      {
+        "id": "16",
+        "abbreviation": "MIN",
+        "displayName": "Minnesota Vikings"
+      }
+    ]
+  },
+  "events": [
+    {
+      "id": "401872995",
+      "date": "2026-10-16T00:15Z",
+      "name": "Seattle Seahawks at Denver Broncos",
+      "shortName": "SEA @ DEN",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Thu, October 15th at 8:15 PM EDT",
+          "shortDetail": "10/15 - 8:15 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401872995",
+          "date": "2026-10-16T00:15Z",
+          "competitors": [
+            {
+              "id": "7",
+              "homeAway": "home",
+              "team": {
+                "id": "7",
+                "abbreviation": "DEN",
+                "displayName": "Denver Broncos"
+              }
+            },
+            {
+              "id": "26",
+              "homeAway": "away",
+              "team": {
+                "id": "26",
+                "abbreviation": "SEA",
+                "displayName": "Seattle Seahawks"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872996",
+      "date": "2026-10-18T13:30Z",
+      "name": "Houston Texans at Jacksonville Jaguars",
+      "shortName": "HOU VS JAX",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 9:30 AM EDT",
+          "shortDetail": "10/18 - 9:30 AM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401872996",
+          "date": "2026-10-18T13:30Z",
+          "competitors": [
+            {
+              "id": "30",
+              "homeAway": "home",
+              "team": {
+                "id": "30",
+                "abbreviation": "JAX",
+                "displayName": "Jacksonville Jaguars"
+              }
+            },
+            {
+              "id": "34",
+              "homeAway": "away",
+              "team": {
+                "id": "34",
+                "abbreviation": "HOU",
+                "displayName": "Houston Texans"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872999",
+      "date": "2026-10-18T17:00Z",
+      "name": "Chicago Bears at Atlanta Falcons",
+      "shortName": "CHI @ ATL",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401872999",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "1",
+              "homeAway": "home",
+              "team": {
+                "id": "1",
+                "abbreviation": "ATL",
+                "displayName": "Atlanta Falcons"
+              }
+            },
+            {
+              "id": "3",
+              "homeAway": "away",
+              "team": {
+                "id": "3",
+                "abbreviation": "CHI",
+                "displayName": "Chicago Bears"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872997",
+      "date": "2026-10-18T17:00Z",
+      "name": "Baltimore Ravens at Cleveland Browns",
+      "shortName": "BAL @ CLE",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401872997",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "5",
+              "homeAway": "home",
+              "team": {
+                "id": "5",
+                "abbreviation": "CLE",
+                "displayName": "Cleveland Browns"
+              }
+            },
+            {
+              "id": "33",
+              "homeAway": "away",
+              "team": {
+                "id": "33",
+                "abbreviation": "BAL",
+                "displayName": "Baltimore Ravens"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873003",
+      "date": "2026-10-18T17:00Z",
+      "name": "Tennessee Titans at Indianapolis Colts",
+      "shortName": "TEN @ IND",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873003",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "11",
+              "homeAway": "home",
+              "team": {
+                "id": "11",
+                "abbreviation": "IND",
+                "displayName": "Indianapolis Colts"
+              }
+            },
+            {
+              "id": "10",
+              "homeAway": "away",
+              "team": {
+                "id": "10",
+                "abbreviation": "TEN",
+                "displayName": "Tennessee Titans"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873001",
+      "date": "2026-10-18T17:00Z",
+      "name": "New York Jets at New England Patriots",
+      "shortName": "NYJ @ NE",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873001",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "17",
+              "homeAway": "home",
+              "team": {
+                "id": "17",
+                "abbreviation": "NE",
+                "displayName": "New England Patriots"
+              }
+            },
+            {
+              "id": "20",
+              "homeAway": "away",
+              "team": {
+                "id": "20",
+                "abbreviation": "NYJ",
+                "displayName": "New York Jets"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873000",
+      "date": "2026-10-18T17:00Z",
+      "name": "New Orleans Saints at New York Giants",
+      "shortName": "NO @ NYG",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873000",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "19",
+              "homeAway": "home",
+              "team": {
+                "id": "19",
+                "abbreviation": "NYG",
+                "displayName": "New York Giants"
+              }
+            },
+            {
+              "id": "18",
+              "homeAway": "away",
+              "team": {
+                "id": "18",
+                "abbreviation": "NO",
+                "displayName": "New Orleans Saints"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401872998",
+      "date": "2026-10-18T17:00Z",
+      "name": "Carolina Panthers at Philadelphia Eagles",
+      "shortName": "CAR @ PHI",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401872998",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "21",
+              "homeAway": "home",
+              "team": {
+                "id": "21",
+                "abbreviation": "PHI",
+                "displayName": "Philadelphia Eagles"
+              }
+            },
+            {
+              "id": "29",
+              "homeAway": "away",
+              "team": {
+                "id": "29",
+                "abbreviation": "CAR",
+                "displayName": "Carolina Panthers"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873002",
+      "date": "2026-10-18T17:00Z",
+      "name": "Pittsburgh Steelers at Tampa Bay Buccaneers",
+      "shortName": "PIT @ TB",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 1:00 PM EDT",
+          "shortDetail": "10/18 - 1:00 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873002",
+          "date": "2026-10-18T17:00Z",
+          "competitors": [
+            {
+              "id": "27",
+              "homeAway": "home",
+              "team": {
+                "id": "27",
+                "abbreviation": "TB",
+                "displayName": "Tampa Bay Buccaneers"
+              }
+            },
+            {
+              "id": "23",
+              "homeAway": "away",
+              "team": {
+                "id": "23",
+                "abbreviation": "PIT",
+                "displayName": "Pittsburgh Steelers"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873004",
+      "date": "2026-10-18T20:05Z",
+      "name": "Arizona Cardinals at Los Angeles Rams",
+      "shortName": "ARI @ LAR",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 4:05 PM EDT",
+          "shortDetail": "10/18 - 4:05 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873004",
+          "date": "2026-10-18T20:05Z",
+          "competitors": [
+            {
+              "id": "14",
+              "homeAway": "home",
+              "team": {
+                "id": "14",
+                "abbreviation": "LAR",
+                "displayName": "Los Angeles Rams"
+              }
+            },
+            {
+              "id": "22",
+              "homeAway": "away",
+              "team": {
+                "id": "22",
+                "abbreviation": "ARI",
+                "displayName": "Arizona Cardinals"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873006",
+      "date": "2026-10-18T20:25Z",
+      "name": "Los Angeles Chargers at Kansas City Chiefs",
+      "shortName": "LAC @ KC",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 4:25 PM EDT",
+          "shortDetail": "10/18 - 4:25 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873006",
+          "date": "2026-10-18T20:25Z",
+          "competitors": [
+            {
+              "id": "12",
+              "homeAway": "home",
+              "team": {
+                "id": "12",
+                "abbreviation": "KC",
+                "displayName": "Kansas City Chiefs"
+              }
+            },
+            {
+              "id": "24",
+              "homeAway": "away",
+              "team": {
+                "id": "24",
+                "abbreviation": "LAC",
+                "displayName": "Los Angeles Chargers"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873005",
+      "date": "2026-10-18T20:25Z",
+      "name": "Buffalo Bills at Las Vegas Raiders",
+      "shortName": "BUF @ LV",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 4:25 PM EDT",
+          "shortDetail": "10/18 - 4:25 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873005",
+          "date": "2026-10-18T20:25Z",
+          "competitors": [
+            {
+              "id": "13",
+              "homeAway": "home",
+              "team": {
+                "id": "13",
+                "abbreviation": "LV",
+                "displayName": "Las Vegas Raiders"
+              }
+            },
+            {
+              "id": "2",
+              "homeAway": "away",
+              "team": {
+                "id": "2",
+                "abbreviation": "BUF",
+                "displayName": "Buffalo Bills"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873007",
+      "date": "2026-10-19T00:20Z",
+      "name": "Dallas Cowboys at Green Bay Packers",
+      "shortName": "DAL @ GB",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Sun, October 18th at 8:20 PM EDT",
+          "shortDetail": "10/18 - 8:20 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873007",
+          "date": "2026-10-19T00:20Z",
+          "competitors": [
+            {
+              "id": "9",
+              "homeAway": "home",
+              "team": {
+                "id": "9",
+                "abbreviation": "GB",
+                "displayName": "Green Bay Packers"
+              }
+            },
+            {
+              "id": "6",
+              "homeAway": "away",
+              "team": {
+                "id": "6",
+                "abbreviation": "DAL",
+                "displayName": "Dallas Cowboys"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "401873008",
+      "date": "2026-10-20T00:15Z",
+      "name": "Washington Commanders at San Francisco 49ers",
+      "shortName": "WSH @ SF",
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled",
+          "detail": "Mon, October 19th at 8:15 PM EDT",
+          "shortDetail": "10/19 - 8:15 PM EDT"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401873008",
+          "date": "2026-10-20T00:15Z",
+          "competitors": [
+            {
+              "id": "25",
+              "homeAway": "home",
+              "team": {
+                "id": "25",
+                "abbreviation": "SF",
+                "displayName": "San Francisco 49ers"
+              }
+            },
+            {
+              "id": "28",
+              "homeAway": "away",
+              "team": {
+                "id": "28",
+                "abbreviation": "WSH",
+                "displayName": "Washington Commanders"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

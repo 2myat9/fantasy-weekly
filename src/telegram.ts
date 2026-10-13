@@ -44,6 +44,12 @@ export function textFromMyChat(update: unknown, chatId: string) {
   return message.text ?? "";
 }
 
+/** Whether a message is the `/preview` command, the only one the bot has. */
+export function isPreviewCommand(text: string) {
+  // Telegram appends the bot's name to a command picked from its menu.
+  return /^\/preview(@\w+)?$/.test(text.trim());
+}
+
 /**
  * Whether a webhook request carries the secret the webhook was registered
  * with. Telegram sends it in a header on every update.

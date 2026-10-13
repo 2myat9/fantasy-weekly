@@ -66,7 +66,9 @@ export function fakeOutboundHttp(savedResponses: Record<string, unknown> = {}) {
         unanswered.push(url);
         throw new Error(`No saved response for ${url}`);
       }
-      return Response.json(savedResponses[url]);
+      const saved = savedResponses[url];
+      // A saved `Response` is returned as it is, to stand in for a failing source.
+      return saved instanceof Response ? saved.clone() : Response.json(saved);
     }
   );
   return { requests, telegramMessages: sent };
@@ -87,8 +89,10 @@ export function textMessage(text: string, chatId = MY_CHAT_ID) {
 
 /**
  * Delivers an update to the webhook the way Telegram does, then lets the work
- * the webhook left running finish. `sentWhenAcknowledged` is how many messages
- * Telegram had received when the webhook answered.
+ * it started finish: what the webhook left running, and the run it put on the
+ * agent's schedule. `sentWhenAcknowledged` is how many messages Telegram had
+ * received when the webhook answered, and `scheduledWhenAcknowledged` what was
+ * pending on the agent's schedule then.
  */
 export async function deliverTelegramUpdate(
   update: unknown,
@@ -106,8 +110,46 @@ export async function deliverTelegramUpdate(
   const ctx = createExecutionContext();
   const response = await worker.fetch(request, env, ctx);
   const sentWhenAcknowledged = telegramMessages.length;
+  const scheduledWhenAcknowledged = await pendingSchedule();
   await waitOnExecutionContext(ctx);
-  return { status: response.status, sentWhenAcknowledged };
+  await finishDueTasks();
+  return {
+    status: response.status,
+    sentWhenAcknowledged,
+    scheduledWhenAcknowledged
+  };
+}
+
+/**
+ * Lets the tasks that are due on the agent's schedule run to the end. A task
+ * due now may already be running, because the runtime fires an alarm that is
+ * due without being asked, so firing the alarm here is not enough: a task
+ * stays on the schedule until it has finished, and that is what is waited for.
+ */
+async function finishDueTasks() {
+  await runDurableObjectAlarm(agent());
+  const isDue = (task: { at: string }) => new Date(task.at) <= new Date();
+  for (let waited = 0; (await pendingSchedule()).some(isDue); waited++) {
+    if (waited === 1000) throw new Error("A due task did not finish");
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+}
+
+/** Puts a run on the agent's schedule for the given instant without firing it. */
+export async function scheduleRun(instant: string) {
+  await runInDurableObject(agent(), async (instance: FantasyWeeklyAgent) => {
+    await instance.schedule(new Date(instant), "scheduledRun");
+  });
+}
+
+/** What is pending on the agent's schedule: each task and when it is due. */
+export async function pendingSchedule() {
+  return runInDurableObject(agent(), (instance: FantasyWeeklyAgent) =>
+    instance.getSchedules().map(({ callback, time }) => ({
+      task: callback,
+      at: new Date(time * 1000).toISOString()
+    }))
+  );
 }
 
 /** Moves the clock the agent reads to the given instant. */
@@ -121,14 +163,18 @@ export function setClock(instant: string) {
  */
 export async function triggerScheduledRun(instant: string) {
   setClock(instant);
-  const stub = agent();
-  await runInDurableObject(stub, async (instance: FantasyWeeklyAgent) => {
-    await instance.schedule(new Date(instant), "scheduledRun");
-  });
-  const ran = await runDurableObjectAlarm(stub);
+  await scheduleRun(instant);
+  const ran = await runDurableObjectAlarm(agent());
   if (!ran) throw new Error(`No alarm was pending for ${instant}`);
   // The agent's scheduler swallows a failed run, so surface the cause here.
   if (unanswered.length > 0) {
     throw new Error(`No saved response for: ${unanswered.join(", ")}`);
   }
+}
+
+/** What the agent has stored about one player: every field it kept. */
+export async function storedPlayer(id: string) {
+  return runInDurableObject(agent(), (_instance, state) =>
+    state.storage.sql.exec("SELECT * FROM players WHERE id = ?", id).one()
+  );
 }

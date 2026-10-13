@@ -6,7 +6,7 @@ The full specification is in [issue #1](https://github.com/2myat9/fantasy-weekly
 
 ## Status
 
-The Telegram bot answers `/preview` with a placeholder message. The digest itself is built ticket by ticket on top of this. Nothing is scheduled yet. The agent's scheduled run is a placeholder that records which NFL week Sleeper reports, and only the tests trigger it.
+The Telegram bot answers `/preview` with one message per Sleeper league, each opening with a lineup check: a starter on bye, ruled out or on IR, or an empty starting slot. The rest of the digest is built ticket by ticket on top of this. Nothing is scheduled yet. The agent's scheduled run is a placeholder that records which NFL week Sleeper reports, and only the tests trigger it.
 
 ## How it is built
 
@@ -103,7 +103,7 @@ cp .dev.vars.example .dev.vars   # then fill in the values
      --data-urlencode 'allowed_updates=["message"]'
    ```
 
-3. Send `/preview` to the bot. It replies with a message marked as a preview. If it does not, `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` shows the last delivery error, and `npx wrangler tail` shows the Worker's logs.
+3. Send `/preview` to the bot. It replies with one message per league, each marked as a preview. If it does not, `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` shows the last delivery error, and `npx wrangler tail` shows the Worker's logs.
 
 The webhook only needs registering again if the Worker's URL or the webhook secret changes.
 
