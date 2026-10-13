@@ -156,6 +156,15 @@ There is one test seam, the agent's outside edge. A test fakes what the agent re
 
 The fake collects the messages sent to Telegram in `telegramMessages`. Tests get stand-in secrets from `vitest.config.ts`, never from `.dev.vars`.
 
+## Known limitations
+
+Left open when over-length league messages were divided ([#14](https://github.com/2myat9/fantasy-weekly/issues/14)), to fix later:
+
+- A single link whose address is itself close to or over Telegram's 4,096-character limit is still sent whole, so Telegram refuses the message and the league is reported as not built. Fitting it would mean dropping or shortening the link.
+- An over-length line always begins a new message, so the message before it can go out part-empty instead of being filled first.
+- In text with no white space at all, a division can fall between an emoji and its modifier, or between a letter and its combining mark, which then render wrongly. Dividing by grapheme (`Intl.Segmenter`) would avoid it.
+- The 4,096-character limit is written out separately in `src/telegram.ts`, `test/harness.ts` and `test/splitting.test.ts`. The fake Telegram also counts the raw HTML, which is stricter than Telegram's own count after the formatting is read.
+
 ## Deploy
 
 ```bash
