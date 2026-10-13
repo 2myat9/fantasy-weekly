@@ -6,7 +6,12 @@ The full specification is in [issue #1](https://github.com/2myat9/fantasy-weekly
 
 ## Status
 
-The Telegram bot answers `/preview` with one message per Sleeper league, each opening with a lineup check: a starter on bye, ruled out or on IR, or an empty starting slot. The rest of the digest is built ticket by ticket on top of this. Nothing is scheduled yet. The agent's scheduled run is a placeholder that records which NFL week Sleeper reports, and only the tests trigger it.
+The digest goes out on its own every Saturday at 6:00 PM Pacific, one message per Sleeper league, and `/preview` sends the same messages on demand, marked as previews. So far each message holds the lineup check: a starter on bye, ruled out or on IR, or an empty starting slot. The rest of the digest is built ticket by ticket on top of this.
+
+- Each run schedules the next one as an instant computed in `America/Los_Angeles`, so the send time holds across both daylight-saving changes. The schedule is armed the first time anything reaches the agent, which after a deploy means the first message sent to the bot.
+- The automatic digest is recorded per season, week and league, and a run sends nothing to a league already recorded for its week.
+- A league gets nothing when the NFL is outside its regular season and postseason, when the league is complete, or when my team is eliminated from its playoffs. A team left with only a placement game, such as the one for third place, counts as eliminated.
+- `/preview` works on any day, ignores those rules, and touches neither the record nor the schedule. It is the fallback if a Saturday digest fails to arrive.
 
 ## How it is built
 
@@ -19,11 +24,20 @@ The Telegram bot answers `/preview` with one message per Sleeper league, each op
 ```
 src/
   server.ts          # The agent and the Worker entry point (the webhook)
+  digest-time.ts     # When the automatic digest runs: the next Saturday 6:00 PM Pacific
+  sent-record.ts     # Which leagues the automatic digest has gone out to, per NFL week
+  sleeper.ts         # Sleeper client: NFL week, leagues, rosters, playoff bracket, player directory
+  player-directory.ts # The stored copy of the Sleeper player directory
+  espn.ts            # ESPN scoreboard: the week's byes
+  lineup-check.ts    # The lineup check
+  league-message.ts  # Digest composer: the message for one league
   telegram.ts        # Telegram client: sends messages, verifies webhook requests
 test/
   harness.ts         # The test seam: faked outbound HTTP, a controlled clock, scheduled-run trigger, Telegram update delivery
   fixtures/          # Saved copies of real responses
-  smoke.test.ts
+  sources.ts         # The saved responses a run reads, keyed by URL
+  digest.test.ts
+  preview.test.ts
   telegram.test.ts
 ```
 
@@ -103,7 +117,7 @@ cp .dev.vars.example .dev.vars   # then fill in the values
      --data-urlencode 'allowed_updates=["message"]'
    ```
 
-3. Send `/preview` to the bot. It replies with one message per league, each marked as a preview. If it does not, `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` shows the last delivery error, and `npx wrangler tail` shows the Worker's logs.
+3. Send `/preview` to the bot. It replies with one message per league, each marked as a preview. This first message also arms the Saturday schedule: nothing is scheduled until something has reached the agent. If it does not, `curl "https://api.telegram.org/bot<BOT_TOKEN>/getWebhookInfo"` shows the last delivery error, and `npx wrangler tail` shows the Worker's logs.
 
 The webhook only needs registering again if the Worker's URL or the webhook secret changes.
 
@@ -125,7 +139,8 @@ There is one test seam, the agent's outside edge. A test fakes what the agent re
 
 - `fakeOutboundHttp(savedResponses)`: answers outbound HTTP from saved responses and records the requests made. A request with no saved response fails instead of reaching the network.
 - `setClock(instant)`: sets the time the agent reads.
-- `triggerScheduledRun(instant)`: runs the agent's scheduled run at a chosen instant.
+- `triggerScheduledRun(instant)`: runs the agent's scheduled digest run at a chosen instant.
+- `pendingSchedule()`: what is on the agent's schedule, to assert on the next scheduled time.
 - `deliverTelegramUpdate(update)`: delivers an update to the webhook as Telegram does and waits for the reply work to finish. `textMessage(text, chatId)` builds the update.
 
 The fake collects the messages sent to Telegram in `telegramMessages`. Tests get stand-in secrets from `vitest.config.ts`, never from `.dev.vars`.

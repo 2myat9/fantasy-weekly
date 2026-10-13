@@ -19,9 +19,14 @@ export const URLS = {
   leagues: `${SLEEPER}/user/${user.user_id}/leagues/nfl/2026`,
   rostersRedraft: `${SLEEPER}/league/1364555323238551552/rosters`,
   rostersDynasty: `${SLEEPER}/league/1353515683878559744/rosters`,
+  // Read only once a league's playoffs have started.
+  bracketRedraft: `${SLEEPER}/league/1364555323238551552/winners_bracket`,
+  bracketDynasty: `${SLEEPER}/league/1353515683878559744/winners_bracket`,
   players: `${SLEEPER}/players/nfl`,
   scoreboard:
-    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=6"
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=6",
+  scoreboardWeek15:
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=15"
 };
 
 /** The user's Sleeper user ID, which marks their roster in each league. */

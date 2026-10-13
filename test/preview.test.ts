@@ -4,10 +4,10 @@ import {
   fakeOutboundHttp,
   MY_CHAT_ID,
   pendingSchedule,
-  scheduleRun,
   setClock,
   storedPlayer,
-  textMessage
+  textMessage,
+  triggerScheduledRun
 } from "./harness";
 import { MY_USER_ID, savedSources, URLS } from "./sources";
 
@@ -206,9 +206,10 @@ it("the webhook answers Telegram before any message is sent, leaving the run on 
 
   expect(delivery.status).toBe(200);
   expect(delivery.sentWhenAcknowledged).toBe(0);
-  expect(delivery.scheduledWhenAcknowledged).toEqual([
-    { task: "runPreview", at: "2030-10-13T16:00:00.000Z" }
-  ]);
+  expect(delivery.scheduledWhenAcknowledged).toContainEqual({
+    task: "runPreview",
+    at: "2030-10-13T16:00:00.000Z"
+  });
   expect(outbound.telegramMessages).toHaveLength(2);
 });
 
@@ -227,16 +228,24 @@ it("a preview run that fails sends one short failure message and is not retried"
   expect(outbound.requests.filter((url) => url === URLS.scoreboard)).toEqual([
     URLS.scoreboard
   ]);
-  expect(await pendingSchedule()).toEqual([]);
+  const pending = (await pendingSchedule()).map(({ task }) => task);
+  expect(pending).not.toContain("runPreview");
 });
 
-it("requesting a preview leaves other pending schedule entries unchanged", async () => {
-  fakeOutboundHttp(savedSources());
-  await scheduleRun("2030-10-20T01:00:00Z");
+it("/preview changes neither the next scheduled time nor what the automatic digest sends", async () => {
+  const outbound = fakeOutboundHttp(savedSources());
+  // Wednesday 16 October 2030, noon Pacific.
+  setClock("2030-10-16T19:00:00Z");
+  await deliverTelegramUpdate(textMessage("hello"));
+  const before = await pendingSchedule();
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
-  expect(await pendingSchedule()).toEqual([
-    { task: "scheduledRun", at: "2030-10-20T01:00:00.000Z" }
+  expect(await pendingSchedule()).toEqual(before);
+  // The week's automatic digest still goes out in full after the preview.
+  await triggerScheduledRun("2030-10-20T01:00:00Z");
+  expect(texts(outbound.telegramMessages).slice(3)).toEqual([
+    expect.stringMatching(/^<b>Duffy Redraft<\/b>/),
+    expect.stringMatching(/^<b>Joel is the GOAT<\/b>/)
   ]);
 });

@@ -34,6 +34,12 @@ export type League = {
   id: string;
   name: string;
   format: LeagueFormat;
+  /** `pre_draft`, `drafting`, `in_season` or `complete`. */
+  status: string;
+  /** The user's roster in the league, as Sleeper numbers it. */
+  rosterId: number;
+  /** The NFL week the league's playoffs start in, or 0 if it has none. */
+  firstPlayoffWeek: number;
   /** The current lineup, one entry per starting slot in the league's order. */
   lineup: LineupSlot[];
   // The rest of the user's roster, as player IDs.
@@ -45,11 +51,13 @@ export type League = {
 type SleeperLeague = {
   league_id: string;
   name: string;
+  status: string;
   roster_positions: string[];
-  settings: { type?: number };
+  settings: { type?: number; playoff_week_start?: number };
 };
 
 type SleeperRoster = {
+  roster_id: number;
   owner_id: string | null;
   co_owners: string[] | null;
   players: string[] | null;
@@ -64,6 +72,44 @@ const FORMATS: LeagueFormat[] = ["redraft", "keeper", "dynasty"];
 const BENCH_SLOT = "BN";
 // Sleeper fills an empty starting slot with this ID.
 const NO_PLAYER = "0";
+
+/** One game of a league's playoff bracket. */
+type SleeperBracketGame = {
+  // Roster IDs, or null until the game that decides the team is played.
+  t1: number | null;
+  t2: number | null;
+  /** The winner's roster ID once the game is played. */
+  w: number | null;
+  /** The final place the game decides. Only the title game and placement games have it. */
+  p?: number;
+};
+
+/**
+ * Whether the user's team is out of a league's playoffs: they have started and
+ * it has no game left to play towards the title. Meant for the regular season
+ * and postseason; at other times the bracket says nothing.
+ */
+export async function isEliminated(league: League, nfl: NflState) {
+  if (league.firstPlayoffWeek === 0) return false;
+  // Before the playoffs Sleeper fills the bracket with the projected seeds,
+  // so it says nothing about who is out until they start.
+  if (nfl.seasonType === "regular" && nfl.week < league.firstPlayoffWeek) {
+    return false;
+  }
+  const bracket = await read<SleeperBracketGame[] | null>(
+    `/league/${league.id}/winners_bracket`
+  );
+  // Without a bracket there is nothing to show the team is out.
+  if (!bracket || bracket.length === 0) return false;
+  // A team with a bye is already placed in its second-round game. Placement
+  // games, such as the one for third place, are not on the way to the title.
+  return !bracket.some(
+    (game) =>
+      game.w === null &&
+      (game.p ?? 1) === 1 &&
+      (game.t1 === league.rosterId || game.t2 === league.rosterId)
+  );
+}
 
 /** The user's leagues for a season, each with their roster as it is set now. */
 export async function fetchMyLeagues(
@@ -102,6 +148,9 @@ export async function fetchMyLeagues(
         id: league.league_id,
         name: league.name,
         format: FORMATS[league.settings.type ?? 0] ?? "redraft",
+        status: league.status,
+        rosterId: mine.roster_id,
+        firstPlayoffWeek: league.settings.playoff_week_start ?? 0,
         lineup,
         bench: (mine.players ?? []).filter((id) => !placed.has(id)),
         ir,

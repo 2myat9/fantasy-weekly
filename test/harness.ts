@@ -135,10 +135,20 @@ async function finishDueTasks() {
   }
 }
 
-/** Puts a run on the agent's schedule for the given instant without firing it. */
-export async function scheduleRun(instant: string) {
+/**
+ * Puts a digest run on the agent's schedule for the given instant without
+ * firing it, unless the agent has already scheduled one for then.
+ */
+async function scheduleRun(instant: string) {
   await runInDurableObject(agent(), async (instance: FantasyWeeklyAgent) => {
-    await instance.schedule(new Date(instant), "scheduledRun");
+    const at = new Date(instant);
+    const scheduled = instance
+      .getSchedules()
+      .some(
+        ({ callback, time }) =>
+          callback === "runDigest" && time * 1000 === at.getTime()
+      );
+    if (!scheduled) await instance.schedule(at, "runDigest");
   });
 }
 
