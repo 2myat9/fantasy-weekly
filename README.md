@@ -54,6 +54,39 @@ test/
   telegram.test.ts
 ```
 
+How the automatic digest gets to Telegram. The Worker only relays the webhook to the agent; the agent runs the digest from its own schedule, one step per invocation.
+
+```mermaid
+sequenceDiagram
+  participant TG as Telegram
+  participant W as Worker<br/>(fantasy-weekly)
+  participant A as FantasyWeeklyAgent<br/>(Durable Object, SQLite)
+  participant S as Sleeper API
+  participant N as ESPN and<br/>ProFootballTalk
+  participant C as Claude API
+
+  Note over A: The agent's schedule fires<br/>on Saturday at 6:00 PM Pacific
+  A->>A: Schedule next Saturday's run
+  A->>S: NFL week, my leagues, rosters, opponents
+  A->>N: Injury reports, league news, PFT feed
+  loop A batch of players per step
+    A->>N: Each player's ESPN page
+  end
+  loop One league per step
+    A->>A: Lineup check
+    A->>C: The week's news about the league's players
+    C-->>A: News sections
+    A->>TG: sendMessage: the league message
+    A->>A: Record it in the history
+  end
+
+  Note over TG,A: /preview: the same run, on demand
+  TG->>W: POST /telegram/webhook
+  W->>A: requestPreview()
+  W-->>TG: 200 OK
+  A->>TG: The same messages, marked as previews
+```
+
 ## Setup
 
 These steps are done once, by hand. They need a Cloudflare account and a Telegram account.
