@@ -101,7 +101,18 @@ FantasyWeeklyAgent.prototype.alarm = function (...args) {
   return alarm.apply(this, args);
 };
 
+// The size the database reported before a test stood in for a fuller one.
+let realDatabaseSize: {
+  target: object;
+  descriptor: PropertyDescriptor;
+} | null = null;
+
 afterEach(async () => {
+  if (realDatabaseSize) {
+    const { target, descriptor } = realDatabaseSize;
+    Object.defineProperty(target, "databaseSize", descriptor);
+    realDatabaseSize = null;
+  }
   vi.unstubAllGlobals();
   vi.useRealTimers();
   unanswered = [];
@@ -350,6 +361,87 @@ export async function triggerScheduledRun(instant: string) {
   if (unanswered.length > 0) {
     throw new Error(`No saved response for: ${unanswered.join(", ")}`);
   }
+}
+
+/** One stored digest of the history, as the agent kept it. */
+export type StoredDigest = {
+  season: string;
+  seasonType: string;
+  week: number;
+  leagueId: string;
+  leagueName: string;
+  sentAt: string;
+  /** The league message's texts, as Telegram received them, in order. */
+  messages: string[];
+  sourceItems: {
+    playerId: string;
+    date: string;
+    source: string;
+    link: string;
+    text: string;
+  }[];
+};
+
+/** The stored history, oldest digest first. */
+export async function storedHistory(): Promise<StoredDigest[]> {
+  return runInDurableObject(agent(), (_instance, state) => {
+    const tables = state.storage.sql
+      .exec("SELECT 1 FROM sqlite_master WHERE name = 'digests'")
+      .toArray();
+    if (tables.length === 0) return [];
+    return state.storage.sql
+      .exec<{
+        season: string;
+        season_type: string;
+        week: number;
+        league_id: string;
+        league_name: string;
+        sent_at: number;
+        messages: string;
+        source_items: string;
+      }>("SELECT * FROM digests ORDER BY id")
+      .toArray()
+      .map((row) => ({
+        season: row.season,
+        seasonType: row.season_type,
+        week: row.week,
+        leagueId: row.league_id,
+        leagueName: row.league_name,
+        sentAt: new Date(row.sent_at).toISOString(),
+        messages: JSON.parse(row.messages),
+        sourceItems: JSON.parse(row.source_items)
+      }));
+  });
+}
+
+/**
+ * Stands in for a database that holds more than the agent has stored: from
+ * now on it reports its size as `bytes` plus what the agent stores from here,
+ * less what it deletes.
+ */
+export async function fillDatabaseTo(bytes: number) {
+  await runInDurableObject(agent(), (_instance, state) => {
+    const sql = state.storage.sql;
+    const target = Object.getPrototypeOf(sql);
+    const descriptor = Object.getOwnPropertyDescriptor(target, "databaseSize")!;
+    realDatabaseSize ??= { target, descriptor };
+    const real = () => descriptor.get!.call(sql) as number;
+    const padding = bytes - real();
+    Object.defineProperty(target, "databaseSize", {
+      configurable: true,
+      get() {
+        return descriptor.get!.call(this) + padding;
+      }
+    });
+  });
+}
+
+/** The size the agent's database reports, in bytes. */
+export async function databaseSize() {
+  return runInDurableObject(
+    agent(),
+    (_instance, state) => state.storage.sql.databaseSize
+  );
 }
 
 /** What the agent has stored about one player: every field it kept. */

@@ -2,7 +2,7 @@
 // is too large for one invocation on the free plan, which allows 50 outbound
 // requests, so it is taken a step at a time and kept here in between.
 import type { WeekSchedule } from "./espn";
-import type { Gathering } from "./news";
+import type { Gathering, SourceItem } from "./news";
 import type { League, NflState, Player } from "./sleeper";
 
 /** What a run holds once the shared sources have been read. */
@@ -16,6 +16,13 @@ export type Gathered = {
   schedule: WeekSchedule | null;
   /** The players on those leagues' rosters and their opponents', by Sleeper ID. */
   players: Map<string, Player>;
+  /**
+   * Where the news window of each league starts, by league ID. The news is
+   * gathered from the earliest of them.
+   */
+  windows: Map<string, Date>;
+  /** When the shared sources were read. */
+  gatheredAt: Date;
   news: Gathering;
   /**
    * What could not be read besides the news sources, as the league message
@@ -23,17 +30,16 @@ export type Gathered = {
    */
   missing: string[];
   /**
-   * The parts of the first league's message that are still to be sent, once
-   * the message has been written. Absent until then.
+   * The first league's message once it has been written: its parts, the
+   * source items it was written from, and how many of the parts have been
+   * sent. Absent until then.
    */
-  unsent?: string[];
+  written?: { parts: string[]; items: SourceItem[]; sent: number };
 };
 
 export type Run = {
   id: number;
   preview: boolean;
-  /** Source items dated before this are outside the news window. */
-  windowStart: Date;
   /** How many times the step the run is at has failed. */
   failures: number;
   /** Absent until the first step has read the shared sources. */
@@ -51,11 +57,11 @@ function key(id: number) {
 /** Records a run that is yet to take its first step. */
 export function startRun(
   storage: DurableObjectStorage,
-  { preview, windowStart }: { preview: boolean; windowStart: Date }
+  { preview }: { preview: boolean }
 ) {
   const id = (storage.kv.get<number>(SEQUENCE) ?? 0) + 1;
   storage.kv.put(SEQUENCE, id);
-  saveRun(storage, { id, preview, windowStart, failures: 0 });
+  saveRun(storage, { id, preview, failures: 0 });
 }
 
 /** The run that was started first of those still in progress, if any. */

@@ -3,6 +3,7 @@ import { nextDigestTime } from "./digest-time";
 import { fetchWeekSchedule, NO_SCHEDULE } from "./espn";
 import { composeFailureMessage, composeLeagueMessage } from "./league-message";
 import { checkLineup } from "./lineup-check";
+import { newsWindowStart, recordDigest, wasSent } from "./history";
 import { gatherPlayerNews, gatherSharedNews } from "./news";
 import { playersById } from "./player-directory";
 import {
@@ -13,7 +14,6 @@ import {
   type Gathered,
   type Run
 } from "./runs";
-import { recordSent, wasSent } from "./sent-record";
 import {
   fetchMyLeagues,
   fetchNflState,
@@ -38,9 +38,6 @@ export const AGENT_NAME = "fantasy-weekly";
 // The parts of the NFL season, as Sleeper names them, that get a digest.
 const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
 
-// How far back news is considered.
-const NEWS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-
 // The free plan allows one invocation 50 outbound requests, and each player's
 // own page at ESPN is one of them. Read from Cloudflare's Workers limits page
 // on 2026-10-13.
@@ -52,6 +49,13 @@ const MOST_PAGES_NAMED = 5;
 
 // How many times the automatic digest takes a step before giving the run up.
 const STEP_ATTEMPTS = 3;
+
+// Where the news is gathered from: the start of the widest league window.
+function earliestWindow(windows: Map<string, Date>) {
+  return new Date(
+    Math.min(...[...windows.values()].map((start) => start.getTime()))
+  );
+}
 
 export class FantasyWeeklyAgent extends Agent<Env> {
   // Puts the next digest run on the schedule unless it is already there.
@@ -107,10 +111,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   // The automatic digest and the preview are the same run, taken through the
   // same steps, so a preview shows what the digest would say at that moment.
   private async startRun({ preview }: { preview: boolean }) {
-    startRun(this.ctx.storage, {
-      preview,
-      windowStart: new Date(Date.now() - NEWS_WINDOW_MS)
-    });
+    startRun(this.ctx.storage, { preview });
     await this.scheduleStep({ fromStep: false });
   }
 
@@ -192,7 +193,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   private async leagueDone(run: Run, gathered: Gathered) {
     const { leagues, failed } = gathered;
     if (leagues.length > 0) {
-      this.stepTaken(run, { ...gathered, unsent: undefined });
+      this.stepTaken(run, { ...gathered, written: undefined });
     } else await this.finishRun(run, failed.length > 0 ? failed : null);
   }
 
@@ -209,7 +210,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     if (gathered.news.lookups.length > 0) {
       const news = await gatherPlayerNews(
         gathered.news,
-        run.windowStart,
+        earliestWindow(gathered.windows),
         LOOKUPS_PER_STEP
       );
       this.stepTaken(run, { ...gathered, news });
@@ -219,22 +220,31 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     // Checked again here, in case the week's message went out while this run
     // was gathering.
     if (run.preview || !wasSent(this.ctx.storage, gathered.nfl, league.id)) {
-      let unsent =
-        gathered.unsent ??
-        (await this.leagueMessage(league, gathered, run.preview));
-      while (unsent.length > 0) {
-        await sendMessage(this.telegram, unsent[0]);
-        unsent = unsent.slice(1);
+      let written = gathered.written ?? {
+        ...(await this.leagueMessage(league, gathered, run.preview)),
+        sent: 0
+      };
+      while (written.sent < written.parts.length) {
+        await sendMessage(this.telegram, written.parts[written.sent]);
+        written = { ...written, sent: written.sent + 1 };
         // Kept part by part, so a step that is taken again sends only the
         // parts that have not gone out, as they were first written.
         saveRun(this.ctx.storage, {
           ...run,
-          gathered: { ...gathered, unsent }
+          gathered: { ...gathered, written }
         });
       }
       // Recorded league by league, so a run that fails part-way does not send
       // the leagues it reached again when it is retried.
-      if (!run.preview) recordSent(this.ctx.storage, gathered.nfl, league.id);
+      if (!run.preview) {
+        recordDigest(this.ctx.storage, {
+          nfl: gathered.nfl,
+          league,
+          messages: written.parts,
+          items: written.items,
+          newsGatheredAt: gathered.gatheredAt
+        });
+      }
     }
     await this.leagueDone(run, { ...gathered, leagues });
   }
@@ -287,11 +297,16 @@ export class FantasyWeeklyAgent extends Agent<Env> {
         ...leagues.flatMap((league) => ids(league.opponent))
       ])
     ]);
+    // A preview's window is the one the automatic digest would have now.
+    const now = new Date();
+    const windows = new Map(
+      leagues.map(({ id }) => [id, newsWindowStart(this.ctx.storage, id, now)])
+    );
     const news = await gatherSharedNews({
       players: [...players.values()],
       ownPages: new Set(myPlayers),
       schedule: schedule ?? NO_SCHEDULE,
-      windowStart: run.windowStart
+      windowStart: earliestWindow(windows)
     });
     const missing = [];
     if (!schedule) {
@@ -308,6 +323,8 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       failed,
       schedule,
       players,
+      windows,
+      gatheredAt: now,
       news,
       missing
     });
@@ -338,12 +355,14 @@ export class FantasyWeeklyAgent extends Agent<Env> {
           : `ESPN's own page for ${pagesUnread.join(", ")}`
       );
     }
+    // The news was gathered for the league with the widest window.
+    const windowStart = gathered.windows.get(league.id)!;
     const { items, kickedOff } = writerMaterial({
       league,
       roster,
       players,
       schedule,
-      items: news.items,
+      items: news.items.filter(({ date }) => date >= windowStart),
       now: new Date()
     });
     // The writer works only from source items, so with none it has nothing
@@ -367,7 +386,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
         missing.push("the written news sections (the model call failed)");
       }
     }
-    return composeLeagueMessage({
+    const parts = composeLeagueMessage({
       league,
       week: nfl.week,
       findings: checkLineup(league.lineup, players, schedule),
@@ -379,6 +398,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       byesChecked: gathered.schedule !== null,
       preview
     });
+    return { parts, items };
   }
 }
 

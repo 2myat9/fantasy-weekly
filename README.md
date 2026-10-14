@@ -10,8 +10,10 @@ The digest goes out on its own every Saturday at 6:00 PM Pacific, one message pe
 
 - Each run schedules the next one as an instant computed in `America/Los_Angeles`, so the send time holds across both daylight-saving changes. The schedule is armed the first time anything reaches the agent, which after a deploy means the first message sent to the bot.
 - The automatic digest is recorded per season, week and league, and a run sends nothing to a league already recorded for its week.
+- Each league message the automatic digest sends is kept in the history: its season, week and league, when it was sent, its text as sent, and the source items the writer was handed for it, which are about that league's players and their opponent's. Nothing that was downloaded is kept beyond those items. When the database is over 800 MB after a message is stored, the oldest messages are deleted until it is under.
+- The news for a league is what came out since its previous automatic digest, or in the last seven days when it has had none.
 - A league gets nothing when the NFL is outside its regular season and postseason, when the league is complete, or when my team is eliminated from its playoffs. A team left with only a placement game, such as the one for third place, counts as eliminated.
-- `/preview` works on any day, ignores those rules, and touches neither the record nor the schedule. It is the fallback if a Saturday digest fails to arrive.
+- `/preview` works on any day, ignores those rules, and touches neither the record, the history nor the schedule. It considers the same news as the automatic digest would at that moment. It is the fallback if a Saturday digest fails to arrive.
 - A failed read of a source and a failed model call are retried. When one keeps failing, the league message is built from what succeeded: it says under its title what is missing, and lists the injury statuses Sleeper has for the roster after the lineup check. The leagues are independent, so one league's failure leaves the other's message as it would have been.
 - A run that cannot send a league's message at all, because Sleeper cannot be read or Telegram refuses the message, sends one short failure message naming the league and `/preview`. That league is not written to the sent record.
 
@@ -29,7 +31,7 @@ src/
   server.ts          # The agent and the Worker entry point (the webhook)
   digest-time.ts     # When the automatic digest runs: the next Saturday 6:00 PM Pacific
   runs.ts            # The runs in progress and what each has gathered so far
-  sent-record.ts     # Which leagues the automatic digest has gone out to, per NFL week
+  history.ts         # The digests sent, with their source items, and which leagues each week has gone out to
   retry.ts           # Reading a source again when a read fails
   sleeper.ts         # Sleeper client: NFL week, leagues, rosters, this week's opponents, playoff bracket, player directory
   player-directory.ts # The stored copy of the Sleeper player directory
