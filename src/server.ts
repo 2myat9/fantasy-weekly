@@ -3,9 +3,12 @@ import { nextDigestTime } from "./digest-time";
 import { fetchWeekSchedule, NO_SCHEDULE } from "./espn";
 import {
   callTool,
+  CLIENT_METADATA_PATH,
+  clientMetadata,
   completeSignIn,
   connection,
   fetchPlayerNews,
+  SIGN_IN_CALLBACK_PATH,
   startSignIn,
   type SignInCallback
 } from "./fantasypros";
@@ -43,9 +46,6 @@ import { writerMaterial } from "./writer-material";
 
 // The system is single-user, so there is exactly one agent instance.
 export const AGENT_NAME = "fantasy-weekly";
-
-// Where FantasyPros sends the browser back to once the user has signed in.
-const SIGN_IN_CALLBACK = "/fantasypros/callback";
 
 // The parts of the NFL season, as Sleeper names them, that get a digest.
 const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
@@ -110,15 +110,13 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   }
 
   // Replies with a link to sign in to FantasyPros. `origin` is the Worker's
-  // own, where FantasyPros sends the browser back to.
+  // own, where FantasyPros reads the client metadata document and sends the
+  // browser back to.
   async requestSignIn(origin: string) {
     await this.armDigest();
     let reply;
     try {
-      const link = await startSignIn(
-        this.ctx.storage,
-        `${origin}${SIGN_IN_CALLBACK}`
-      );
+      const link = await startSignIn(this.ctx.storage, origin);
       reply = `Sign in to FantasyPros to connect it: ${linkTo(link, "sign in")}`;
     } catch (error) {
       console.error("The sign-in to FantasyPros could not be started", error);
@@ -482,11 +480,15 @@ async function signInCallback(request: Request, env: Env) {
 }
 
 export default {
-  // The HTTP surface is the Telegram webhook and the address FantasyPros sends
-  // the browser back to after a sign-in, and nothing else.
+  // The HTTP surface is the Telegram webhook, the client metadata document
+  // FantasyPros reads during a sign-in, and the address it sends the browser
+  // back to after one, and nothing else.
   async fetch(request, env, ctx) {
-    const { pathname } = new URL(request.url);
-    if (request.method === "GET" && pathname === SIGN_IN_CALLBACK) {
+    const { origin, pathname } = new URL(request.url);
+    if (request.method === "GET" && pathname === CLIENT_METADATA_PATH) {
+      return Response.json(clientMetadata(origin));
+    }
+    if (request.method === "GET" && pathname === SIGN_IN_CALLBACK_PATH) {
       return signInCallback(request, env);
     }
     if (request.method !== "POST" || pathname !== "/telegram/webhook") {
@@ -508,7 +510,7 @@ export default {
         // Telegram delivers it again.
         await agent.requestPreview();
       } else if (command === "connect") {
-        ctx.waitUntil(agent.requestSignIn(new URL(request.url).origin));
+        ctx.waitUntil(agent.requestSignIn(origin));
       } else {
         ctx.waitUntil(agent.sendHint());
       }

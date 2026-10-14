@@ -50,15 +50,40 @@ function serverMetadataUrl(issuer: string) {
   return `${origin}/.well-known/oauth-authorization-server${path}`;
 }
 
+// Where the Worker serves its client metadata document, and where FantasyPros
+// sends the browser back to once the user has signed in.
+export const CLIENT_METADATA_PATH = "/fantasypros/client.json";
+export const SIGN_IN_CALLBACK_PATH = "/fantasypros/callback";
+
+/**
+ * The agent's client metadata document, as the Worker at `origin` serves it.
+ * Its address is the agent's client ID at FantasyPros: FantasyPros reads the
+ * document when the user opens a sign-in link, and sends the browser back
+ * only to an address it names. FantasyPros' dynamic client registration
+ * refuses any redirect address but its own allowed ones, so it is not used.
+ * The agent has no secret to keep.
+ */
+export function clientMetadata(origin: string) {
+  return {
+    client_id: `${origin}${CLIENT_METADATA_PATH}`,
+    client_name: "Fantasy Weekly",
+    redirect_uris: [`${origin}${SIGN_IN_CALLBACK_PATH}`],
+    grant_types: ["authorization_code", "refresh_token"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "none",
+    scope: SCOPE
+  };
+}
+
 /**
  * Starts a sign-in, and gives the link at FantasyPros where the user signs
- * in. FantasyPros then sends the browser to `redirectUri`, whose request is
- * handed to `completeSignIn`. A sign-in started before is replaced: only the
- * latest can be completed.
+ * in. FantasyPros then sends the browser to the callback at `origin`, whose
+ * request is handed to `completeSignIn`. A sign-in started before is
+ * replaced: only the latest can be completed.
  */
 export async function startSignIn(
   storage: DurableObjectStorage,
-  redirectUri: string
+  origin: string
 ) {
   const resource = await readJson<{ authorization_servers: string[] }>(
     RESOURCE_METADATA
@@ -66,25 +91,11 @@ export async function startSignIn(
   const server = await readJson<{
     authorization_endpoint: string;
     token_endpoint: string;
-    registration_endpoint: string;
   }>(serverMetadataUrl(resource.authorization_servers[0]));
-  // The agent registers itself afresh for each sign-in, so it needs no
-  // client of its own set up at FantasyPros. It has no secret to keep.
-  const { client_id: clientId } = await readJson<{ client_id: string }>(
-    server.registration_endpoint,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_name: "Fantasy Weekly",
-        redirect_uris: [redirectUri],
-        grant_types: ["authorization_code", "refresh_token"],
-        response_types: ["code"],
-        token_endpoint_auth_method: "none",
-        scope: SCOPE
-      })
-    }
-  );
+  const {
+    client_id: clientId,
+    redirect_uris: [redirectUri]
+  } = clientMetadata(origin);
   const pending: PendingSignIn = {
     state: randomBytes(32).toString("base64url"),
     codeVerifier: randomBytes(32).toString("base64url"),

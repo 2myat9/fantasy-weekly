@@ -1,6 +1,6 @@
 # A small MCP client of our own for FantasyPros, not the Agents SDK's
 
-The agent reaches FantasyPros' MCP server with its own client in `src/fantasypros.ts`: OAuth with dynamic client registration and PKCE, the tokens in the agent's Durable Object storage, and one Streamable HTTP session per tool call. The Agents SDK's MCP client (`addMcpServer`, `this.mcp.configureOAuthCallback`) was preferred, and was checked against `agents` 0.17.4 before deciding.
+The agent reaches FantasyPros' MCP server with its own client in `src/fantasypros.ts`: OAuth with PKCE and a client ID metadata document (dynamic client registration at first; see [ADR 0003](0003-client-id-metadata-document-for-fantasypros.md)), the tokens in the agent's Durable Object storage, and one Streamable HTTP session per tool call. The Agents SDK's MCP client (`addMcpServer`, `this.mcp.configureOAuthCallback`) was preferred, and was checked against `agents` 0.17.4 before deciding.
 
 ## Considered Options
 

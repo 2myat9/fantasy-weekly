@@ -1,11 +1,13 @@
 // A stand-in for FantasyPros: its sign-in service and its MCP server, served
 // through `fakeOutboundHttp` at the URLs the real ones have. The metadata is
 // what FantasyPros published on 14 October 2026. It checks what the real ones
-// would: that a code is redeemed by the client it was issued to, with the
-// verifier of its challenge and its redirect address, that a refresh token is
-// one it issued and has not replaced, and that every MCP request carries an
-// access token that is live.
+// would: that a sign-in link names a client metadata document the Worker
+// serves, with the link's redirect address in it, that a code is redeemed by
+// the client it was issued to, with the verifier of its challenge and its
+// redirect address, that a refresh token is one it issued and has not
+// replaced, and that every MCP request carries an access token that is live.
 import { createHash } from "node:crypto";
+import { fetchFromWorker } from "./harness";
 
 const API = "https://api.fantasypros.com";
 const SECURE = "https://secure.fantasypros.com";
@@ -57,7 +59,6 @@ export function fakeFantasyPros({
   accessTokenSeconds?: number;
   tools?: Record<string, (args: unknown) => unknown>;
 } = {}) {
-  const clients = new Map<string, { redirectUris: string[] }>();
   const codes = new Map<
     string,
     { clientId: string; challenge: string; redirectUri: string }
@@ -120,14 +121,10 @@ export function fakeFantasyPros({
     return Response.json({ error: "unsupported_grant_type" }, { status: 400 });
   }
 
-  async function register(request: Request) {
-    const metadata = await request.json<{ redirect_uris: string[] }>();
-    const clientId = fresh("client");
-    clients.set(clientId, { redirectUris: metadata.redirect_uris });
-    return Response.json(
-      { ...metadata, client_id: clientId, token_endpoint_auth_method: "none" },
-      { status: 201 }
-    );
+  // FantasyPros registers a client only for redirect addresses it allows,
+  // such as a loopback one, and a Worker's is not among them.
+  function register() {
+    return Response.json({ error: "invalid_redirect_uri" }, { status: 400 });
   }
 
   function unauthorized() {
@@ -198,14 +195,28 @@ export function fakeFantasyPros({
   }
 
   /**
-   * The user, in a browser, opening a sign-in link and signing in. Gives the
-   * address FantasyPros sends the browser back to.
+   * The user, in a browser, opening a sign-in link and signing in. FantasyPros
+   * reads the client metadata document the link's client ID is the address
+   * of, from the Worker. Gives the address FantasyPros sends the browser back
+   * to.
    */
-  function signIn(link: string) {
+  async function signIn(link: string) {
     const query = new URL(link).searchParams;
     const clientId = query.get("client_id")!;
     const redirectUri = query.get("redirect_uri")!;
-    if (!clients.get(clientId)?.redirectUris.includes(redirectUri)) {
+    const document = await fetchFromWorker(clientId);
+    const metadata =
+      document.status === 200 &&
+      document.contentType?.startsWith("application/json")
+        ? (JSON.parse(document.body) as {
+            client_id?: string;
+            redirect_uris?: string[];
+          })
+        : null;
+    if (
+      metadata?.client_id !== clientId ||
+      !metadata.redirect_uris?.includes(redirectUri)
+    ) {
       throw new Error(`FantasyPros does not know the sign-in link ${link}`);
     }
     const code = fresh("code");
@@ -254,6 +265,7 @@ export function fakeFantasyPros({
         authorization_endpoint: FANTASYPROS.authorize,
         token_endpoint: FANTASYPROS.token,
         registration_endpoint: FANTASYPROS.register,
+        client_id_metadata_document_supported: true,
         scopes_supported: ["user:read", "offline_access"],
         response_types_supported: ["code"],
         token_endpoint_auth_methods_supported: [

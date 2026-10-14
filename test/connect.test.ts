@@ -5,6 +5,7 @@ import {
   deliverTelegramUpdate,
   fakeOutboundHttp,
   fantasyProsConnection,
+  fetchFromWorker,
   MY_CHAT_ID,
   openInBrowser,
   setClock,
@@ -37,13 +38,31 @@ it("/connect from my chat is answered with a link to sign in to FantasyPros", as
   expect(`${link.origin}${link.pathname}`).toBe(FANTASYPROS.authorize);
   expect(Object.fromEntries(link.searchParams)).toEqual({
     response_type: "code",
-    client_id: expect.any(String),
+    client_id: "https://fantasy-weekly.example/fantasypros/client.json",
     redirect_uri: "https://fantasy-weekly.example/fantasypros/callback",
     scope: "user:read offline_access",
     state: expect.any(String),
     code_challenge: expect.any(String),
     code_challenge_method: "S256",
     resource: FANTASYPROS.mcp
+  });
+});
+
+it("the Worker serves the client metadata document the sign-in link names as its client", async () => {
+  const document = await fetchFromWorker(
+    "https://fantasy-weekly.example/fantasypros/client.json"
+  );
+
+  expect(document.status).toBe(200);
+  expect(document.contentType).toMatch(/^application\/json/);
+  expect(JSON.parse(document.body)).toEqual({
+    client_id: "https://fantasy-weekly.example/fantasypros/client.json",
+    client_name: "Fantasy Weekly",
+    redirect_uris: ["https://fantasy-weekly.example/fantasypros/callback"],
+    grant_types: ["authorization_code", "refresh_token"],
+    response_types: ["code"],
+    token_endpoint_auth_method: "none",
+    scope: "user:read offline_access"
   });
 });
 
@@ -64,7 +83,7 @@ it("completing the sign-in confirms it in my chat, and the agent can then call i
   expect(await fantasyProsConnection()).toBe("not connected");
 
   const link = await connect(outbound);
-  const callback = await openInBrowser(fantasyPros.signIn(link));
+  const callback = await openInBrowser(await fantasyPros.signIn(link));
 
   expect(callback.status).toBe(200);
   expect(callback.page).toContain("FantasyPros is connected");
@@ -119,7 +138,7 @@ it("a callback for a sign-in the agent did not start is refused and changes noth
   const before = await openInBrowser(`${CALLBACK}?code=code-1&state=made-up`);
   const link = await connect(outbound);
   const sentAfterConnect = outbound.telegramMessages.length;
-  const back = fantasyPros.signIn(link);
+  const back = await fantasyPros.signIn(link);
   const forged = await openInBrowser(withState(back, "made-up"));
   const stateless = await openInBrowser(`${CALLBACK}?code=code-1`);
 
@@ -139,7 +158,7 @@ it("a sign-in already completed cannot be completed again", async () => {
   const fantasyPros = fakeFantasyPros();
   const outbound = fakeOutboundHttp(fantasyPros.responses);
 
-  const back = fantasyPros.signIn(await connect(outbound));
+  const back = await fantasyPros.signIn(await connect(outbound));
   await openInBrowser(back);
   const sent = outbound.telegramMessages.length;
   const replayed = await openInBrowser(back);
@@ -153,7 +172,7 @@ it("after the access token expires, a call with nobody present renews the sign-i
   setClock("2026-10-14T12:00:00Z");
   const fantasyPros = fakeFantasyPros({ accessTokenSeconds: 3600 });
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
   await callFantasyPros("injury_status", INJURY_STATUS_ARGS);
 
   setClock("2026-10-17T18:00:00Z");
@@ -179,7 +198,7 @@ it("when FantasyPros refuses to renew the sign-in, the agent reports it lost and
   setClock("2026-10-14T12:00:00Z");
   const fantasyPros = fakeFantasyPros({ accessTokenSeconds: 3600 });
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
 
   fantasyPros.revoke();
   setClock("2026-10-17T18:00:00Z");
@@ -200,7 +219,7 @@ it("two calls that both find the access token expired leave the agent connected"
   setClock("2026-10-14T12:00:00Z");
   const fantasyPros = fakeFantasyPros({ accessTokenSeconds: 3600 });
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
 
   fantasyPros.answerRenewalsAfter(50);
   setClock("2026-10-17T18:00:00Z");
@@ -233,7 +252,7 @@ it("a renewal FantasyPros refuses for a reason other than the sign-in is thrown,
         ? Response.json({ error: "invalid_request" }, { status: 400 })
         : token(request)
   });
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
 
   malformed = true;
   setClock("2026-10-17T18:00:00Z");
@@ -252,7 +271,7 @@ it("a sign-in completed more than 15 minutes after /connect fails and says so", 
   setClock("2026-10-14T12:00:00Z");
   const fantasyPros = fakeFantasyPros();
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  const back = fantasyPros.signIn(await connect(outbound));
+  const back = await fantasyPros.signIn(await connect(outbound));
 
   setClock("2026-10-14T12:16:00Z");
   const callback = await openInBrowser(back);
@@ -268,13 +287,13 @@ it("a sign-in completed more than 15 minutes after /connect fails and says so", 
 it("/connect when already connected signs in again and replaces the old sign-in", async () => {
   const fantasyPros = fakeFantasyPros();
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
   await callFantasyPros("injury_status", INJURY_STATUS_ARGS);
 
   const second = await connect(outbound);
   // Until the new sign-in is completed, the old one is still used.
   await callFantasyPros("injury_status", INJURY_STATUS_ARGS);
-  await openInBrowser(fantasyPros.signIn(second));
+  await openInBrowser(await fantasyPros.signIn(second));
   await callFantasyPros("injury_status", INJURY_STATUS_ARGS);
 
   const [first, beforeSecond, afterSecond] = fantasyPros.toolCalls.map(
@@ -291,12 +310,12 @@ it("/connect after the sign-in was lost connects the agent again", async () => {
   setClock("2026-10-14T12:00:00Z");
   const fantasyPros = fakeFantasyPros({ accessTokenSeconds: 3600 });
   const outbound = fakeOutboundHttp(fantasyPros.responses);
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
   fantasyPros.revoke();
   setClock("2026-10-17T18:00:00Z");
   await callFantasyPros("injury_status", INJURY_STATUS_ARGS);
 
-  await openInBrowser(fantasyPros.signIn(await connect(outbound)));
+  await openInBrowser(await fantasyPros.signIn(await connect(outbound)));
 
   expect(await fantasyProsConnection()).toBe("connected");
   expect(

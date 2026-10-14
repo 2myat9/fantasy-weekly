@@ -309,16 +309,30 @@ export async function deliverTelegramUpdate(
  * finish. Gives the status and text of the page the browser is shown.
  */
 export async function openInBrowser(address: string) {
+  const { status, body } = await fetchFromWorker(address);
+  await finishDueTasks();
+  return { status, page: body };
+}
+
+/**
+ * Makes a GET request to an address on the Worker, as a server outside does,
+ * such as FantasyPros reading the agent's client metadata document. Gives
+ * the status, content type and text of the response.
+ */
+export async function fetchFromWorker(address: string) {
   const request = new Request(address) as Request<
     unknown,
     IncomingRequestCfProperties
   >;
   const ctx = createExecutionContext();
   const response = await worker.fetch(request, env, ctx);
-  const page = await response.text();
+  const body = await response.text();
   await waitOnExecutionContext(ctx);
-  await finishDueTasks();
-  return { status: response.status, page };
+  return {
+    status: response.status,
+    contentType: response.headers.get("Content-Type"),
+    body
+  };
 }
 
 /** The sign-in link in a message the bot sent, as a browser would open it. */
@@ -336,17 +350,14 @@ export function signInLink(message: unknown) {
  * and the digest put on the schedule.
  */
 export async function signInToFantasyPros(fantasyPros: {
-  signIn(link: string): string;
+  signIn(link: string): Promise<string>;
 }) {
   const sent = telegramMessages.length;
   const requested = outboundRequests.length;
   const link = await runInDurableObject(agent(), (_instance, state) =>
-    startSignIn(
-      state.storage,
-      "https://fantasy-weekly.example/fantasypros/callback"
-    )
+    startSignIn(state.storage, "https://fantasy-weekly.example")
   );
-  await openInBrowser(fantasyPros.signIn(link));
+  await openInBrowser(await fantasyPros.signIn(link));
   telegramMessages.splice(sent);
   outboundRequests.splice(requested);
 }
