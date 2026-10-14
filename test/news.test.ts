@@ -8,7 +8,7 @@ import {
   type WriterMaterial,
   type WriterStandIn
 } from "./harness";
-import { savedSources, URLS } from "./sources";
+import { savedSources, savedSourcesAhead, URLS } from "./sources";
 
 // The saved ESPN injuries were read that morning, so the week before it is the
 // news window these tests run in.
@@ -396,16 +396,17 @@ it("the automatic digest carries the news sections too", async () => {
       }
     ]
   });
-  const outbound = fakeOutboundHttp(savedSources(), { writer });
+  const outbound = fakeOutboundHttp(savedSourcesAhead(), { writer });
 
-  // Saturday 17 October 2026, 6:00 PM Pacific.
-  await triggerScheduledRun("2026-10-18T01:00:00Z");
+  // Saturday 19 October 2030, 6:00 PM Pacific, the Saturday after the saved
+  // ESPN injuries as they are moved forward.
+  await triggerScheduledRun("2030-10-20T01:00:00Z");
 
   expect(outbound.writerCalls).toHaveLength(2);
   expect(texts(outbound.telegramMessages)[0]).toContain(
     [
       "<b>Other news on your roster</b>",
-      '⚪ <b>Jared Goff</b>: Something happened. (<a href="https://www.espn.com/nfl/player/_/id/3046779/jared-goff">ESPN, Oct 11</a>)'
+      '⚪ <b>Jared Goff</b>: Something happened. (<a href="https://www.espn.com/nfl/player/_/id/3046779/jared-goff">ESPN, Oct 13</a>)'
     ].join("\n")
   );
 });

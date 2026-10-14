@@ -10,31 +10,9 @@ import {
   triggerScheduledRun,
   type WriterMaterial
 } from "./harness";
-import { savedSources, URLS } from "./sources";
+import { savedSourcesAhead, URLS } from "./sources";
 
-// The saved ESPN injuries are moved forward this many weeks, so that their
-// news falls in a window that is still ahead of the runtime's clock, which
-// fires any alarm that is due by itself. The other news sources are left in
-// 2026, outside every window.
-const WEEKS_AHEAD = 209;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-/** An instant of October 2026 moved forward as the saved injuries are. */
-function ahead(instant: string) {
-  return new Date(new Date(instant).getTime() + WEEKS_AHEAD * WEEK_MS);
-}
-
-/** The saved sources, with the ESPN injuries moved forward. */
-function sourcesAhead() {
-  const sources = savedSources();
-  const { injuries } = sources[URLS.injuries] as {
-    injuries: { injuries: { date: string }[] }[];
-  };
-  for (const report of injuries.flatMap((team) => team.injuries)) {
-    report.date = ahead(report.date).toISOString();
-  }
-  return sources;
-}
 
 /**
  * Sets the NFL week Sleeper reports, with that week's matchups and schedule
@@ -83,7 +61,7 @@ function identities(
 }
 
 it("an automatic digest is stored per league with its season, week, time sent, the message as sent and the source items it was built from", async () => {
-  const outbound = fakeOutboundHttp(sourcesAhead());
+  const outbound = fakeOutboundHttp(savedSourcesAhead());
 
   // The morning the saved ESPN injuries were read: Tuesday 15 October 2030.
   await triggerScheduledRun("2030-10-15T16:00:00Z");
@@ -127,7 +105,7 @@ it("an automatic digest is stored per league with its season, week, time sent, t
 });
 
 it("the next digest for a league hands the writer only the items since that league's previous digest, and a league without one those of the last seven days", async () => {
-  const sources = sourcesAhead();
+  const sources = savedSourcesAhead();
   const [redraft, dynasty] = sources[URLS.leagues] as unknown[];
   const outbound = fakeOutboundHttp(sources);
   // Week 5's digest goes out on the Monday morning, to the redraft league
@@ -161,7 +139,7 @@ it("the next digest for a league hands the writer only the items since that leag
 });
 
 it("a preview stores nothing in the history and does not move the news window, which it shares with the automatic digest", async () => {
-  const sources = sourcesAhead();
+  const sources = savedSourcesAhead();
   const outbound = fakeOutboundHttp(sources);
   const previous = new Date("2030-10-14T12:00:00Z");
   atWeek(sources, 5);
@@ -198,7 +176,7 @@ it("a preview stores nothing in the history and does not move the news window, w
 
 it("when the database is over 800 MB after a digest is stored, the oldest digests are deleted until it is under", async () => {
   const limit = 800_000_000;
-  const sources = sourcesAhead();
+  const sources = savedSourcesAhead();
   fakeOutboundHttp(sources);
   atWeek(sources, 4);
   await triggerScheduledRun("2030-10-14T12:00:00Z");

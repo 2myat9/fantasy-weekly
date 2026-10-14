@@ -85,3 +85,28 @@ export function savedSources(): Record<string, unknown> {
     )
   });
 }
+
+// How many weeks `savedSourcesAhead` moves the saved ESPN injuries forward. A
+// whole number of weeks keeps each report on its weekday.
+const WEEKS_AHEAD = 209;
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * The saved sources, with the dates of the ESPN injuries moved forward 209
+ * weeks: a report of Sunday 11 October 2026 becomes one of Sunday 13 October
+ * 2030. An automatic run has to be triggered at an instant still ahead of the
+ * runtime's clock, which fires any alarm that is due by itself, and this keeps
+ * those reports inside the news window of such a run. The other news sources
+ * are left in 2026, outside every window.
+ */
+export function savedSourcesAhead(): Record<string, unknown> {
+  const sources = savedSources();
+  const { injuries } = sources[URLS.injuries] as {
+    injuries: { injuries: { date: string }[] }[];
+  };
+  for (const report of injuries.flatMap((team) => team.injuries)) {
+    const date = new Date(report.date).getTime() + WEEKS_AHEAD * WEEK_MS;
+    report.date = new Date(date).toISOString();
+  }
+  return sources;
+}

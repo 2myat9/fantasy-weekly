@@ -8,7 +8,7 @@ import {
   type WriterMaterial,
   type WriterStandIn
 } from "./harness";
-import { overviewUrl, savedSources, URLS } from "./sources";
+import { overviewUrl, savedSources, savedSourcesAhead, URLS } from "./sources";
 
 // The saved sources were read that morning, so the week before it is the news
 // window these tests run in unless they say otherwise.
@@ -273,7 +273,9 @@ it("/preview covering 43 roster players stays within 50 outbound requests in one
 });
 
 it("/preview produces the same content as the automatic run at that moment, apart from its marker", async () => {
-  const instant = "2026-10-18T01:00:00Z";
+  // Saturday 19 October 2030, 6:00 PM Pacific, with the saved ESPN injuries
+  // moved forward to the week before.
+  const instant = "2030-10-20T01:00:00Z";
   const writer: WriterStandIn = (material) => ({
     needsDecision: [],
     stillUnresolved: [],
@@ -289,7 +291,7 @@ it("/preview produces the same content as the automatic run at that moment, apar
           .map((item) => item.id)
       }))
   });
-  const outbound = fakeOutboundHttp(savedSources(), { writer });
+  const outbound = fakeOutboundHttp(savedSourcesAhead(), { writer });
   setClock(instant);
   await deliverTelegramUpdate(textMessage("/preview"));
 

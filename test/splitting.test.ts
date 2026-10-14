@@ -7,7 +7,7 @@ import {
   triggerScheduledRun,
   type WriterStandIn
 } from "./harness";
-import { savedSources, URLS } from "./sources";
+import { savedSources, savedSourcesAhead, URLS } from "./sources";
 
 // The saved ESPN injuries were read that morning, before any game of week 6.
 const TUESDAY = "2026-10-13T16:00:00Z";
@@ -132,12 +132,13 @@ it("the parts together hold everything the league message has: its headings once
   expect(last.at(-1)!.split(", ")).toHaveLength(4);
 });
 
-// The digest's hour in week 6.
-const SATURDAY = "2026-10-18T01:00:00Z";
+// The digest's hour in week 6, with the saved ESPN injuries moved forward to
+// the week before: Saturday 19 October 2030, 6:00 PM Pacific.
+const SATURDAY = "2030-10-20T01:00:00Z";
 
 it("when a part of the automatic digest fails to send, the step taken again sends only the parts that had not gone out", async () => {
   let refused = false;
-  const outbound = fakeOutboundHttp(savedSources(), {
+  const outbound = fakeOutboundHttp(savedSourcesAhead(), {
     writer: writesAtLength,
     // Telegram refuses the first part after the opening one, once.
     rejectTelegram: (text) => {
