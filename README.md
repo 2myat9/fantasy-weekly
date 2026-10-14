@@ -20,9 +20,11 @@ The digest goes out on its own every Saturday at 6:00 PM Pacific, one message pe
 ## How it is built
 
 - One [Agents SDK](https://developers.cloudflare.com/agents/) agent, `FantasyWeeklyAgent`, backed by a single SQLite Durable Object. It owns scheduling, state and history.
-- The Worker is named `fantasy-weekly`. Its HTTP surface is the Telegram webhook, `POST /telegram/webhook`, and nothing else.
+- The Worker is named `fantasy-weekly`. Its HTTP surface is two routes and nothing else: the Telegram webhook, `POST /telegram/webhook`, and the address FantasyPros sends the browser back to after a sign-in, `GET /fantasypros/callback`.
 - The webhook accepts a request only if it carries the webhook secret, and acts on an update only if it comes from the configured chat. It acknowledges Telegram straight away and the agent sends the reply afterwards.
-- `/preview` is the only command. Any other message from the configured chat gets a one-line hint.
+- The commands are `/preview` and `/connect`. Any other message from the configured chat gets a one-line hint naming both.
+- `/connect` signs the agent in to [FantasyPros' MCP server](https://api.fantasypros.com/mcp) as your FantasyPros account, so that runs can read player news from it (see [ADR 0001](docs/adr/0001-fantasypros-for-per-player-news.md)). The bot replies with a sign-in link; once you have signed in, FantasyPros sends the browser to the callback route, and the bot replies that FantasyPros is connected, or that the sign-in failed. The callback acts only on the latest sign-in the agent started, and only once. Sending `/connect` again signs in again and replaces the old sign-in when it is completed.
+- The sign-in is kept in the agent's storage and renewed with its refresh token when its access token has expired, so scheduled runs call FantasyPros with nobody present. If FantasyPros refuses to renew it, the agent records the sign-in as lost, and `/connect` is needed again. A call to a FantasyPros tool is three requests (the MCP session's setup, then the call), four when the access token has expired, and up to seven when FantasyPros refuses a token that has not. Calls that find the token expired together renew it once. A sign-in link works for 15 minutes. The agent uses a small MCP client of its own rather than the Agents SDK's ([ADR 0002](docs/adr/0002-own-mcp-client-for-fantasypros.md)).
 - There is no web interface.
 - A run is taken in steps, each its own invocation of the agent, because Cloudflare's free plan allows one invocation 50 outbound requests: the shared sources first, then each player's own page at ESPN in batches, then one league message per step. What a run has gathered is kept in the agent's storage in between. The automatic digest and `/preview` go through the same steps.
 
@@ -35,6 +37,7 @@ src/
   retry.ts           # Reading a source again when a read fails
   sleeper.ts         # Sleeper client: NFL week, leagues, rosters, this week's opponents, playoff bracket, player directory
   player-directory.ts # The stored copy of the Sleeper player directory
+  fantasypros.ts     # FantasyPros client: the sign-in, its renewal, and calls to the MCP server's tools
   espn.ts            # ESPN client: the week's byes and kickoffs, injury reports, league news, a player's overview
   pft.ts             # ProFootballTalk client: the latest entries of its feed
   news.ts            # News gathering: source items about players, from all the news sources
@@ -42,11 +45,13 @@ src/
   writer-material.ts # Which source items the writer is handed for a league
   lineup-check.ts    # The lineup check
   league-message.ts  # Digest composer: the message for one league
-  telegram.ts        # Telegram client: sends messages, verifies webhook requests
+  telegram.ts        # Telegram client: sends messages, verifies webhook requests, reads commands
 test/
   harness.ts         # The test seam: faked outbound HTTP, a controlled clock, scheduled-run trigger, Telegram update delivery
   fixtures/          # Saved copies of real responses
   sources.ts         # The saved responses a run reads, keyed by URL
+  fantasypros.ts     # A stand-in for FantasyPros' sign-in service and MCP server
+  connect.test.ts
   digest.test.ts
   news.test.ts
   news-sources.test.ts
@@ -95,7 +100,12 @@ These steps are done once, by hand. They need a Cloudflare account and a Telegra
 
 1. In Telegram, open a chat with [@BotFather](https://t.me/BotFather) and send `/newbot`.
 2. Give it a name and a username when asked. BotFather replies with the bot token, which looks like `1234567890:AA...`. Keep it private: anyone who has it controls the bot.
-3. Optionally send `/setcommands` to BotFather, pick the bot, and send `preview - Send the digest as it would be written now` so the command appears in the bot's menu.
+3. Optionally send `/setcommands` to BotFather, pick the bot, and send the command list below so the commands appear in the bot's menu:
+
+   ```
+   preview - Send the digest as it would be written now
+   connect - Sign in to FantasyPros
+   ```
 
 ### 2. Find your chat ID
 
@@ -167,6 +177,14 @@ cp .dev.vars.example .dev.vars   # then fill in the values
 
 The webhook only needs registering again if the Worker's URL or the webhook secret changes.
 
+### 6. Connect FantasyPros
+
+1. Send `/connect` to the bot. It replies with a sign-in link.
+2. Open the link and sign in with your FantasyPros account. FantasyPros sends the browser back to `https://fantasy-weekly.<your-subdomain>.workers.dev/fantasypros/callback`, which shows whether the sign-in worked.
+3. The bot replies "FantasyPros is connected."
+
+This is needed once. Send `/connect` again only if the sign-in is lost (FantasyPros stops renewing it), or to sign in as another account. If the Worker's URL changes, send `/connect` again so FantasyPros knows the new callback address.
+
 ## Development
 
 ```bash
@@ -188,6 +206,10 @@ There is one test seam, the agent's outside edge. A test fakes what the agent re
 - `triggerScheduledRun(instant)`: runs the agent's scheduled digest run at a chosen instant.
 - `pendingSchedule()`: what is on the agent's schedule, to assert on the next scheduled time.
 - `deliverTelegramUpdate(update)`: delivers an update to the webhook as Telegram does and waits for the reply work to finish. `textMessage(text, chatId)` builds the update.
+- `openInBrowser(address)`: opens an address on the Worker as a browser does, such as the one FantasyPros sends the browser back to after a sign-in. `signInLink(message)` reads the sign-in link out of the bot's reply to `/connect`.
+- `callFantasyPros(tool, args)` and `fantasyProsConnection()`: call a FantasyPros tool as the agent's runs do, and read whether the agent says it is connected.
+
+`test/fantasypros.ts` stands in for FantasyPros through `fakeOutboundHttp`: it registers clients, issues codes and tokens, checks PKCE and refresh tokens as the real service does, and answers MCP requests. `signIn(link)` and `decline(link)` stand in for the user at FantasyPros' sign-in page, and `revoke()` for FantasyPros ending the sign-in. A saved response given as a function is called with the request, so a stand-in can answer by what it is sent.
 
 The fake collects the messages sent to Telegram in `telegramMessages`. Tests get stand-in secrets from `vitest.config.ts`, never from `.dev.vars`.
 

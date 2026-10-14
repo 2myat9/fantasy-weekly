@@ -6,7 +6,7 @@ import {
   textMessage
 } from "./harness";
 
-it("any other text from my chat is answered with a one-line hint naming /preview", async () => {
+it("any other text from my chat is answered with a one-line hint naming /preview and /connect", async () => {
   const outbound = fakeOutboundHttp();
 
   await deliverTelegramUpdate(textMessage("who should I start?"));
@@ -14,7 +14,7 @@ it("any other text from my chat is answered with a one-line hint naming /preview
   expect(outbound.telegramMessages).toEqual([
     {
       chat_id: String(MY_CHAT_ID),
-      text: "Send /preview to see the digest as it would be written now.",
+      text: "Send /preview to see the digest as it would be written now, or /connect to sign in to FantasyPros.",
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true }
     }

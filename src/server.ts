@@ -1,6 +1,13 @@
 import { Agent } from "agents";
 import { nextDigestTime } from "./digest-time";
 import { fetchWeekSchedule, NO_SCHEDULE } from "./espn";
+import {
+  callTool,
+  completeSignIn,
+  connection,
+  startSignIn,
+  type SignInCallback
+} from "./fantasypros";
 import { composeFailureMessage, composeLeagueMessage } from "./league-message";
 import { checkLineup } from "./lineup-check";
 import { newsWindowStart, recordDigest, wasSent } from "./history";
@@ -24,8 +31,9 @@ import {
   type UnreadLeague
 } from "./sleeper";
 import {
+  commandIn,
   hasWebhookSecret,
-  isPreviewCommand,
+  linkTo,
   sendMessage,
   textFromMyChat
 } from "./telegram";
@@ -34,6 +42,9 @@ import { writerMaterial } from "./writer-material";
 
 // The system is single-user, so there is exactly one agent instance.
 export const AGENT_NAME = "fantasy-weekly";
+
+// Where FantasyPros sends the browser back to once the user has signed in.
+const SIGN_IN_CALLBACK = "/fantasypros/callback";
 
 // The parts of the NFL season, as Sleeper names them, that get a digest.
 const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
@@ -90,14 +101,63 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     };
   }
 
-  // Any text other than `/preview` gets a hint, so the bot never behaves like
+  // Any text other than a command gets a hint, so the bot never behaves like
   // a chat assistant.
   async sendHint() {
     await this.armDigest();
     await sendMessage(
       this.telegram,
-      "Send /preview to see the digest as it would be written now."
+      "Send /preview to see the digest as it would be written now, or /connect to sign in to FantasyPros."
     );
+  }
+
+  // Replies with a link to sign in to FantasyPros. `origin` is the Worker's
+  // own, where FantasyPros sends the browser back to.
+  async requestSignIn(origin: string) {
+    await this.armDigest();
+    let reply;
+    try {
+      const link = await startSignIn(
+        this.ctx.storage,
+        `${origin}${SIGN_IN_CALLBACK}`
+      );
+      reply = `Sign in to FantasyPros to connect it: ${linkTo(link, "sign in")}`;
+    } catch (error) {
+      console.error("The sign-in to FantasyPros could not be started", error);
+      reply =
+        "The sign-in to FantasyPros could not be started. Send /connect to try again.";
+    }
+    await sendMessage(this.telegram, reply);
+  }
+
+  // Completes the sign-in from the address FantasyPros sent the browser back
+  // to, and tells the chat how it went. A callback for no sign-in the agent
+  // started sends nothing, so the route cannot be used to message the chat.
+  async completeSignIn(callback: SignInCallback) {
+    const outcome = await completeSignIn(this.ctx.storage, callback);
+    if (outcome !== "unknown") {
+      await sendMessage(
+        this.telegram,
+        outcome === "connected"
+          ? "FantasyPros is connected."
+          : "The sign-in to FantasyPros failed. Send /connect to try again."
+      ).catch((error) => {
+        // The page the browser is shown says the same.
+        console.error("The sign-in's outcome could not be sent", error);
+      });
+    }
+    return outcome;
+  }
+
+  // Calls one of FantasyPros' tools as the user, with nobody there: the
+  // sign-in is renewed when it has to be, and the outcome says when it is
+  // lost, for the caller to tell the chat.
+  async callFantasyPros(tool: string, args: unknown) {
+    return callTool(this.ctx.storage, tool, args);
+  }
+
+  fantasyProsConnection() {
+    return connection(this.ctx.storage);
   }
 
   // Only records that a preview was requested, so the webhook can answer
@@ -402,10 +462,47 @@ export class FantasyWeeklyAgent extends Agent<Env> {
   }
 }
 
+// The page the browser is shown once FantasyPros has sent it back, by what
+// came of the sign-in.
+const SIGN_IN_PAGES = {
+  connected: {
+    status: 200,
+    text: "FantasyPros is connected. You can close this page."
+  },
+  failed: {
+    status: 200,
+    text: "The sign-in to FantasyPros failed. Send /connect to the bot to try again."
+  },
+  unknown: {
+    status: 400,
+    text: "This is not a sign-in the bot started."
+  }
+};
+
+async function signInCallback(request: Request, env: Env) {
+  const query = new URL(request.url).searchParams;
+  const outcome = await env.FantasyWeeklyAgent.getByName(
+    AGENT_NAME
+  ).completeSignIn({
+    state: query.get("state"),
+    code: query.get("code"),
+    error: query.get("error")
+  });
+  const { status, text } = SIGN_IN_PAGES[outcome];
+  return new Response(text, {
+    status,
+    headers: { "Content-Type": "text/plain; charset=utf-8" }
+  });
+}
+
 export default {
-  // The HTTP surface is the Telegram webhook and nothing else.
+  // The HTTP surface is the Telegram webhook and the address FantasyPros sends
+  // the browser back to after a sign-in, and nothing else.
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
+    if (request.method === "GET" && pathname === SIGN_IN_CALLBACK) {
+      return signInCallback(request, env);
+    }
     if (request.method !== "POST" || pathname !== "/telegram/webhook") {
       return new Response("Not found", { status: 404 });
     }
@@ -419,10 +516,13 @@ export default {
     // does not redeliver them.
     if (text !== null) {
       const agent = env.FantasyWeeklyAgent.getByName(AGENT_NAME);
-      if (isPreviewCommand(text)) {
+      const command = commandIn(text);
+      if (command === "preview") {
         // Awaited, so a request that was not recorded is not acknowledged and
         // Telegram delivers it again.
         await agent.requestPreview();
+      } else if (command === "connect") {
+        ctx.waitUntil(agent.requestSignIn(new URL(request.url).origin));
       } else {
         ctx.waitUntil(agent.sendHint());
       }

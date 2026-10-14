@@ -2,7 +2,7 @@
 import type { Finding } from "./lineup-check";
 import type { SourceItem } from "./news";
 import type { League, Player, RosterSpot } from "./sleeper";
-import { layOutMessages } from "./telegram";
+import { escapeHtml, layOutMessages, linkTo } from "./telegram";
 import { NO_SECTIONS, type Entry, type Sections, type Status } from "./writer";
 
 const PROBLEM: Record<Exclude<Finding["kind"], "empty">, string> = {
@@ -10,13 +10,6 @@ const PROBLEM: Record<Exclude<Finding["kind"], "empty">, string> = {
   out: "is ruled out",
   ir: "is on IR"
 };
-
-function escapeHtml(text: string) {
-  return text
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
 
 function capitalise(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -47,7 +40,7 @@ const day = new Intl.DateTimeFormat("en-US", {
 
 function citation({ link, source, date }: SourceItem) {
   const label = escapeHtml(`${source}, ${day.format(date)}`);
-  return `<a href="${escapeHtml(link).replaceAll('"', "&quot;")}">${label}</a>`;
+  return linkTo(link, label);
 }
 
 /**

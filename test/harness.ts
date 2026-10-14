@@ -130,7 +130,8 @@ export function agent() {
  * Answers the agent's outbound HTTP from saved responses, keyed by URL.
  * A request to any other URL throws, so a test never reaches the network, and
  * fails the run that made it. A saved string is answered as text, anything
- * else as JSON, and a saved function is called for the response to give.
+ * else as JSON, and a saved function is called with the request for the
+ * response to give.
  * `requestsPerInvocation` counts every outbound request, Telegram's and
  * Claude's included, by the invocation of the agent that made it.
  *
@@ -233,7 +234,9 @@ export function fakeOutboundHttp(
       }
       const saved =
         typeof savedResponses[url] === "function"
-          ? (savedResponses[url] as () => unknown)()
+          ? await (savedResponses[url] as (request: Request) => unknown)(
+              request
+            )
           : savedResponses[url];
       // A saved `Response` is returned as it is, to stand in for a failing source.
       if (saved instanceof Response) return saved.clone();
@@ -294,6 +297,45 @@ export async function deliverTelegramUpdate(
     sentWhenAcknowledged,
     scheduledWhenAcknowledged
   };
+}
+
+/**
+ * Opens an address on the Worker the way a browser does, as one FantasyPros
+ * sends the browser back to after a sign-in, then lets the work it started
+ * finish. Gives the status and text of the page the browser is shown.
+ */
+export async function openInBrowser(address: string) {
+  const request = new Request(address) as Request<
+    unknown,
+    IncomingRequestCfProperties
+  >;
+  const ctx = createExecutionContext();
+  const response = await worker.fetch(request, env, ctx);
+  const page = await response.text();
+  await waitOnExecutionContext(ctx);
+  await finishDueTasks();
+  return { status: response.status, page };
+}
+
+/** The sign-in link in a message the bot sent, as a browser would open it. */
+export function signInLink(message: unknown) {
+  const { text } = message as { text: string };
+  const href = /<a href="([^"]+)"/.exec(text)?.[1];
+  if (!href) throw new Error(`No sign-in link in ${text}`);
+  return href.replaceAll("&quot;", '"').replaceAll("&amp;", "&");
+}
+
+/**
+ * Calls one of FantasyPros' tools as the agent's runs do, with nobody there
+ * to sign in, and gives what the agent made of it.
+ */
+export async function callFantasyPros(tool: string, args: unknown) {
+  return agent().callFantasyPros(tool, args);
+}
+
+/** Whether the agent says it is connected to FantasyPros. */
+export async function fantasyProsConnection() {
+  return agent().fantasyProsConnection();
 }
 
 /**

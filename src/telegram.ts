@@ -7,6 +7,19 @@ export type TelegramConfig = {
   chatId: string;
 };
 
+/** Text made safe to set in an HTML-formatted message. */
+export function escapeHtml(text: string) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+/** A link in an HTML-formatted message, around a label that is already HTML. */
+export function linkTo(address: string, label: string) {
+  return `<a href="${escapeHtml(address).replaceAll('"', "&quot;")}">${label}</a>`;
+}
+
 /** Sends one HTML-formatted message to the user's chat. */
 export async function sendMessage(config: TelegramConfig, html: string) {
   const response = await fetch(
@@ -173,10 +186,14 @@ export function textFromMyChat(update: unknown, chatId: string) {
   return message.text ?? "";
 }
 
-/** Whether a message is the `/preview` command, the only one the bot has. */
-export function isPreviewCommand(text: string) {
+/** The commands the bot has. */
+export type Command = "preview" | "connect";
+
+/** The command a message is, or null for a message that is none of them. */
+export function commandIn(text: string): Command | null {
   // Telegram appends the bot's name to a command picked from its menu.
-  return /^\/preview(@\w+)?$/.test(text.trim());
+  const command = /^\/(\w+)(@\w+)?$/.exec(text.trim())?.[1];
+  return command === "preview" || command === "connect" ? command : null;
 }
 
 /**
