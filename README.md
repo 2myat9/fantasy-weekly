@@ -63,11 +63,12 @@ test/
   telegram.test.ts
 ```
 
-How the automatic digest gets to Telegram. The Worker only relays the webhook to the agent; the agent runs the digest from its own schedule, one step per invocation.
+How the automatic digest gets to Telegram, and how `/connect` signs the agent in to FantasyPros. The Worker only relays requests to the agent; the agent runs the digest from its own schedule, one step per invocation.
 
 ```mermaid
 sequenceDiagram
   participant TG as Telegram
+  participant B as Your browser
   participant W as Worker<br/>(fantasy-weekly)
   participant A as FantasyWeeklyAgent<br/>(Durable Object, SQLite)
   participant S as Sleeper API
@@ -77,8 +78,13 @@ sequenceDiagram
 
   Note over A: The agent's schedule fires<br/>on Saturday at 6:00 PM Pacific
   A->>A: Schedule next Saturday's run
+  Note over A: Step: the shared sources
   A->>S: NFL week, my leagues, rosters, opponents
   A->>N: Injury reports, league news, PFT feed
+  Note over A: Step: FantasyPros' news
+  opt The access token has expired
+    A->>F: Renew the sign-in with the refresh token
+  end
   A->>F: injury_status: news on my players, one call
   loop One league per step
     A->>A: Lineup check
@@ -93,6 +99,24 @@ sequenceDiagram
   W->>A: requestPreview()
   W-->>TG: 200 OK
   A->>TG: The same messages, marked as previews
+
+  Note over TG,F: /connect: sign in to FantasyPros, once
+  TG->>W: POST /telegram/webhook
+  W->>A: requestSignIn()
+  W-->>TG: 200 OK
+  A->>F: Find FantasyPros' sign-in service
+  A->>TG: sendMessage: the sign-in link
+  B->>F: Open the sign-in link
+  F->>W: GET /fantasypros/client.json
+  W-->>F: Client metadata document: name, callback address
+  B->>F: Sign in
+  F-->>B: Redirect to the callback address
+  B->>W: GET /fantasypros/callback
+  W->>A: completeSignIn()
+  A->>F: Redeem the code for tokens
+  A->>A: Store the sign-in
+  A->>TG: sendMessage: FantasyPros is connected
+  W-->>B: Page: FantasyPros is connected
 ```
 
 ## Setup
