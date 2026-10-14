@@ -9,7 +9,8 @@ import {
   type WriterMaterial,
   type WriterStandIn
 } from "./harness";
-import { overviewUrl, savedSources, URLS } from "./sources";
+import { FANTASYPROS } from "./fantasypros";
+import { fakeSavedSources, savedSources, URLS } from "./sources";
 
 // The saved ESPN injuries were read that morning, so the week before it is the
 // news window these tests run in.
@@ -62,7 +63,7 @@ const DYNASTY_STATUSES = [
 
 /** The league messages of a preview in which nothing fails. */
 async function fullPreview() {
-  const outbound = fakeOutboundHttp(savedSources(), { writer });
+  const outbound = await fakeSavedSources(savedSources(), { writer });
   await deliverTelegramUpdate(textMessage("/preview"));
   return texts(outbound.telegramMessages);
 }
@@ -74,7 +75,7 @@ it("a source call that fails once and then succeeds produces the normal league m
   for (const url of [URLS.nflState, URLS.rostersDynasty, URLS.injuries]) {
     sources[url] = failingOnce(sources[url]);
   }
-  const outbound = fakeOutboundHttp(sources, { writer });
+  const outbound = await fakeSavedSources(sources, { writer });
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -86,7 +87,7 @@ it("a model call that fails once and then succeeds produces the normal league me
   setClock(TUESDAY);
   const full = await fullPreview();
   let calls = 0;
-  const outbound = fakeOutboundHttp(savedSources(), {
+  const outbound = await fakeSavedSources(savedSources(), {
     writer: (material) => {
       if (calls++ === 0) throw new Error("Overloaded");
       return writer(material);
@@ -101,7 +102,7 @@ it("a model call that fails once and then succeeds produces the normal league me
 
 it("when a source keeps failing, the league message still has the lineup check and the Sleeper injury statuses, and names the missing source", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(
+  const outbound = await fakeSavedSources(
     { ...savedSources(), [URLS.injuries]: unavailable },
     {
       writer: () => ({ needsDecision: [], stillUnresolved: [], otherNews: [] })
@@ -128,7 +129,7 @@ it("when a source keeps failing, the league message still has the lineup check a
 
 it("when the model keeps failing, the league message still has the lineup check and the Sleeper injury statuses, and says the written sections are missing", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources(), {
+  const outbound = await fakeSavedSources(savedSources(), {
     writer: () => {
       throw new Error("Overloaded");
     }
@@ -152,14 +153,14 @@ it("when the model keeps failing, the league message still has the lineup check 
       "",
       // Nobody is listed as having no significant news: nothing was written.
       "<b>Couldn't check</b>",
-      "Andrei Iosivas, Eli Stowers, Jayden Higgins, Tai Felton"
+      "KC Concepcion"
     ].join("\n")
   );
 });
 
 it("when ESPN's schedule keeps failing, the lineup check says that byes were not checked", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...savedSources(),
     [URLS.scoreboard]: unavailable
   });
@@ -188,22 +189,91 @@ it("when ESPN's schedule keeps failing, the lineup check says that byes were not
   );
 });
 
-it("when a player's own page at ESPN keeps failing, the league message names the player, and only in the league they are in", async () => {
+it("when FantasyPros keeps failing, the league message names it as missing and still has the other sources' news", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp({
-    ...savedSources(),
-    // Malik Willis, who is on the dynasty roster only.
-    [overviewUrl("4242512")]: unavailable
-  });
+  const outbound = await fakeSavedSources(
+    { ...savedSources(), [FANTASYPROS.mcp]: unavailable },
+    { writer }
+  );
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
   const [redraft, dynasty] = texts(outbound.telegramMessages);
-  expect(redraft).not.toContain("Missing from this message");
-  expect(dynasty.split("\n")[2]).toBe(
-    "⚠️ Missing from this message: ESPN's own page for Malik Willis."
+  expect(redraft.split("\n")[2]).toBe(
+    "⚠️ Missing from this message: FantasyPros' news."
   );
+  expect(dynasty.split("\n")[2]).toBe(
+    "⚠️ Missing from this message: FantasyPros' news."
+  );
+  // Malik Willis' entry is written from ESPN's report on him.
+  expect(dynasty).toContain("Started and finished the game.");
+  const sources = new Set(
+    outbound.writerCalls.flatMap(({ material }) =>
+      material.sourceItems.map(({ source }) => source)
+    )
+  );
+  expect([...sources].sort()).toEqual(["ESPN", "ProFootballTalk"]);
+  // Nothing looked up the players Sleeper has no ESPN ID for, so they are not
+  // said to have no news.
+  expect(redraft.split("\n").slice(-2)).toEqual([
+    "<b>Couldn't check</b>",
+    "Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Drake Maye, Luther Burden, Alec Pierce, Rashid Shaheed"
+  ]);
   expect(Math.max(...outbound.requestsPerInvocation)).toBeLessThanOrEqual(50);
+});
+
+it("when FantasyPros answers with something other than the news, such as a notice that the plan does not include the tool, the league message names it as missing", async () => {
+  setClock(TUESDAY);
+  const outbound = await fakeSavedSources(savedSources(), {
+    writer,
+    injuryStatus: () => ({
+      status: "premium_required",
+      required_user_disclosure: "This feature is not included in your plan."
+    })
+  });
+
+  await deliverTelegramUpdate(textMessage("/preview"));
+
+  for (const text of texts(outbound.telegramMessages)) {
+    expect(text.split("\n")[2]).toBe(
+      "⚠️ Missing from this message: FantasyPros' news."
+    );
+  }
+  // An answer that will not change is not asked for again.
+  expect(outbound.fantasyPros.toolCalls).toHaveLength(1);
+});
+
+it("when the agent is not connected to FantasyPros, the league message names FantasyPros as missing and says to send /connect", async () => {
+  setClock(TUESDAY);
+  const outbound = fakeOutboundHttp(savedSources(), { writer });
+
+  await deliverTelegramUpdate(textMessage("/preview"));
+
+  const [redraft, dynasty] = texts(outbound.telegramMessages);
+  for (const text of [redraft, dynasty]) {
+    expect(text.split("\n")[2]).toBe(
+      "⚠️ Missing from this message: FantasyPros' news (not connected, send /connect)."
+    );
+  }
+  expect(dynasty).toContain("Started and finished the game.");
+});
+
+it("when FantasyPros has ended the agent's sign-in, the league message names FantasyPros as missing and says to send /connect", async () => {
+  setClock(TUESDAY);
+  const outbound = await fakeSavedSources(savedSources(), { writer });
+  outbound.fantasyPros.revoke();
+  // A day after the sign-in, so that its access token has to be renewed.
+  setClock("2026-10-14T16:00:00Z");
+
+  await deliverTelegramUpdate(textMessage("/preview"));
+
+  const [redraft, dynasty] = texts(outbound.telegramMessages);
+  for (const text of [redraft, dynasty]) {
+    expect(text.split("\n")[2]).toBe(
+      "⚠️ Missing from this message: FantasyPros' news (the sign-in was lost, send /connect)."
+    );
+  }
+  expect(outbound.fantasyPros.toolCalls).toEqual([]);
 });
 
 // Saturday 19 October 2030, 6:00 PM Pacific, and the Saturday after it. The
@@ -214,7 +284,7 @@ const NEXT_SATURDAY = "2030-10-27T01:00:00Z";
 it("when the model fails for one league, the other league's full message is still sent", async () => {
   // Inside the news window, so that there is news for the writer to be handed.
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources(), {
+  const outbound = await fakeSavedSources(savedSources(), {
     writer: (material) => {
       if (material.league.format === "redraft") throw new Error("Overloaded");
       return writer(material);
@@ -232,7 +302,7 @@ it("when the model fails for one league, the other league's full message is stil
 });
 
 it("when Sleeper keeps failing, the automatic run sends one short failure message that names /preview, and the next run is still scheduled", async () => {
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...savedSources(),
     [URLS.nflState]: unavailable
   });
@@ -248,7 +318,7 @@ it("when Sleeper keeps failing, the automatic run sends one short failure messag
 });
 
 it("when one league's message cannot be built at all, the other league's is sent and the failure message names the league that failed", async () => {
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...savedSources(),
     [URLS.rostersRedraft]: unavailable
   });
@@ -267,7 +337,7 @@ it("a league whose automatic message failed is not written to the sent record, a
   const sources = savedSources();
   const rosters = sources[URLS.rostersRedraft];
   sources[URLS.rostersRedraft] = unavailable;
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
   await triggerScheduledRun(SATURDAY);
   const sentFirst = outbound.telegramMessages.length;
 
@@ -284,7 +354,7 @@ it("a league whose automatic message failed is not written to the sent record, a
 });
 
 it("a league whose message cannot be delivered does not keep the other league's from being sent", async () => {
-  const outbound = fakeOutboundHttp(savedSources(), {
+  const outbound = await fakeSavedSources(savedSources(), {
     rejectTelegram: (text) => text.includes("Duffy Redraft</b>\n")
   });
 
@@ -302,7 +372,9 @@ it("when no news could be read at all, nobody is listed as having no significant
   for (const url of Object.keys(sources)) {
     if (!url.startsWith("https://api.sleeper.app/")) sources[url] = unavailable;
   }
-  const outbound = fakeOutboundHttp(sources);
+  // The agent is signed in to FantasyPros, whose tools fail.
+  sources[FANTASYPROS.mcp] = unavailable;
+  const outbound = await fakeSavedSources(sources);
 
   await deliverTelegramUpdate(textMessage("/preview"));
 

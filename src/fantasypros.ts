@@ -9,6 +9,7 @@
 // new sign-in that nobody is there to finish. Every request here, the sign-in
 // and the refresh included, is made only when a call needs it.
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { retried } from "./retry";
 
 const MCP = "https://api.fantasypros.com/mcp";
 // Where FantasyPros names the service that signs users in to the MCP server.
@@ -465,5 +466,119 @@ export async function callTool(
   return {
     status: "connected",
     result: await callWith(signIn.accessToken, name, args)
+  };
+}
+
+/** A name FantasyPros matched to one of its players. */
+export type ResolvedName = {
+  /** The name as it was sent. */
+  input: string;
+  /** FantasyPros' name for the player, as its news items carry it. */
+  name: string;
+  /** As Sleeper abbreviates it. */
+  team: string;
+};
+
+/** One of FantasyPros' news items. */
+export type NewsItem = {
+  /** FantasyPros' name for the player. */
+  playerName: string;
+  date: Date;
+  text: string;
+  /** The article at fantasypros.com, or null when the item has none. */
+  link: string | null;
+};
+
+/** What FantasyPros has on a set of players, by name. */
+export type PlayerNews = {
+  resolved: ResolvedName[];
+  /** The names FantasyPros could not match to a player. */
+  unresolved: string[];
+  /** The news of the last 14 days on the players it matched. */
+  news: NewsItem[];
+};
+
+type InjuryStatus = {
+  resolved_players?: { input: string; name: string; team_id: string }[];
+  unresolved_names?: string[];
+  player_news?: {
+    player_name: string;
+    published: string;
+    news: string;
+    url?: string | null;
+  }[];
+};
+
+// Where FantasyPros abbreviates a team differently from Sleeper.
+const SLEEPER_TEAM: Record<string, string> = { JAC: "JAX" };
+
+// What a tool answered, from the JSON in its text. A tool that reports an
+// error has answered nothing.
+function answerOf(result: unknown, tool: string) {
+  const { content = [], isError } = result as {
+    content?: { type: string; text?: string }[];
+    isError?: boolean;
+  };
+  const text = content.find((part) => part.type === "text")?.text;
+  if (isError || text === undefined) {
+    throw new Error(`FantasyPros' ${tool} failed: ${text}`);
+  }
+  return JSON.parse(text) as unknown;
+}
+
+// The time is written like `2026-10-12 05:23:26 UTC`.
+function publishedAt(published: string) {
+  return new Date(published.replace(" ", "T").replace(/ UTC$/, "Z"));
+}
+
+/** What came of reading FantasyPros' news: the news, or why there is none. */
+export type PlayerNewsRead =
+  | { status: "connected"; news: PlayerNews }
+  | { status: "not connected" }
+  | { status: "lost" };
+
+/**
+ * FantasyPros' news on the named players, from one call of its
+ * `injury_status` tool. A call that fails is made again, like a read of any
+ * other source; an answer that is not the news, such as an error or a notice
+ * that the plan does not include the tool, is thrown, since asking again will
+ * not change it. When the agent is not connected, or its sign-in was lost,
+ * that is reported rather than thrown.
+ */
+export async function fetchPlayerNews(
+  storage: DurableObjectStorage,
+  names: string[]
+): Promise<PlayerNewsRead> {
+  const outcome = await retried(() =>
+    callTool(storage, "injury_status", { player_names: names.join(", ") })
+  );
+  if (outcome.status !== "connected") return outcome;
+  const answer = answerOf(outcome.result, "injury_status") as InjuryStatus;
+  if (!Array.isArray(answer.resolved_players)) {
+    throw new Error(
+      `FantasyPros' injury_status did not answer with news: ${JSON.stringify(answer)}`
+    );
+  }
+  return {
+    status: "connected",
+    news: {
+      resolved: answer.resolved_players.map(({ input, name, team_id }) => ({
+        input,
+        name,
+        team: SLEEPER_TEAM[team_id] ?? team_id
+      })),
+      unresolved: answer.unresolved_names ?? [],
+      news: (answer.player_news ?? []).flatMap((item) => {
+        const date = publishedAt(item.published);
+        // An item that cannot be dated cannot be placed in the news window.
+        if (isNaN(date.getTime()) || !item.news?.trim()) return [];
+        return {
+          playerName: item.player_name,
+          date,
+          text: item.news.trim(),
+          link: item.url || null
+        };
+      })
+    }
   };
 }

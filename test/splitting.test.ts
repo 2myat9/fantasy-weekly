@@ -1,13 +1,18 @@
 import { expect, it } from "vitest";
 import {
   deliverTelegramUpdate,
-  fakeOutboundHttp,
   setClock,
   textMessage,
   triggerScheduledRun,
   type WriterStandIn
 } from "./harness";
-import { savedSources, savedSourcesAhead, URLS } from "./sources";
+import {
+  fakeSavedSources,
+  savedInjuryStatusAhead,
+  savedSources,
+  savedSourcesAhead,
+  URLS
+} from "./sources";
 
 // The saved ESPN injuries were read that morning, before any game of week 6.
 const TUESDAY = "2026-10-13T16:00:00Z";
@@ -46,7 +51,9 @@ const writesAtLength: WriterStandIn = (material) => ({
  */
 async function previewAtLength() {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources(), { writer: writesAtLength });
+  const outbound = await fakeSavedSources(savedSources(), {
+    writer: writesAtLength
+  });
   await deliverTelegramUpdate(textMessage("/preview"));
   const [redraft, ...dynasty] = outbound.telegramMessages.map(
     (message) => (message as { text: string }).text
@@ -126,10 +133,9 @@ it("the parts together hold everything the league message has: its headings once
     "<b>No significant news</b>",
     "<b>Couldn't check</b>"
   ]);
-  // The four dynasty players that cannot be matched to a news source.
+  // The dynasty player FantasyPros cannot resolve.
   const last = dynasty.at(-1)!.split("\n");
-  expect(last.at(-2)).toBe("<b>Couldn't check</b>");
-  expect(last.at(-1)!.split(", ")).toHaveLength(4);
+  expect(last.slice(-2)).toEqual(["<b>Couldn't check</b>", "KC Concepcion"]);
 });
 
 // The digest's hour in week 6, with the saved ESPN injuries moved forward to
@@ -138,7 +144,8 @@ const SATURDAY = "2030-10-20T01:00:00Z";
 
 it("when a part of the automatic digest fails to send, the step taken again sends only the parts that had not gone out", async () => {
   let refused = false;
-  const outbound = fakeOutboundHttp(savedSourcesAhead(), {
+  const outbound = await fakeSavedSources(savedSourcesAhead(), {
+    injuryStatus: savedInjuryStatusAhead(),
     writer: writesAtLength,
     // Telegram refuses the first part after the opening one, once.
     rejectTelegram: (text) => {
@@ -177,7 +184,7 @@ it("when a part of the automatic digest fails to send, the step taken again send
  */
 async function previewWithEntry(text: string, sources = savedSources()) {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(sources, {
+  const outbound = await fakeSavedSources(sources, {
     writer: (material) => ({
       ...writesAtLength(material),
       otherNews: writesAtLength(material)
@@ -293,7 +300,7 @@ it("a list of names over the limit is divided between names", async () => {
   const name = (playerId: string) =>
     `First${playerId} ${"Middle ".repeat(40)}Last${playerId}`;
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(sourcesWithNames(name));
+  const outbound = await fakeSavedSources(sourcesWithNames(name));
 
   await deliverTelegramUpdate(textMessage("/preview"));
 

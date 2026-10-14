@@ -1,7 +1,6 @@
 import { expect, it } from "vitest";
 import {
   deliverTelegramUpdate,
-  fakeOutboundHttp,
   MY_CHAT_ID,
   pendingSchedule,
   setClock,
@@ -9,7 +8,7 @@ import {
   textMessage,
   triggerScheduledRun
 } from "./harness";
-import { MY_USER_ID, savedSources, URLS } from "./sources";
+import { fakeSavedSources, MY_USER_ID, savedSources, URLS } from "./sources";
 
 /** The texts of the Telegram messages sent, in order. */
 function texts(messages: unknown[]) {
@@ -62,7 +61,7 @@ const CLEAR_DYNASTY = [
 ];
 
 it("/preview sends one preview-marked message per league, each opening with its lineup check", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -115,7 +114,7 @@ it("a starter on IR and an empty starting slot are flagged", async () => {
     "1945",
     "SEA"
   ]);
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -135,7 +134,7 @@ it("a lineup with nothing to flag is reported as clear", async () => {
   const sources = savedSources();
   setMyStarters(sources, URLS.rostersRedraft, CLEAR_REDRAFT);
   setMyStarters(sources, URLS.rostersDynasty, CLEAR_DYNASTY);
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -153,7 +152,7 @@ it("lineup slots are read from the league, so a changed league is checked by its
   // The redraft league drops a FLEX and starts a superflex and a second TE.
   leagues[0].roster_positions = ["QB", "SUPER_FLEX", "TE", "TE", "BN", "BN"];
   setMyStarters(sources, URLS.rostersRedraft, ["11564", "3163", "0", "10859"]);
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -171,7 +170,7 @@ it("lineup slots are read from the league, so a changed league is checked by its
 });
 
 it("a second run on the same day does not fetch the Sleeper player file again", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
   setClock("2026-10-13T16:00:00Z");
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -193,7 +192,7 @@ it("a second run on the same day does not fetch the Sleeper player file again", 
 });
 
 it("only the reduced fields of a player are stored", async () => {
-  fakeOutboundHttp(savedSources());
+  await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -208,7 +207,7 @@ it("only the reduced fields of a player are stored", async () => {
 });
 
 it("the webhook answers Telegram before any message is sent, leaving the run on the agent's schedule", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
   // A clock ahead of the runtime's, so the run cannot start by itself.
   setClock("2030-10-13T16:00:00Z");
 
@@ -224,7 +223,7 @@ it("the webhook answers Telegram before any message is sent, leaving the run on 
 
 it("a preview run that fails sends one short failure message and is not taken again", async () => {
   const sources = savedSources();
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...sources,
     [URLS.nflState]: new Response("Service Unavailable", { status: 503 })
   });
@@ -246,7 +245,7 @@ it("a preview run that fails sends one short failure message and is not taken ag
 });
 
 it("/preview changes neither the next scheduled time nor what the automatic digest sends", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
   // Wednesday 16 October 2030, noon Pacific.
   setClock("2030-10-16T19:00:00Z");
   await deliverTelegramUpdate(textMessage("hello"));

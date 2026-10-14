@@ -1,6 +1,6 @@
-// The ESPN client: the schedule of one NFL week, the league's injury reports,
-// the league's news and the overview of one player. ESPN's endpoints are
-// unofficial, so only the fields read here are relied on.
+// The ESPN client: the schedule of one NFL week, the league's injury reports
+// and the league's news. ESPN's endpoints are unofficial, so only the fields
+// read here are relied on.
 import { retried } from "./retry";
 import type { NflState } from "./sleeper";
 
@@ -9,8 +9,6 @@ const SCOREBOARD = `${NFL}/scoreboard`;
 const INJURIES = `${NFL}/injuries`;
 // The most ESPN returns, which is about a day of articles.
 const NEWS = `${NFL}/news?limit=50`;
-const ATHLETES =
-  "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes";
 
 // ESPN numbers the parts of a season.
 const SEASON_TYPES: Record<string, string> = {
@@ -219,40 +217,4 @@ export async function fetchLeagueNews(): Promise<
     );
     return { ...read, espnIds };
   });
-}
-
-/** What ESPN shows on one player's page. */
-export type PlayerOverview = {
-  /** The latest articles the player is tagged in. */
-  articles: Article[];
-  /** Rotowire's latest note on the player, which ESPN carries. */
-  note: { date: Date; text: string } | null;
-};
-
-type Overview = {
-  news?: EspnArticle[];
-  // The time is written like `Sun Oct 11 18:29:50 PDT 2026`.
-  rotowire?: { headline?: string; story?: string; published?: string } | null;
-};
-
-// Read once, unlike the other sources: there is one page per player, and
-// reading each again here could go past what one invocation may request. The
-// caller reads a failed page again later.
-export async function fetchPlayerOverview(
-  espnId: string
-): Promise<PlayerOverview> {
-  const response = await fetch(`${ATHLETES}/${espnId}/overview`);
-  // An ID that ESPN does not know, which Sleeper's can be when it is out of
-  // date, has no page.
-  if (response.status === 404) return { articles: [], note: null };
-  if (!response.ok) {
-    throw new Error(`ESPN overview of ${espnId} returned ${response.status}`);
-  }
-  const { news = [], rotowire } = await response.json<Overview>();
-  const date = new Date(rotowire?.published ?? "");
-  const text = [rotowire?.headline, rotowire?.story].filter(Boolean).join(" ");
-  return {
-    articles: news.flatMap((raw) => article(raw) ?? []),
-    note: text && !isNaN(date.getTime()) ? { date, text } : null
-  };
 }

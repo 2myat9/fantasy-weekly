@@ -1,14 +1,19 @@
 import { expect, it } from "vitest";
 import {
   deliverTelegramUpdate,
-  fakeOutboundHttp,
   setClock,
   textMessage,
   triggerScheduledRun,
   type WriterMaterial,
   type WriterStandIn
 } from "./harness";
-import { savedSources, savedSourcesAhead, URLS } from "./sources";
+import {
+  fakeSavedSources,
+  savedInjuryStatus,
+  savedSources,
+  savedSourcesAhead,
+  URLS
+} from "./sources";
 
 // The saved ESPN injuries were read that morning, so the week before it is the
 // news window these tests run in.
@@ -43,10 +48,10 @@ it("the writer's sections follow the lineup check under their headings, in order
       ? {
           needsDecision: [
             {
-              playerId: "13298",
+              playerId: "12481",
               status: "questionable",
-              text: "Missed practice with a hamstring; Parker Washington is your bench option at WR.",
-              sourceItemIds: [itemAbout(material, "13298")]
+              text: "Limited in practice with a shoulder injury; Ray Davis is your bench option at RB.",
+              sourceItemIds: [itemAbout(material, "12481")]
             }
           ],
           stillUnresolved: [
@@ -73,7 +78,7 @@ it("the writer's sections follow the lineup check under their headings, in order
           ]
         }
       : { needsDecision: [], stillUnresolved: [], otherNews: [] };
-  const outbound = fakeOutboundHttp(savedSources(), { writer });
+  const outbound = await fakeSavedSources(savedSources(), { writer });
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -87,27 +92,27 @@ it("the writer's sections follow the lineup check under their headings, in order
       "🔴 DEF <b>Detroit Lions</b> (DET) is on bye",
       "",
       "<b>Needs a decision</b>",
-      '🟡 <b>KC Concepcion</b>: Missed practice with a hamstring; Parker Washington is your bench option at WR. (<a href="https://www.espn.com/nfl/player/_/id/4870653/kc-concepcion">ESPN, Oct 11</a>)',
+      '🟡 <b>Cam Skattebo</b>: Limited in practice with a shoulder injury; Ray Davis is your bench option at RB. (<a href="https://www.fantasypros.com/nfl/news/613372/cam-skattebo-leads-backfield-week-5-tie.php">FantasyPros, Oct 11</a>)',
       "",
       "<b>Still unresolved, check before kickoff</b>",
       '🔴 <b>Rico Dowdle</b>: Ruled out &lt;again&gt; &amp; not close. (<a href="https://www.espn.com/nfl/player/_/id/4038815/rico-dowdle">ESPN, Oct 12</a>)',
       "",
       "<b>Other news on your roster</b>",
-      '⚪ <b>Jaylin Lane</b>: Moved to injured reserve. (<a href="https://www.espn.com/nfl/player/_/id/4602667/jaylin-lane">ESPN, Oct 6</a>)',
-      '🟢 <b>Malik Willis</b>: Started and finished the game. (<a href="https://www.espn.com/nfl/player/_/id/4242512/malik-willis">ESPN, Oct 11</a>)',
+      '⚪ <b>Jaylin Lane</b>: Moved to injured reserve. (<a href="https://www.fantasypros.com/nfl/news/612506/jaylin-lane-ankle-placed-on-ir.php">FantasyPros, Oct 6</a>)',
+      '🟢 <b>Malik Willis</b>: Started and finished the game. (<a href="https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/dolphins-coach-jeff-hafley-isnt-considering-benching-qb-malik-willis">ProFootballTalk, Oct 12</a>)',
       "",
       "<b>No significant news</b>",
-      "Jalen Hurts, Omarion Hampton, Cam Skattebo, Garrett Wilson, Bhayshul Tuten, Parker Washington, Makai Lemon, Trevor Lawrence, Chris Boswell, Detroit Lions, Ray Davis, Theo Johnson, Brian Thomas, Terrance Ferguson, James Conner, Greg Dortch, Jake Ferguson, Marvin Mims, Kayshon Boutte, Kyle Williams",
+      "Jalen Hurts, Omarion Hampton, Garrett Wilson, Bhayshul Tuten, Parker Washington, Makai Lemon, Trevor Lawrence, Chris Boswell, Detroit Lions, Andrei Iosivas, Ray Davis, Theo Johnson, Brian Thomas, Terrance Ferguson, Eli Stowers, James Conner, Greg Dortch, Jake Ferguson, Marvin Mims, Kayshon Boutte, Jayden Higgins, Tai Felton, Kyle Williams",
       "",
       "<b>Couldn't check</b>",
-      "Andrei Iosivas, Eli Stowers, Jayden Higgins, Tai Felton"
+      "KC Concepcion"
     ].join("\n")
   );
 });
 
 it("the writer is called once per league, with only that league's roster players and their opponent's, and only source items inside the news window", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -132,8 +137,9 @@ it("the writer is called once per league, with only that league's roster players
     ).toEqual([]);
   }
   // The roster players with an ESPN injury report inside the window, in
-  // roster order. A kicker's report on a game played is not handed over, and
-  // a defense's is on a player of the offense it faces.
+  // roster order: those Sleeper has the ESPN ID of. A kicker's report on a
+  // game played is not handed over, and a defense's is on a player of the
+  // offense it faces.
   const reportedOn = (material: WriterMaterial) =>
     material.sourceItems
       .filter(
@@ -142,55 +148,22 @@ it("the writer is called once per league, with only that league's roster players
           onRoster(material).has(playerId)
       )
       .map((item) => item.playerId);
-  // Alec Pierce's report is from 28 September, before the window opened.
-  expect(reportedOn(redraft)).toEqual([
-    "3163",
-    "9509",
-    "13287",
-    "13346",
-    "12501",
-    "8130",
-    "10859",
-    "11584",
-    "SEA",
-    "11564",
-    "12519",
-    "5947",
-    "8676"
-  ]);
-  // Ray Davis, Theo Johnson and Marvin Mims have reports older than a week.
-  expect(reportedOn(dynasty)).toEqual([
-    "6904",
-    "12507",
-    "12481",
-    "8146",
-    "12490",
-    "13298",
-    "9487",
-    "13294",
-    "7523",
-    "11631",
-    "12487",
-    "7021",
-    "8110",
-    "8161",
-    "9504",
-    "12547",
-    "12641"
-  ]);
+  expect(reportedOn(redraft)).toEqual(["3163", "SEA", "5947"]);
+  // James Conner's and Greg Dortch's reports are older than a week.
+  expect(reportedOn(dynasty)).toEqual(["6904", "7021"]);
   expect(dynasty.sourceItems).toContainEqual({
     id: expect.any(String),
-    playerId: "13298",
-    date: "Sunday, October 11, 2026 at 1:48 PM PDT",
+    playerId: "7021",
+    date: "Monday, October 12, 2026 at 1:07 PM PDT",
     source: "ESPN",
-    link: "https://www.espn.com/nfl/player/_/id/4870653/kc-concepcion",
-    text: expect.stringMatching(/^ESPN status: Questionable\. Concepcion /)
+    link: "https://www.espn.com/nfl/player/_/id/4038815/rico-dowdle",
+    text: expect.stringMatching(/^ESPN status: Out\. Steelers offensive /)
   });
 });
 
 it("the writer is handed the roster with each player's slot, including bench, IR and taxi-squad players", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -217,7 +190,7 @@ it("the writer is handed the roster with each player's slot, including bench, IR
 
 it("the writer's instructions restrict it to the supplied material, require citations, prefer the most recent report and limit advice to what the news triggers", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -239,7 +212,7 @@ it("a player with an ESPN ID in Sleeper is matched by that ID, whatever name Sle
   setClock(TUESDAY);
   const sources = savedSources();
   sleeperPlayer(sources, "3163").full_name = "J. Goff";
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -252,54 +225,59 @@ it("a player with an ESPN ID in Sleeper is matched by that ID, whatever name Sle
   });
 });
 
-it("a player whose ESPN ID in Sleeper finds no report is still matched by name", async () => {
+it("a player without an ESPN ID in Sleeper is not matched to ESPN's injury reports by name", async () => {
   setClock(TUESDAY);
-  const sources = savedSources();
-  sleeperPlayer(sources, "3163").espn_id = 1;
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources();
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
   const [redraft] = outbound.writerCalls
     .map(({ material }) => material)
     .filter(({ league }) => league.format === "redraft");
-  expect(redraft.sourceItems[0].playerId).toBe("3163");
+  // ESPN reports on Luther Burden III, whom Sleeper has no ESPN ID for.
+  expect(
+    redraft.sourceItems.filter(
+      (item) => item.playerId === "12519" && item.source === "ESPN"
+    )
+  ).toEqual([]);
+  expect(
+    redraft.sourceItems.filter(
+      (item) => item.playerId === "3163" && item.source === "ESPN"
+    )[0].link
+  ).toBe("https://www.espn.com/nfl/player/_/id/3046779/jared-goff");
 });
 
-it("a player without an ESPN ID is matched by normalised name, team and position, and is unmatched when one of them differs", async () => {
+it("a player FantasyPros cannot resolve, or resolves to a player of another team, is unmatched and gets no FantasyPros items, and a player with no team in Sleeper is matched without the check", async () => {
   setClock(TUESDAY);
   const sources = savedSources();
-  // ESPN calls him Luther Burden III of CHI, and has Jake Bates, a kicker, as
-  // PK. Sleeper has Drake Maye on a team ESPN does not.
-  sleeperPlayer(sources, "11564").team = "NYJ";
-  const outbound = fakeOutboundHttp(sources);
+  // Sleeper has Rashid Shaheed as a free agent.
+  sleeperPlayer(sources, "8676").team = null;
+  const injuryStatus = savedInjuryStatus();
+  // FantasyPros resolves the name Drake Maye to a player of another team. It
+  // writes Jacksonville, Jakobi Meyers' team, as JAC, where Sleeper has JAX.
+  injuryStatus.resolved_players.find(
+    ({ input }) => input === "Drake Maye"
+  )!.team_id = "BUF";
+  const outbound = await fakeSavedSources(sources, { injuryStatus });
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
   const [redraft] = outbound.writerCalls
     .map(({ material }) => material)
     .filter(({ league }) => league.format === "redraft");
-  const linkAbout = (playerId: string) =>
-    redraft.sourceItems.find((item) => item.playerId === playerId)?.link;
-  expect(linkAbout("12519")).toBe(
-    "https://www.espn.com/nfl/player/_/id/4685278/luther-burden-iii"
-  );
-  expect(linkAbout("11564")).toBeUndefined();
-  // The unmatched player is not reported as having no news, and the kicker,
-  // whose report on a game played is not handed to the writer, is matched.
-  const text = texts(outbound.telegramMessages)[0];
-  expect(text).toContain(
-    [
-      "<b>No significant news</b>",
-      "Jared Goff, Bijan Robinson, Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Seattle Seahawks, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed",
-      "",
-      "<b>Couldn't check</b>",
-      "Drake Maye"
-    ].join("\n")
-  );
-  expect(text).not.toContain("<b>Needs a decision</b>");
-  expect(text).not.toContain("<b>Still unresolved");
-  expect(text).not.toContain("<b>Other news");
+  const fromFantasyPros = (playerId: string) =>
+    redraft.sourceItems.filter(
+      (item) => item.playerId === playerId && item.source === "FantasyPros"
+    );
+  expect(fromFantasyPros("11564")).toEqual([]);
+  expect(fromFantasyPros("5947")).toHaveLength(1);
+  expect(fromFantasyPros("8676")).toHaveLength(1);
+  // The unmatched players are not reported as having no news. FantasyPros
+  // could not resolve KC Concepcion, on the dynasty roster.
+  const [redraftText, dynastyText] = texts(outbound.telegramMessages);
+  expect(redraftText).toMatch(/<b>Couldn't check<\/b>\nDrake Maye$/);
+  expect(redraftText).not.toMatch(/No significant news<\/b>\n.*Drake Maye/);
+  expect(dynastyText).toMatch(/<b>Couldn't check<\/b>\nKC Concepcion$/);
 });
 
 it("an entry about a player with no source item, or about a player who is not on the roster, is left out, and a player appears once", async () => {
@@ -350,7 +328,7 @@ it("an entry about a player with no source item, or about a player who is not on
       ]
     };
   };
-  const outbound = fakeOutboundHttp(savedSources(), { writer });
+  const outbound = await fakeSavedSources(savedSources(), { writer });
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -361,7 +339,7 @@ it("an entry about a player with no source item, or about a player who is not on
     "",
     "<b>Other news on your roster</b>",
     // Shown with the items about the player in place of the bad citation.
-    '🟡 <b>Bijan Robinson</b>: Limited in practice. (<a href="https://www.espn.com/nfl/player/_/id/4430807/bijan-robinson">ESPN, Oct 11</a>, <a href="https://www.espn.com/espn/betting/story/_/id/48476156/2026-nfl-awards-betting-odds-mvp-rookie-year-offensive-defensive-player-coach">ESPN, Oct 13</a>, <a href="https://www.espn.com/espn/betting/story/_/id/50085010/nfl-week-5-odds-betting-tips-ravens-falcons">ESPN, Oct 11</a>, <a href="https://www.espn.com/nfl/story/_/id/50118457/how-do-baltimore-ravens-plan-stop-bijan-robinson-week-5">ESPN, Oct 8</a>)',
+    '🟡 <b>Bijan Robinson</b>: Limited in practice. (<a href="https://www.fantasypros.com/nfl/news/613465/bijan-robinson-totals-118-yards-on-21-touches-week-5.php">FantasyPros, Oct 12</a>)',
     "",
     "<b>No significant news</b>",
     "Jeremiyah Love, Denzel Boston, Matthew Golden, Trey McBride, Sam LaPorta, Bucky Irving, Jake Bates, Seattle Seahawks, Drake Maye, Luther Burden, Jakobi Meyers, Alec Pierce, Rashid Shaheed"
@@ -371,7 +349,7 @@ it("an entry about a player with no source item, or about a player who is not on
 it("with no source items inside the news window the writer is not called, and every player is still listed", async () => {
   // Years after the saved reports were written.
   setClock("2030-10-13T16:00:00Z");
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 
@@ -396,7 +374,7 @@ it("the automatic digest carries the news sections too", async () => {
       }
     ]
   });
-  const outbound = fakeOutboundHttp(savedSourcesAhead(), { writer });
+  const outbound = await fakeSavedSources(savedSourcesAhead(), { writer });
 
   // Saturday 19 October 2030, 6:00 PM Pacific, the Saturday after the saved
   // ESPN injuries as they are moved forward.

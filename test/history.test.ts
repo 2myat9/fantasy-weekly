@@ -2,7 +2,6 @@ import { expect, it } from "vitest";
 import {
   databaseSize,
   deliverTelegramUpdate,
-  fakeOutboundHttp,
   fillDatabaseTo,
   setClock,
   storedHistory,
@@ -10,7 +9,7 @@ import {
   triggerScheduledRun,
   type WriterMaterial
 } from "./harness";
-import { savedSourcesAhead, URLS } from "./sources";
+import { fakeSavedSources, savedSourcesAhead, URLS } from "./sources";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -61,7 +60,7 @@ function identities(
 }
 
 it("an automatic digest is stored per league with its season, week, time sent, the message as sent and the source items it was built from", async () => {
-  const outbound = fakeOutboundHttp(savedSourcesAhead());
+  const outbound = await fakeSavedSources(savedSourcesAhead());
 
   // The morning the saved ESPN injuries were read: Tuesday 15 October 2030.
   await triggerScheduledRun("2030-10-15T16:00:00Z");
@@ -96,18 +95,18 @@ it("an automatic digest is stored per league with its season, week, time sent, t
     outbound.writerCalls.map(({ material }) => identities(material.sourceItems))
   );
   expect(history[1].sourceItems).toContainEqual({
-    playerId: "13298",
-    date: "2030-10-13T20:48:00.000Z",
+    playerId: "7021",
+    date: "2030-10-14T20:07:00.000Z",
     source: "ESPN",
-    link: "https://www.espn.com/nfl/player/_/id/4870653/kc-concepcion",
-    text: expect.stringMatching(/^ESPN status: Questionable\. Concepcion /)
+    link: "https://www.espn.com/nfl/player/_/id/4038815/rico-dowdle",
+    text: expect.stringMatching(/^ESPN status: Out\. Steelers offensive /)
   });
 });
 
 it("the next digest for a league hands the writer only the items since that league's previous digest, and a league without one those of the last seven days", async () => {
   const sources = savedSourcesAhead();
   const [redraft, dynasty] = sources[URLS.leagues] as unknown[];
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
   // Week 5's digest goes out on the Monday morning, to the redraft league
   // alone.
   const previous = new Date("2030-10-14T12:00:00Z");
@@ -140,7 +139,7 @@ it("the next digest for a league hands the writer only the items since that leag
 
 it("a preview stores nothing in the history and does not move the news window, which it shares with the automatic digest", async () => {
   const sources = savedSourcesAhead();
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
   const previous = new Date("2030-10-14T12:00:00Z");
   atWeek(sources, 5);
   await triggerScheduledRun(previous.toISOString());
@@ -177,7 +176,7 @@ it("a preview stores nothing in the history and does not move the news window, w
 it("when the database is over 800 MB after a digest is stored, the oldest digests are deleted until it is under", async () => {
   const limit = 800_000_000;
   const sources = savedSourcesAhead();
-  fakeOutboundHttp(sources);
+  await fakeSavedSources(sources);
   atWeek(sources, 4);
   await triggerScheduledRun("2030-10-14T12:00:00Z");
   atWeek(sources, 5);

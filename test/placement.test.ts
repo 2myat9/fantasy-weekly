@@ -1,13 +1,12 @@
 import { expect, it } from "vitest";
 import {
   deliverTelegramUpdate,
-  fakeOutboundHttp,
   setClock,
   textMessage,
   type WriterMaterial,
   type WriterStandIn
 } from "./harness";
-import { savedSources, URLS } from "./sources";
+import { fakeSavedSources, savedSources, URLS } from "./sources";
 
 // The saved ESPN injuries were read that morning, before any game of week 6.
 const TUESDAY = "2026-10-13T16:00:00Z";
@@ -17,7 +16,7 @@ async function previewMaterial(
   sources = savedSources(),
   writer?: WriterStandIn
 ) {
-  const outbound = fakeOutboundHttp(sources, { writer });
+  const outbound = await fakeSavedSources(sources, { writer });
   await deliverTelegramUpdate(textMessage("/preview"));
   const material = (format: string) =>
     outbound.writerCalls.find(
@@ -32,6 +31,26 @@ async function previewMaterial(
   };
 }
 
+/**
+ * The saved sources, with the ESPN IDs Sleeper has no record of for the given
+ * players, by Sleeper ID: ESPN's reports and news reach a player only through
+ * it.
+ */
+function withEspnIds(ids: Record<string, number>, sources = savedSources()) {
+  const players = sources[URLS.players] as Record<
+    string,
+    Record<string, unknown>
+  >;
+  for (const [playerId, espnId] of Object.entries(ids)) {
+    players[playerId].espn_id = espnId;
+  }
+  return sources;
+}
+
+// The ESPN IDs of opponents' players: Breece Hall and CeeDee Lamb, in the
+// redraft league, and Jordan Addison, in the dynasty league.
+const OPPONENT_ESPN_IDS = { 8155: 4427366, 6786: 4241389, 9756: 4429205 };
+
 /** The texts of the source items the writer was handed about one player. */
 function itemsAbout(material: WriterMaterial, playerId: string) {
   return material.sourceItems
@@ -42,7 +61,9 @@ function itemsAbout(material: WriterMaterial, playerId: string) {
 it("the writer is handed this week's opponent roster in each league, without its taxi squad, and the source items about those players", async () => {
   setClock(TUESDAY);
 
-  const { redraft, dynasty } = await previewMaterial();
+  const { redraft, dynasty } = await previewMaterial(
+    withEspnIds(OPPONENT_ESPN_IDS)
+  );
 
   // Roster 10 is matched up with the user's roster 9 in the redraft league.
   expect(redraft.opponent.map(({ name, slot }) => `${slot} ${name}`)).toEqual([
@@ -94,7 +115,10 @@ it("the opponent note the writer returns closes the league message, with its sou
     })
   });
 
-  const { messages } = await previewMaterial(savedSources(), writer);
+  const { messages } = await previewMaterial(
+    withEspnIds(OPPONENT_ESPN_IDS),
+    writer
+  );
 
   const [redraft, dynasty] = messages;
   expect(redraft.split("\n").slice(-4)).toEqual([
@@ -157,7 +181,7 @@ it("a player whose game has kicked off is not a decision candidate, and the writ
 
 it("a player hurt in a game already played is handed to the writer with what was reported since kickoff, and is placed under other news whatever section the writer chose", async () => {
   setClock(SATURDAY);
-  const sources = savedSources();
+  const sources = withEspnIds({ 8676: 4032473 });
   Object.assign(injuryReport(sources, "Rashid Shaheed"), {
     status: "Questionable",
     date: "2026-10-16T04:30Z",
@@ -193,7 +217,7 @@ it("a player hurt in a game already played is handed to the writer with what was
 
 it("taxi-squad and IR players are not decision candidates, and what the writer puts in a decision section about them is placed under other news", async () => {
   setClock(TUESDAY);
-  const sources = savedSources();
+  const sources = withEspnIds({ 12487: 4570037, 12641: 4602667 });
   // Terrance Ferguson moves to an IR slot. Jaylin Lane is on the taxi squad.
   const [mine] = sources[URLS.rostersDynasty] as { reserve: string[] }[];
   mine.reserve.push("12487");
@@ -256,11 +280,11 @@ it("the writer is handed, for the user's team defense, ESPN's reports on the abs
 
 it("the writer is handed, for the user's kicker, only material on an injury or on the kicker's job", async () => {
   setClock(TUESDAY);
-  const sources = savedSources();
+  const sources = withEspnIds({ 11539: 4689936 });
   // Chris Boswell, the dynasty kicker, is healthy: ESPN's report and
-  // Rotowire's note on him recap his last game. Jake Bates, the redraft
-  // kicker, is given an injury, and the league news an article on his job and
-  // one that only mentions him.
+  // FantasyPros' news on him recap his last game, and his missed kicks. Jake
+  // Bates, the redraft kicker, is given an injury, and the league news an
+  // article on his job and one that only mentions him.
   Object.assign(injuryReport(sources, "Jake Bates"), {
     status: "Questionable",
     shortComment: "Bates (groin) did not practice Monday.",
@@ -290,7 +314,7 @@ it("the writer is handed, for the user's kicker, only material on an injury or o
 
 it("the writer's instructions send longer-term items to other news, cover a defense through the offense it faces and a kicker through injury or job news, and ask for an opponent note only when something is notable", async () => {
   setClock(TUESDAY);
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   await deliverTelegramUpdate(textMessage("/preview"));
 

@@ -10,6 +10,7 @@ import {
 } from "cloudflare:test";
 import { env } from "cloudflare:workers";
 import { afterEach, vi } from "vitest";
+import { startSignIn } from "../src/fantasypros";
 import worker, { AGENT_NAME, FantasyWeeklyAgent } from "../src/server";
 
 /** The chat the bot answers: the one configured as the user's. */
@@ -87,6 +88,7 @@ const writesNothing: WriterStandIn = () => ({
 
 // The outbound fake of the current test, so a delivery can read what was sent.
 let telegramMessages: unknown[] = [];
+let outboundRequests: string[] = [];
 
 let unanswered: string[] = [];
 
@@ -117,6 +119,7 @@ afterEach(async () => {
   vi.useRealTimers();
   unanswered = [];
   telegramMessages = [];
+  outboundRequests = [];
   requestsPerInvocation = [0];
   // Each test starts with an agent that has no state and nothing scheduled.
   await reset();
@@ -161,6 +164,7 @@ export function fakeOutboundHttp(
   const writerCalls: WriterCall[] = [];
   const perInvocation: number[] = [0];
   telegramMessages = sent;
+  outboundRequests = requests;
   requestsPerInvocation = perInvocation;
   vi.stubGlobal(
     "fetch",
@@ -323,6 +327,28 @@ export function signInLink(message: unknown) {
   const href = /<a href="([^"]+)"/.exec(text)?.[1];
   if (!href) throw new Error(`No sign-in link in ${text}`);
   return href.replaceAll("&quot;", '"').replaceAll("&amp;", "&");
+}
+
+/**
+ * Signs the agent in to a stand-in FantasyPros, which the outbound fake must
+ * serve, for a test that is not about the sign-in. It leaves out what
+ * `/connect` would add: the replies in the chat, the requests in `requests`
+ * and the digest put on the schedule.
+ */
+export async function signInToFantasyPros(fantasyPros: {
+  signIn(link: string): string;
+}) {
+  const sent = telegramMessages.length;
+  const requested = outboundRequests.length;
+  const link = await runInDurableObject(agent(), (_instance, state) =>
+    startSignIn(
+      state.storage,
+      "https://fantasy-weekly.example/fantasypros/callback"
+    )
+  );
+  await openInBrowser(fantasyPros.signIn(link));
+  telegramMessages.splice(sent);
+  outboundRequests.splice(requested);
 }
 
 /**

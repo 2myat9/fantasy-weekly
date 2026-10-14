@@ -1,0 +1,817 @@
+{
+  "data_as_of": {
+    "date": "2026-10-14",
+    "nfl_season": 2026,
+    "nfl_week": 6,
+    "source": "FantasyPros, current as of this date"
+  },
+  "resolved_players": [
+    {
+      "input": "Sam LaPorta",
+      "player_id": "22978",
+      "name": "Sam LaPorta",
+      "team_id": "DET"
+    },
+    {
+      "input": "Jake Bates",
+      "player_id": "26075",
+      "name": "Jake Bates",
+      "team_id": "DET"
+    },
+    {
+      "input": "Drake Maye",
+      "player_id": "23046",
+      "name": "Drake Maye",
+      "team_id": "NE"
+    },
+    {
+      "input": "Bucky Irving",
+      "player_id": "25981",
+      "name": "Bucky Irving",
+      "team_id": "TB"
+    },
+    {
+      "input": "Matthew Golden",
+      "player_id": "26024",
+      "name": "Matthew Golden",
+      "team_id": "GB"
+    },
+    {
+      "input": "Luther Burden",
+      "player_id": "27016",
+      "name": "Luther Burden III",
+      "team_id": "CHI"
+    },
+    {
+      "input": "Jeremiyah Love",
+      "player_id": "25403",
+      "name": "Jeremiyah Love",
+      "team_id": "ARI"
+    },
+    {
+      "input": "Denzel Boston",
+      "player_id": "27339",
+      "name": "Denzel Boston",
+      "team_id": "CLE"
+    },
+    {
+      "input": "Jared Goff",
+      "player_id": "15501",
+      "name": "Jared Goff",
+      "team_id": "DET"
+    },
+    {
+      "input": "Jakobi Meyers",
+      "player_id": "18598",
+      "name": "Jakobi Meyers",
+      "team_id": "JAC"
+    },
+    {
+      "input": "Trey McBride",
+      "player_id": "22936",
+      "name": "Trey McBride",
+      "team_id": "ARI"
+    },
+    {
+      "input": "Alec Pierce",
+      "player_id": "23791",
+      "name": "Alec Pierce",
+      "team_id": "IND"
+    },
+    {
+      "input": "Rashid Shaheed",
+      "player_id": "24687",
+      "name": "Rashid Shaheed",
+      "team_id": "SEA"
+    },
+    {
+      "input": "Bijan Robinson",
+      "player_id": "23133",
+      "name": "Bijan Robinson",
+      "team_id": "ATL"
+    },
+    {
+      "input": "Andrei Iosivas",
+      "player_id": "25335",
+      "name": "Andrei Iosivas",
+      "team_id": "CIN"
+    },
+    {
+      "input": "Ray Davis",
+      "player_id": "26191",
+      "name": "Ray Davis",
+      "team_id": "BUF"
+    },
+    {
+      "input": "Theo Johnson",
+      "player_id": "23104",
+      "name": "Theo Johnson",
+      "team_id": "NYG"
+    },
+    {
+      "input": "Brian Thomas",
+      "player_id": "23000",
+      "name": "Brian Thomas Jr.",
+      "team_id": "JAC"
+    },
+    {
+      "input": "Cam Skattebo",
+      "player_id": "27166",
+      "name": "Cam Skattebo",
+      "team_id": "NYG"
+    },
+    {
+      "input": "Jayden Higgins",
+      "player_id": "27077",
+      "name": "Jayden Higgins",
+      "team_id": "HOU"
+    },
+    {
+      "input": "Terrance Ferguson",
+      "player_id": "23091",
+      "name": "Terrance Ferguson",
+      "team_id": "LAR"
+    },
+    {
+      "input": "Bhayshul Tuten",
+      "player_id": "27297",
+      "name": "Bhayshul Tuten",
+      "team_id": "JAC"
+    },
+    {
+      "input": "Tai Felton",
+      "player_id": "27182",
+      "name": "Tai Felton",
+      "team_id": "MIN"
+    },
+    {
+      "input": "Omarion Hampton",
+      "player_id": "25395",
+      "name": "Omarion Hampton",
+      "team_id": "LAC"
+    },
+    {
+      "input": "Kyle Williams",
+      "player_id": "27487",
+      "name": "Kyle Williams",
+      "team_id": "NE"
+    },
+    {
+      "input": "Jaylin Lane",
+      "player_id": "27454",
+      "name": "Jaylin Lane",
+      "team_id": "WAS"
+    },
+    {
+      "input": "Makai Lemon",
+      "player_id": "25420",
+      "name": "Makai Lemon",
+      "team_id": "PHI"
+    },
+    {
+      "input": "Eli Stowers",
+      "player_id": "23144",
+      "name": "Eli Stowers",
+      "team_id": "PHI"
+    },
+    {
+      "input": "Chris Boswell",
+      "player_id": "13029",
+      "name": "Chris Boswell",
+      "team_id": "PIT"
+    },
+    {
+      "input": "James Conner",
+      "player_id": "16447",
+      "name": "James Conner",
+      "team_id": "ARI"
+    },
+    {
+      "input": "Greg Dortch",
+      "player_id": "18585",
+      "name": "Greg Dortch",
+      "team_id": "BUF"
+    },
+    {
+      "input": "Jalen Hurts",
+      "player_id": "19275",
+      "name": "Jalen Hurts",
+      "team_id": "PHI"
+    },
+    {
+      "input": "Rico Dowdle",
+      "player_id": "19647",
+      "name": "Rico Dowdle",
+      "team_id": "PIT"
+    },
+    {
+      "input": "Trevor Lawrence",
+      "player_id": "19780",
+      "name": "Trevor Lawrence",
+      "team_id": "JAC"
+    },
+    {
+      "input": "Jake Ferguson",
+      "player_id": "22718",
+      "name": "Jake Ferguson",
+      "team_id": "DAL"
+    },
+    {
+      "input": "Garrett Wilson",
+      "player_id": "23072",
+      "name": "Garrett Wilson",
+      "team_id": "NYJ"
+    },
+    {
+      "input": "Malik Willis",
+      "player_id": "23499",
+      "name": "Malik Willis",
+      "team_id": "MIA"
+    },
+    {
+      "input": "Parker Washington",
+      "player_id": "23106",
+      "name": "Parker Washington",
+      "team_id": "JAC"
+    },
+    {
+      "input": "Marvin Mims",
+      "player_id": "23080",
+      "name": "Marvin Mims Jr.",
+      "team_id": "DEN"
+    },
+    {
+      "input": "Kayshon Boutte",
+      "player_id": "22989",
+      "name": "Kayshon Boutte",
+      "team_id": "HOU"
+    }
+  ],
+  "unresolved_names": ["KC Concepcion"],
+  "player_news": [
+    {
+      "player_name": "Chris Boswell",
+      "published": "2026-10-12 02:33:20 UTC",
+      "news": "Chris Boswell hit all four of his PATs and both of his field goal attempts in the Steelers' 34-22 win over the Colts on Sunday.\nBoswell was making all of his chances count in this game, perfect for the fantasy managers who started him. He's been a bit up and down this year due to some misses, but that's to be expected. And if it's any consolation, two of his three misses were on field goal tries beyond 50 yards.",
+      "url": "https://www.fantasypros.com/nfl/news/613380/chris-boswell-puts-up-10-kicking-points-win.php"
+    },
+    {
+      "player_name": "Chris Boswell",
+      "published": "2026-10-02 12:46:46 UTC",
+      "news": "Chris Boswell made 1-of-2 field-goal attempts and his only PAT in Thursday's 27-24 loss to the Browns. \nBoswell made a field goal from 31 yards and missed another from 48 yards Thursday night. With the Steelers trying a pair of two-point conversions during a fourth-quarter comeback, the veteran kicker attempted only one PAT on the night. Through four games, Boswell is 7-of-10 on FG attempts and has made all six of his PATs. He's a middle-of-the-road fantasy option at the moment. ",
+      "url": "https://www.fantasypros.com/nfl/news/611816/chris-boswell-accounts-four-points-thursdays-loss.php"
+    },
+    {
+      "player_name": "Jared Goff",
+      "published": "2026-10-12 15:19:12 UTC",
+      "news": "Jared Goff completed 19-of-30 passing attempts for 271 yards and three touchdowns and added another in Sunday's 45-21 win over the Arizona Cardinals.\nGoff was able to lead the Lions to an easy win over the Cardinals on Sunday. He was very efficient over the course of the afternoon, racking up nearly 300 total yards and four touchdowns, which left him with a fantastic fantasy total. He projects to be a quality fantasy option again in a home matchup against the Packers next week.",
+      "url": "https://www.fantasypros.com/nfl/news/613494/jared-goff-scores-four-touchdowns-win-sunday.php"
+    },
+    {
+      "player_name": "Jared Goff",
+      "published": "2026-10-05 14:35:52 UTC",
+      "news": "Jared Goff completed 32 of 52 passes for 412 yards with one touchdown and no interceptions in Sunday's 32-26 win over the Lions. \nThrough Sunday, Goff now holds the NFL's highest single-game total in passing yards for the season. The Lions threw the ball 52 times compared to just 15 runs, leading to Goff's seventh career 400-yard passing performance. Surprisingly, the Lions' QB only connected for one touchdown pass on the night. Overall, Goff has been excellent through four weeks, completing 67.7% of his throws for better than 300 yards per game with a 9-0 TD/INT ratio. ",
+      "url": "https://www.fantasypros.com/nfl/news/612252/jared-goff-airs-it-out-412-yards-sunday-nights-loss.php"
+    },
+    {
+      "player_name": "Jakobi Meyers",
+      "published": "2026-10-11 23:12:39 UTC",
+      "news": "Jakobi Meyers caught 2-of-3 targets for 37 yards in Sunday's 19-17 win over the Eagles. \nMeyers continues to be a reliable receiver for QB Trevor Lawrence, but he has now finished with three or fewer grabs and no more than 40 yards in four of the first five games of the season. Meyers seems to be the third option in the passing game behind top wideout Parker Washington and TE Brenton Strange. Rookie Josh Cameron is on the ascent too. ",
+      "url": "https://www.fantasypros.com/nfl/news/613315/jakobi-meyers-finishes-with-two-grabs-sundays-win.php"
+    },
+    {
+      "player_name": "Jakobi Meyers",
+      "published": "2026-10-05 12:32:16 UTC",
+      "news": "Jakobi Meyers caught three passes for 33 yards in Sunday's 22-17 win over the Cincinnati Bengals.\nThe veteran wasn't able to do much of note on Sunday, finishing with just 33 yards in a narrow win over the Bengals. Fantasy managers shouldn't expect him to be relevant moving forward, however, especially with some tough matchups coming up for Jacksonville's offense over the next two weeks.",
+      "url": "https://www.fantasypros.com/nfl/news/612212/jakobi-meyers-catches-three-passes-sunday.php"
+    },
+    {
+      "player_name": "Jakobi Meyers",
+      "published": "2026-10-02 04:25:10 UTC",
+      "news": "Jakobi Meyers (thumb) was listed as a limited participant at practice on Thursday.\nAs expected, Meyers remained a limited participant for another practice on Thursday. He should be good to go for Sunday's game, however, assuming he doesn't suffer any setbacks between now and then.",
+      "url": "https://www.fantasypros.com/nfl/news/611804/jakobi-meyers-thumb-listed-limited-thursday.php"
+    },
+    {
+      "player_name": "Jakobi Meyers",
+      "published": "2026-09-30 20:23:12 UTC",
+      "news": "Jakobi Meyers (thumb) was a limited participant at practice on Wednesday.\nThe veteran wideout is again listed with thumb injury that left him limited at practice on Wednesday, but it's not a serious issue and shouldn't prevent him from playing in Week 4. He doesn't project to be a reliable week-to-week fantasy option at this point in the season, however.",
+      "url": "https://www.fantasypros.com/nfl/news/611585/jakobi-meyers-thumb-limited-participant-wednesday.php"
+    },
+    {
+      "player_name": "Jalen Hurts",
+      "published": "2026-10-11 18:46:28 UTC",
+      "news": "Jalen Hurts completed 21 of 40 passes for 220 yards with one touchdown and no interceptions in Sunday's 19-17 loss to the Jaguars. \nGiven the injuries in the Eagles' backfield, it was certainly surprising that Hurts only carried the ball twice for two yards in Week 5. He did make some plays with his arm, but the passing attack was inefficient overall. Hurts led what looked like a certain game-winning drive late in the fourth quarter, as the Eagles grabbed a 17-16 lead on a 48-yard FG with eight seconds remaining. However, the Jaguars were able to steal the game back with some clutch special-teams play. Hurts still has his work cut out for him in the short term, with top WR DeVonta Smith (hamstring) still trying to make it back and several new faces on the offensive line. The Panthers await in Week 6. ",
+      "url": "https://www.fantasypros.com/nfl/news/613243/jalen-hurts-tosses-one-touchdown-sundays-loss.php"
+    },
+    {
+      "player_name": "Jalen Hurts",
+      "published": "2026-10-09 20:28:38 UTC",
+      "news": "Jalen Hurts is off the injury report for Sunday's game against the Jaguars. \nHurts was added to the injury report on Friday. He will be good to go on Sunday. ",
+      "url": "https://www.fantasypros.com/nfl/news/613099/jalen-hurts-calf-off-injury-report-sunday.php"
+    },
+    {
+      "player_name": "Jalen Hurts",
+      "published": "2026-10-05 15:54:40 UTC",
+      "news": "Jalen Hurts completed 12-of-27 passing attempts for 93 yards and two touchdowns while adding 18 yards on the ground in Sunday's 24-20 loss to the Los Angeles Rams.\nHurts didn't play well on Sunday. He completed less than half of his passing attempts against the Rams and finished with just 93 passing yards, though he was still able to pick up two touchdowns through the air. He will continue to be underwhelming until DeVonta Smith (hamstring) is back in the lineup for the Eagles.",
+      "url": "https://www.fantasypros.com/nfl/news/612269/jalen-hurts-totals-111-yards-loss-sunday.php"
+    },
+    {
+      "player_name": "Rico Dowdle",
+      "published": "2026-10-12 20:42:45 UTC",
+      "news": "Rico Dowdle is expected to return in Week 6 against the Buccaneers. \nDowdle will return from a multi-week absence. Steelers coach Mike McCarthy has clarified that Jaylen Warren will remain the feature back in the Steelers backfield. ",
+      "url": "https://www.fantasypros.com/nfl/news/613565/rico-dowdle-toe-on-track-to-return-week-6.php"
+    },
+    {
+      "player_name": "Rico Dowdle",
+      "published": "2026-10-11 15:42:28 UTC",
+      "news": "Steelers RB Rico Dowdle (toe) is officially inactive for a Week 5 matchup with the Colts.\nDowdle was considered questionable to play, but will miss another week with a toe injury he suffered in Week 2. Jaylen Warren should receive the bulk of the carries against the Colts.",
+      "url": "https://www.fantasypros.com/nfl/news/613220/rico-dowdle-toe-officially-inactive-week-5.php"
+    },
+    {
+      "player_name": "Rico Dowdle",
+      "published": "2026-10-09 19:15:10 UTC",
+      "news": "Rico Dowdle (toe) is questionable to play in Sunday's game against the Indianapolis Colts.\nDowdle has been out for multiple weeks due to a nagging toe issue, but he is officially questionable and will have a chance to make his return to the lineup on Sunday. If he's able to, fantasy managers should expect him to once again eat into the workload of Jaylen Warren, who has been performing very well in the veteran's absence.",
+      "url": "https://www.fantasypros.com/nfl/news/613082/rico-dowdle-toe-questionable-to-play-sunday.php"
+    },
+    {
+      "player_name": "Rico Dowdle",
+      "published": "2026-10-09 16:10:22 UTC",
+      "news": "Rico Dowdle was at practice on Friday. \nDowdle has practiced all week. He appears to be on track to return on Sunday. ",
+      "url": "https://www.fantasypros.com/nfl/news/613011/rico-dowdle-toe-practices-friday.php"
+    },
+    {
+      "player_name": "Rico Dowdle",
+      "published": "2026-10-07 20:21:49 UTC",
+      "news": "Rico Dowdle (toe) logged a limited practice session on Wednesday.\nDowdle has been out for multiple weeks while tending to a toe injury of some kind, but he was able to make his return to practice on Wednesday and was officially limited for the Steelers. He will have a chance to play in Week 5, and whenever his return comes, it will unfortunately mean less work for Jaylen Warren, who has been killing it as the team's clear-cut RB1 for the past couple of weeks.",
+      "url": "https://www.fantasypros.com/nfl/news/612657/rico-dowdle-toe-logs-limited-practice-wednesday.php"
+    },
+    {
+      "player_name": "Trevor Lawrence",
+      "published": "2026-10-11 22:43:47 UTC",
+      "news": "Trevor Lawrence completed 24 of 39 passes for 331 yards with two touchdowns and one interception in Sunday's 19-17 win over the Eagles. \nLawrence not only passed for a new season-high in yards Sunday, but he also gained 25 yards on the ground for the second time through the first five weeks. Lawrence is averaging just under 235 passing yards per game on the campaign, with a 67.1% completion rate and a 10-3 TD/INT ratio. He'll face the division-rival Texans in Week 6, and remains a definite QB1.",
+      "url": "https://www.fantasypros.com/nfl/news/613299/trevor-lawrence-clears-300-yards-first-time-this-season.php"
+    },
+    {
+      "player_name": "Trevor Lawrence",
+      "published": "2026-10-05 12:23:39 UTC",
+      "news": "Trevor Lawrence completed 18-of-23 passing attempts for 227 yards and a touchdown in Sunday's 22-17 win over the Cincinnati Bengals.\nLawrence was able to lead the Jaguars to a win on Sunday, but he wasn't able to rack up many fantasy points in the process, finishing with just one touchdown over the course of the afternoon. Almost all of Jacksonville's fantasy options disappointed in this matchup, but they should be able to bounce back in a competitive matchup against the Eagles next week.",
+      "url": "https://www.fantasypros.com/nfl/news/612209/trevor-lawrence-scores-once-win-sunday.php"
+    },
+    {
+      "player_name": "Jake Ferguson",
+      "published": "2026-10-10 01:54:43 UTC",
+      "news": "Jake Ferguson caught three of six targets for 19 yards in the Cowboys' 24-16 loss to Tampa Bay on Thursday.\nFerguson had a critical drop on the Cowboys' final drive as they were trying to tie the game, failing to catch a pass and instead bobbling it straight up and into the arms of LB Alex Anzalone. It was a tough night for the veteran, but better days will come.",
+      "url": "https://www.fantasypros.com/nfl/news/613139/jake-ferguson-has-critical-drop-loss-to-bucs.php"
+    },
+    {
+      "player_name": "Jake Ferguson",
+      "published": "2026-10-05 05:28:03 UTC",
+      "news": "Jake Ferguson caught 3-of-4 targets for 11 yards in the Cowboys 34-30 win over the Texans. \nFerguson spent most of the afternoon blocking against the Texans pass rush. He remains a touchdown dependent tight end on a week-to-week basis. ",
+      "url": "https://www.fantasypros.com/nfl/news/612136/jake-ferguson-quiet-sunday.php"
+    },
+    {
+      "player_name": "Trey McBride",
+      "published": "2026-10-12 15:47:29 UTC",
+      "news": "Trey McBride hauled in 9-of-10 targets for 66 yards and a touchdown in Sunday's 45-21 loss to the Detroit Lions.\nThe star tight end played well on Sunday. He was able to record 66 yards and a touchdown on his nine catches, which left him with a great fantasy total on the afternoon. He should continue to be great moving forward, even with Arizona not expected to win many games over the course of the season.",
+      "url": "https://www.fantasypros.com/nfl/news/613510/trey-mcbride-hauls-touchdown-sunday.php"
+    },
+    {
+      "player_name": "Trey McBride",
+      "published": "2026-10-05 12:06:51 UTC",
+      "news": "Trey McBride hauled in 7-of-12 targets for 31 yards in Sunday's 36-24 loss to the New York Giants.\nMcBride saw plenty of opportunities on Sunday, but he wasn't able to do much with them. His seven passes turned into just 31 yards, so if someone started him in a non-PPR league format, his fantasy finish was quite disappointing for them. He should bounce back and return to form sometime within the next week or two, however.",
+      "url": "https://www.fantasypros.com/nfl/news/612201/trey-mcbride-hauls-seven-passes-sunday.php"
+    },
+    {
+      "player_name": "Sam LaPorta",
+      "published": "2026-10-12 15:31:37 UTC",
+      "news": "Sam LaPorta caught five passes for 88 yards and a touchdown in Sunday's 45-21 win over the Arizona Cardinals.\nLaPorta looked great again on Sunday, finishing as Detroit's leading receiver with 88 yards and a touchdown on five catches against the Cardinals. He has been playing very well and remains a must-start fantasy option for the time being.",
+      "url": "https://www.fantasypros.com/nfl/news/613499/sam-laporta-stellar-win-sunday.php"
+    },
+    {
+      "player_name": "Sam LaPorta",
+      "published": "2026-10-05 15:16:07 UTC",
+      "news": "Sam LaPorta caught 8-of-13 targets for 84 yards and a touchdown in Sunday's 32-26 loss to the Panthers. \nLaPorta put up new season highs in receptions and yards Sunday night, tying for the team lead with eight grabs. LaPorta also scored for the second time this season. He's not a sure thing every week, but LaPorta is a definite top-10 TE with top-five upside the rest of the way. ",
+      "url": "https://www.fantasypros.com/nfl/news/612257/sam-laporta-hits-paydirt-sundays-loss.php"
+    },
+    {
+      "player_name": "Kayshon Boutte",
+      "published": "2026-10-12 04:26:23 UTC",
+      "news": "Kayshon Boutte caught 3-of-5 targets for 38 yards in the Texans 26-3 win over the Titans. \nBoutte remains off the fantasy radar in his current role, especially with the Texans trading for Marvin Harrison Jr. ",
+      "url": "https://www.fantasypros.com/nfl/news/613390/kayshon-boutte-catches-three-passes-sunday.php"
+    },
+    {
+      "player_name": "Kayshon Boutte",
+      "published": "2026-10-05 05:42:11 UTC",
+      "news": "Kayshon Boutte caught 3-of-4 targets for 36 yards in the Texans 34-30 loss against the Cowboys. \nBoutte remains off the fantasy radar in his current role in the Texans wide receiver room. ",
+      "url": "https://www.fantasypros.com/nfl/news/612143/kayshon-boutte-catches-three-passes-sunday.php"
+    },
+    {
+      "player_name": "Drake Maye",
+      "published": "2026-10-11 22:25:39 UTC",
+      "news": "Drake Maye completed 26-of-34 passes for 374 yards and four touchdowns. Maye added 29 rushing yards and one touchdown on four carries.\nMaye turned in his best performance of the season in an excellent performance against Las Vegas. Maye connected with DeMario Douglas twice, Hunter Henry, and Kyle Williams to account for his four passing touchdowns. Maye and the Patriots will take on the Jets in Week 6. ",
+      "url": "https://www.fantasypros.com/nfl/news/613287/drake-maye-accounts-five-touchdowns-week-5-win.php"
+    },
+    {
+      "player_name": "Drake Maye",
+      "published": "2026-10-04 22:15:07 UTC",
+      "news": "Drake Maye completed 22-of-37 passes for 269 yards, three touchdowns, and one interception in the win over the Bills. He added 54 rushing yards on eight carries, while losing one fumble. \nMaye led the Patriots to a comeback win on the road against the Bills, despite struggling again with some turnovers. The former first-round pick was able to find Efton Chism on a 23-yard pass to give the team the lead with under two minutes remaining. He will look to build on this performance against the Raiders in Week 5. ",
+      "url": "https://www.fantasypros.com/nfl/news/612075/drake-maye-tosses-three-touchdowns-week-4-win.php"
+    },
+    {
+      "player_name": "Drake Maye",
+      "published": "2026-10-02 19:19:30 UTC",
+      "news": "Drake Maye (shoulder) is off of the injury report ahead of Sunday's matchup against the Buffalo Bills.\nMaye was dealing with a minor shoulder injury throughout the week, but it's not a big deal currently and he will carry no injury designation heading into the weekend. He isn't startable in most fantasy leagues at this point in the season, but this would be a good week for him to bounce back from his rough start against a struggling Buffalo defense.",
+      "url": "https://www.fantasypros.com/nfl/news/611904/drake-maye-shoulder-off-injury-report-sunday.php"
+    },
+    {
+      "player_name": "Drake Maye",
+      "published": "2026-10-01 20:51:46 UTC",
+      "news": "Drake Maye was a full participant in practice on Thursday. \nMaye continues to battle through a shoulder injury. He is a borderline QB1 play for fantasy managers. ",
+      "url": "https://www.fantasypros.com/nfl/news/611735/drake-maye-shoulder-logs-full-practice-thursday.php"
+    },
+    {
+      "player_name": "Drake Maye",
+      "published": "2026-09-30 21:50:06 UTC",
+      "news": "Drake Maye (shoulder) practiced in a full capacity on Wednesday.\nMaye is featured on New England's injury report to start the week. He's managing a minor shoulder injury right now, but he told reporters that it hasn't affected his throwing up to this point. Fantasy managers shouldn't be starting him this week, even if he wasn't on the injury report in any capacity.",
+      "url": "https://www.fantasypros.com/nfl/news/611618/drake-maye-shoulder-practices-full-wednesday.php"
+    },
+    {
+      "player_name": "Garrett Wilson",
+      "published": "2026-10-12 01:15:45 UTC",
+      "news": "Garrett Wilson caught seven of his 11 targets for 104 yards and one touchdown in a 17-12 win over the Browns in Week 5.\nWilson easily paced the Jets in receiving, hauling in 104 of the team's 182 passing yards in the close win. He found the end zone on a 32-yard strike from Geno Smith in the first quarter. Wilson has now caught 31 passes for 374 yards and three touchdowns across five games. He will be on the WR1/WR2 borderline in Week 6 against the Patriots.",
+      "url": "https://www.fantasypros.com/nfl/news/613345/garrett-wilson-finds-end-zone-week-5.php"
+    },
+    {
+      "player_name": "Garrett Wilson",
+      "published": "2026-10-05 01:34:12 UTC",
+      "news": "Garrett Wilson caught three of his four targets for 27 yards in a 23-12 loss to the Bears in Week 4.\nWilson and the Jets struggled to get anything going in the loss to Chicago. The Jets were held to just 119 passing yards, with most of the damage coming via a 58-yard touchdown pass to Isaiah Williams. Wilson has caught 24 passes for 270 yards and two touchdowns through four games. He will be a low-end WR1/high-end WR2 in fantasy in a Week 5 home matchup against the Browns.",
+      "url": "https://www.fantasypros.com/nfl/news/612098/garrett-wilson-held-to-27-yards-week-4.php"
+    },
+    {
+      "player_name": "Terrance Ferguson",
+      "published": "2026-10-02 21:10:05 UTC",
+      "news": "The Rams placed TE Terrance Ferguson on injured reserve. \nFerguson went down with the injury last Sunday. He will now miss at least the next four games. ",
+      "url": "https://www.fantasypros.com/nfl/news/611948/terrance-ferguson-ankle-placed-on-ir.php"
+    },
+    {
+      "player_name": "Terrance Ferguson",
+      "published": "2026-10-02 18:32:43 UTC",
+      "news": "Terrance Ferguson has been ruled out for Sunday's game against the Eagles. \nFerguson will be sidelined as expected after leaving last Sunday's game early. Colby Parkinson will be questionable. ",
+      "url": "https://www.fantasypros.com/nfl/news/611891/terrance-ferguson-ankle-ruled-out-sunday.php"
+    },
+    {
+      "player_name": "Terrance Ferguson",
+      "published": "2026-10-02 04:02:02 UTC",
+      "news": "Terrance Ferguson (ankle) did not take part in Los Angeles' practice on Thursday.\nIt looks like the young tight end is trending towards being sidelined in Week 4, as he has been a non-participant at both of the team's practices to start the week. Tyler Higbee is primed to be the team's top tight end this week with Colby Parkinson (knee/shoulder) also unlikely to play on Sunday.",
+      "url": "https://www.fantasypros.com/nfl/news/611790/terrance-ferguson-ankle-doesnt-practice-thursday.php"
+    },
+    {
+      "player_name": "Terrance Ferguson",
+      "published": "2026-10-01 04:19:14 UTC",
+      "news": "Terrance Ferguson did not practice on Wednesday. \nFerguson remains likely to be sidelined this week. ",
+      "url": "https://www.fantasypros.com/nfl/news/611653/terrance-ferguson-ankle-misses-practice.php"
+    },
+    {
+      "player_name": "Theo Johnson",
+      "published": "2026-10-12 01:45:38 UTC",
+      "news": "Theo Johnson caught two of his three targets for 35 yards in the Giants' 27-27 tie with the Washington Commanders in Week 5.\nJohnson has struggled to make an impact in the New York passing attack to this point, finishing under 40 receiving yards in each of the first five contests. The tight end remains best left off rosters with Isaiah Likely remaining healthy ahead of a Week 6 contest against the New Orleans Saints.",
+      "url": "https://www.fantasypros.com/nfl/news/613363/theo-johnson-quiet-week-5.php"
+    },
+    {
+      "player_name": "Theo Johnson",
+      "published": "2026-10-05 11:57:25 UTC",
+      "news": "Theo Johnson caught one pass for 11 yards and a touchdown in Sunday's 36-24 win over the Arizona Cardinals.\nJohnson caught his lone target on Sunday and was able to turn it into an 11-yard touchdown, which helped in New York's win over the Cardinals. That was his lone target on the day though, so his workload will continue to prevent him from being fantasy relevant moving forward.",
+      "url": "https://www.fantasypros.com/nfl/news/612196/theo-johnson-finds-end-zone-sunday.php"
+    },
+    {
+      "player_name": "Parker Washington",
+      "published": "2026-10-11 23:16:39 UTC",
+      "news": "Parker Washington brought down 6-of-9 targets for 124 yards and a pair of touchdowns in Sunday's 19-17 win over the Eagles. \nWashington eclipsed the 100-yard mark for the first time this season on Sunday, doubling his touchdown total for the season in the process. He looked every bit the part of a dynamic WR1 on Sunday. However, the Jaguars have a plethora of talented pass catchers, and QB Trevor Lawrence does tend to spread the ball around. Still, Washington is a potent fantasy option. ",
+      "url": "https://www.fantasypros.com/nfl/news/613316/parker-washington-rebounds-with-huge-performance-week-5.php"
+    },
+    {
+      "player_name": "Parker Washington",
+      "published": "2026-10-05 12:30:38 UTC",
+      "news": "Parker Washington caught 1-of-3 targets for just seven yards in Sunday's 22-17 win over the Cincinnati Bengals.\nWashington had a total disappearing act on Sunday. He was held to just one catch for a measly seven yards against the Bengals after starting out the first three weeks of the season as a red-hot fantasy option. He should bounce back and return to being a quality starter very quickly, but seeing this kind of floor for the veteran was unexpected and not ideal for fantasy managers.",
+      "url": "https://www.fantasypros.com/nfl/news/612211/parker-washington-held-to-one-catch-sunday.php"
+    },
+    {
+      "player_name": "Bijan Robinson",
+      "published": "2026-10-12 14:14:28 UTC",
+      "news": "Bijan Robinson gained 86 yards on 17 carries and caught 4-of-7 targets for 32 yards in Sunday's 30-23 OT loss to the Ravens. \nRobinson continues to be one of the elite offensive weapons in the league, as the dual-threat back is averaging 116 rushing yards and more than 30 receiving yards per game this season. Robinson scored twice on the ground in both Week 3 and Week 4, but he couldn't keep the TD streak going Sunday night against the Ravens. He will look to start a new one in Week 6 against the Bears. ",
+      "url": "https://www.fantasypros.com/nfl/news/613465/bijan-robinson-totals-118-yards-on-21-touches-week-5.php"
+    },
+    {
+      "player_name": "Bijan Robinson",
+      "published": "2026-10-06 04:12:45 UTC",
+      "news": "Bijan Robinson rushed the ball 19 times for 145 yards and two touchdowns in Monday night's 45-24 win over the New Orleans Saints.\nRobinson was absolutely dominant on Monday night. He led the Falcons in rushing with 145 yards on the night at a hyper-efficient clip of 7.6 yards per carry, and he was also able to get into the end zone on two separate occasions. He let a little to be desired in the passing game, but that was simply because the Falcons were up so much for so long. He has been stellar over the first four weeks of the season and should continue to be one of the best assets in all of fantasy moving forward.",
+      "url": "https://www.fantasypros.com/nfl/news/612431/bijan-robinson-dominant-blowout-win-monday.php"
+    },
+    {
+      "player_name": "Malik Willis",
+      "published": "2026-10-12 18:58:27 UTC",
+      "news": "Dolphins coach Jeff Hafley said there's no thought of benching Malik Willis at this point.\n\"We've played five games, and Malik is our quarterback,\" Hafley said. Willis remains a low-end QB2 for fantasy managers.  ",
+      "url": "https://www.fantasypros.com/nfl/news/613546/malik-willis-dolphins-not-considering-benching-qb.php"
+    },
+    {
+      "player_name": "Malik Willis",
+      "published": "2026-10-12 14:34:20 UTC",
+      "news": "Malik Willis completed 15-of-27 passing attempts for 137 yards, one touchdown, and two interceptions while adding 74 yards, a touchdown, and a lost fumble on the ground in Sunday's 31-24 loss to the Cincinnati Bengals.\nWillis didn't play very well on Sunday. He committed three turnovers in Miami's loss to the Bengals, but he was able to rush for 74 yards and a touchdown on the ground, which helped to save his fantasy total. He will likely continue to be an unreliable fantasy asset moving forward with how poor his supporting cast is on Miami's offense.",
+      "url": "https://www.fantasypros.com/nfl/news/613469/malik-willis-loses-three-turnovers-loss-sunday.php"
+    },
+    {
+      "player_name": "Malik Willis",
+      "published": "2026-10-05 13:46:01 UTC",
+      "news": "Malik Willis completed 9-of-17 passing attempts for 85 yards and added 11 yards on the ground in Sunday's 15-10 loss to the Minnesota Vikings.\nWillis wasn't able to get anything going on Sunday. He finished with just 96 total yards over the course of the afternoon, and he wasn't able to score either and lost a fumble, which left him with a terrible fantasy total. Nobody outside of Ollie Gordon II should be started on this offense moving forward.",
+      "url": "https://www.fantasypros.com/nfl/news/612240/malik-willis-totals-under-100-yards-loss-sunday.php"
+    },
+    {
+      "player_name": "Rashid Shaheed",
+      "published": "2026-10-12 05:46:11 UTC",
+      "news": "Rashid Shaheed caught 2-of-4 targets for 23 yards in the Seahawks 32-29 loss against the 49ers. \nShaheed remains off the fantasy radar in his current role. The Seahawks passing offense remains Jaxon Smith-Njigba or no one every week right now. ",
+      "url": "https://www.fantasypros.com/nfl/news/613416/rashid-shaheed-catches-two-passes-sunday.php"
+    },
+    {
+      "player_name": "Rashid Shaheed",
+      "published": "2026-10-05 06:17:53 UTC",
+      "news": "Rashid Shaheed caught 1-of-3 targets for 20 yards in the Seahawks 30-23 win over the Chargers. He also saw two carries for 33 yards and a touchdown. \nWith Jadarian Price on IR, Emanuel Wilson was the workhorse in the Seahawks backfield. Shaheed saw two traditional handoffs from Sam Darnold with one of them resulting in a 28-yard touchdown. He remains off the fantasy radar in his current role. ",
+      "url": "https://www.fantasypros.com/nfl/news/612163/rashid-shaheed-scores-touchdown-on-ground-sunday.php"
+    },
+    {
+      "player_name": "Rashid Shaheed",
+      "published": "2026-10-01 01:49:17 UTC",
+      "news": "Rashid Shaheed was a full participant in practice on Wednesday. \nShaheed is a volatile WR4 with upside in his current role. ",
+      "url": "https://www.fantasypros.com/nfl/news/611638/rashid-shaheed-hip-logs-full-practice-wednesday.php"
+    },
+    {
+      "player_name": "Omarion Hampton",
+      "published": "2026-10-12 13:00:03 UTC",
+      "news": "Omarion Hampton gained only 33 yards on 14 carries, adding a six-yard reception during Sunday's 23-17 loss to the Broncos. \nMuch to the chagrin of fantasy managers, Hampton continues to share the backfield load with Kimani Vidal and Keaton Mitchell. Hampton had at least found the end zone in three of the first four weeks, but he failed to do so in Week 5. The second-year back is averaging only 3.7 yards on his nearly 15 carries per game, and he's basically become an afterthought in the Chargers' passing attack. ",
+      "url": "https://www.fantasypros.com/nfl/news/613454/omarion-hampton-held-under-40-yards-on-15-touches.php"
+    },
+    {
+      "player_name": "Omarion Hampton",
+      "published": "2026-10-05 05:55:37 UTC",
+      "news": "Omarion Hampton ran for 45 yards and a touchdown on nine carries in the Chargers 30-23 loss against the Seahawks. He also caught 2-of-2 targets for eight yards receiving. \nHampton saw just nine carries to 15 combined carries between Keaton Mitchell and Kimani Vidal. Hampton is a touchdown dependent flex play moving forward. ",
+      "url": "https://www.fantasypros.com/nfl/news/612150/omarion-hampton-finds-end-zone-sunday.php"
+    },
+    {
+      "player_name": "Jeremiyah Love",
+      "published": "2026-10-12 15:44:03 UTC",
+      "news": "Jeremiyah Love rushed the ball 12 times for 22 yards and failed to catch a pass in Sunday's 45-21 loss to the Detroit Lions.\nThe rookie had an extremely disappointing game on Sunday. He rushed for an inefficient 22 yards on 12 carries, and he wasn't able to catch a single pass over the course of the game, which left him with a terrible fantasy total. He didn't play much late in the game when Arizona fell behind, and it's worth keeping tabs on updates about his injury status and the team's plan for workload management heading into Week 6.",
+      "url": "https://www.fantasypros.com/nfl/news/613506/jeremiyah-love-disappoints-loss-sunday.php"
+    },
+    {
+      "player_name": "Jeremiyah Love",
+      "published": "2026-10-09 21:55:49 UTC",
+      "news": "Jeremiyah Love is off the injury report for Sunday's game against the Lions. \nLove is officially good to go as expected. He will be an RB2 play for fantasy managers. ",
+      "url": "https://www.fantasypros.com/nfl/news/613132/jeremiyah-love-ankle-off-injury-report-sunday.php"
+    },
+    {
+      "player_name": "Jeremiyah Love",
+      "published": "2026-10-09 17:37:09 UTC",
+      "news": "Cardinals coach Mike LaFleur said Jeremiyah Love has moved around well this week.\nLove will continue to manage his ankle injury. He appears likely to be good to go for Sunday's game against the Lions. ",
+      "url": "https://www.fantasypros.com/nfl/news/613051/jeremiyah-love-ankle-trending-right-direction-sunday.php"
+    },
+    {
+      "player_name": "Jeremiyah Love",
+      "published": "2026-10-08 03:04:31 UTC",
+      "news": "Jeremiyah Love (ankle) was officially a limited participant at practice on Wednesday.\nThe rookie recently talked to the media about how he's feeling banged up right now, and he is now officially listed on the injury report with an ankle issue of some kind. It seems to be nothing more than a day-to-day issue for now, but fantasy managers should continue to monitor any and all updates about his health or workload throughout the rest of the week.",
+      "url": "https://www.fantasypros.com/nfl/news/612787/jeremiyah-love-ankle-officially-limited-wednesday.php"
+    },
+    {
+      "player_name": "Jeremiyah Love",
+      "published": "2026-10-05 23:31:59 UTC",
+      "news": "Cardinals head coach Mike LaFleur said Jeremiyah Love was dealing with an ankle injury on Sunday. \nLaFleur clarified that Love's discomfort in Sunday's game is not the same ankle from the sprain he suffered in the preseason. His status will need to be monitored in practice this week. ",
+      "url": "https://www.fantasypros.com/nfl/news/612413/jeremiyah-love-dealt-with-ankle-injury-sunday.php"
+    },
+    {
+      "player_name": "Makai Lemon",
+      "published": "2026-10-11 18:21:25 UTC",
+      "news": "Makai Lemon caught 5-of-7 targets for 43 yards in Sunday's 19-17 loss to the Jaguars. \nLemon caught 10 passes over the first four weeks of the season. The first-round rookie set a new career high with five receptions in Sunday's game. With DeVonta Smith (hamstring) sidelined for the second straight game, the Eagles needed more out of their other wide receivers. Lemon helped out Sunday, but he's still yet to have a real breakout performance. ",
+      "url": "https://www.fantasypros.com/nfl/news/613234/makai-lemon-finishes-with-five-receptions-week-5.php"
+    },
+    {
+      "player_name": "Makai Lemon",
+      "published": "2026-10-05 16:02:01 UTC",
+      "news": "Makai Lemon caught 3-of-6 targets for 27 yards in Sunday's 24-20 loss to the Los Angeles Rams.\nDeVonta Smith (hamstring) was sidelined for the Eagles on Sunday, but the rookie still wasn't able to take advantage and ended up with just three catches for 27 yards against the Rams. Fantasy managers shouldn't expect much value out of Lemon for the foreseeable future after his slow start to the season.",
+      "url": "https://www.fantasypros.com/nfl/news/612274/makai-lemon-underwhelming-loss-sunday.php"
+    },
+    {
+      "player_name": "Bucky Irving",
+      "published": "2026-10-09 03:41:20 UTC",
+      "news": "Bucky Irving ran 21 times for 165 yards and a touchdown, as well as catching two passes for 10 additional yards and a score in the Bucs' 24-16 win over the Dallas Cowboys.\nIrving struggled to get going in this game, but finished off the Bucs' first drive with a touchdown catch. He then started to see holes open up in the defensive line as the game went on and made Dallas pay for it. He did cede a goal-line touch to Sean Tucker, but Tucker was ruled short of the plane on his attempt to punch in a score. Bucky has been a bit up and down so far this year, but in the right matchup, he's certainly a strong start.",
+      "url": "https://www.fantasypros.com/nfl/news/612937/bucky-irving-rumbles-165-yards-win-over-dallas.php"
+    },
+    {
+      "player_name": "Bucky Irving",
+      "published": "2026-10-05 09:49:30 UTC",
+      "news": "Bucky Irving carried the ball 16 times for 61 yards in a 17-14 loss to the Packers in Week 4.\nHe was not targeted in the passing game. Irving dealt with a glute injury throughout the week, but he did not seem affected by it during the game. He did watch as fellow running backs Kenny Gainwell and Sean Tucker both found the end zone in the close loss. Irving has run for 241 yards and one touchdown through four games this season. He will be on the RB2 radar in Week 5 against the Cowboys.",
+      "url": "https://www.fantasypros.com/nfl/news/612179/bucky-irving-goes-61-yards-week-4-loss.php"
+    },
+    {
+      "player_name": "Bucky Irving",
+      "published": "2026-10-02 17:13:20 UTC",
+      "news": "Bucky Irving is officially good to go for Sunday's game against the Packers. \nIrving sat on the bench for the majority of the fourth quarter last week. He was limited in practice throughout the week and will be good to go on Sunday. ",
+      "url": "https://www.fantasypros.com/nfl/news/611860/bucky-irving-glute-good-to-go-sunday.php"
+    },
+    {
+      "player_name": "Bucky Irving",
+      "published": "2026-10-02 04:13:22 UTC",
+      "news": "Bucky Irving (glute) was officially a limited participant at practice on Thursday.\nIrving has been limited in two-straight practices to start the week. He's still managing a glute injury, but it looks more likely than not that he will play through it this week. If he's cleared to play heading into the weekend, fantasy managers should have no hesitations starting him in a matchup against the Packers.",
+      "url": "https://www.fantasypros.com/nfl/news/611796/bucky-irving-glute-officially-limited-thursday.php"
+    },
+    {
+      "player_name": "Bucky Irving",
+      "published": "2026-10-01 17:53:09 UTC",
+      "news": "Bucky Irving practiced again on Thursday. \nIrving was limited in practice to open the week on Wednesday. He remains on track to be good to go on Sunday. ",
+      "url": "https://www.fantasypros.com/nfl/news/611681/bucky-irving-glute-practices-thursday.php"
+    },
+    {
+      "player_name": "Matthew Golden",
+      "published": "2026-10-11 21:31:35 UTC",
+      "news": "Matthew Golden hauled in six of his seven targets for 123 yards in the Packers' 31-7 Week 5 win over the Chicago Bears.\nGolden has seen steady involvement in the Green Bay passing attack to begin the season, recording over 90 receiving yards in three of the first five games. The wideout remains one of the more impactful pass-catching options for quarterback Jordan Love, with a Week 6 matchup against the Dallas Cowboys up next.",
+      "url": "https://www.fantasypros.com/nfl/news/613271/matthew-golden-surpasses-100-yards-week-5-win.php"
+    },
+    {
+      "player_name": "Matthew Golden",
+      "published": "2026-10-05 09:33:57 UTC",
+      "news": "Matthew Golden caught three of his seven targets for 21 yards and a touchdown while adding a six-yard rush in a 17-14 win over the Buccaneers in Week 4.\nGolden found the end zone on a two-yard pass from Jordan Love in the second quarter. The second-year wideout now has 18 catches for 274 yards and two touchdowns through four games. Golden sets up as a WR2 in fantasy heading into a Week 5 matchup against the Bears.",
+      "url": "https://www.fantasypros.com/nfl/news/612174/matthew-golden-finds-end-zone-week-4.php"
+    },
+    {
+      "player_name": "Jake Bates",
+      "published": "2026-10-12 15:33:23 UTC",
+      "news": "Jake Bates went 6-for-6 on his extra-point attempts and made his lone field-goal attempt in Sunday's 45-21 win over the Arizona Cardinals.\nThe veteran kicker had a good game on Sunday, knocking in all seven of his kicks in the team's blowout win over Arizona. He should continue to be a good fantasy option at the kicker position for the foreseeable future.",
+      "url": "https://www.fantasypros.com/nfl/news/613500/jake-bates-scores-nine-points-win-sunday.php"
+    },
+    {
+      "player_name": "Jake Bates",
+      "published": "2026-10-05 15:19:23 UTC",
+      "news": "Jake Bates made all four of his field-goal attempts and both PATs in Sunday's 32-26 loss to the Panthers. \nBates put a total of 14 points on the board Sunday night, getting four field-goal tries, as the Lions' offense had trouble finishing drives in the end zone. Bates has yet to miss any of his seven FG attempts or 14 PATs through four games. He's a great fantasy option with the Lions' high-powered offense. ",
+      "url": "https://www.fantasypros.com/nfl/news/612258/jake-bates-nails-four-field-goals-week-4-loss.php"
+    },
+    {
+      "player_name": "Ray Davis",
+      "published": "2026-10-09 01:57:09 UTC",
+      "news": "Ray Davis (hamstring) logged a full practice session on Thursday.\nDavis was able to log a full practice session to start the week on Thursday. He played through this hamstring injury in Week 4, and it looks like it's not an issue for him at all anymore. He should play and be a full go in Week 5, though he will continue to be relegated to a depth role in this backfield.",
+      "url": "https://www.fantasypros.com/nfl/news/612923/ray-davis-hamstring-logs-full-practice-thursday.php"
+    },
+    {
+      "player_name": "Ray Davis",
+      "published": "2026-10-04 15:35:50 UTC",
+      "news": "Bills RB Ray Davis (hamstring) is officially active for a Week 4 matchup with the Patriots.\nDavis was a mid-week addition to the injury report and was questionable to play Sunday. Davis and Ty Johnson will continue to backup James Cook in a divisional matchup with New England. ",
+      "url": "https://www.fantasypros.com/nfl/news/612024/ray-davis-hamstring-officially-active-week-4.php"
+    },
+    {
+      "player_name": "Ray Davis",
+      "published": "2026-10-02 18:00:30 UTC",
+      "news": "Ray Davis is listed as questionable for Sunday’s game against the Patriots. \nDavis remains off the fantasy radar in his current role. ",
+      "url": "https://www.fantasypros.com/nfl/news/611884/ray-davis-hamstring-listed-questionable-sunday.php"
+    },
+    {
+      "player_name": "Cam Skattebo",
+      "published": "2026-10-12 02:04:18 UTC",
+      "news": "Cam Skattebo rushed 13 times for 59 yards while also catching two of his three targets for 12 yards in the Giants' 27-27 tie with the Washington Commanders in Week 5.\nSkattebo has been mostly steady out of the New York backfield to this point, rushing for over 55 yards in four of five contests. The running back will look for an impactful performance in a Week 6 contest against the New Orleans Saints.",
+      "url": "https://www.fantasypros.com/nfl/news/613372/cam-skattebo-leads-backfield-week-5-tie.php"
+    },
+    {
+      "player_name": "Cam Skattebo",
+      "published": "2026-10-09 17:43:44 UTC",
+      "news": "Cam Skattebo told reporters he will play on Sunday against the Commanders. \nSkattebo said he had a \"little muscle tightness\" in his shoulder. It's why he wore a red no-contact jersey on Wednesday. He'll remain a steady RB2 play. ",
+      "url": "https://www.fantasypros.com/nfl/news/613054/cam-skattebo-shoulder-will-play-sunday.php"
+    },
+    {
+      "player_name": "Cam Skattebo",
+      "published": "2026-10-08 20:26:49 UTC",
+      "news": "Cam Skattebo (shoulder) was limited at New York's practice on Thursday.\nSkattebo was a limited participant at practice on Thursday. He's still dealing with a shoulder issue of some kind and is likely considered day-to-day for the time being. It looks likely that he will play in Week 5, and he will have a good opportunity to put up some real fantasy points this week in a favorable matchup against the Commanders.",
+      "url": "https://www.fantasypros.com/nfl/news/612879/cam-skattebo-shoulder-limited-practice-thursday.php"
+    },
+    {
+      "player_name": "Cam Skattebo",
+      "published": "2026-10-07 20:46:37 UTC",
+      "news": "Cam Skattebo is limited in practice on Wednesday. \nSkattebo is dealing with a shoulder injury. It is still a positive sign he was able to practice in some fashion. ",
+      "url": "https://www.fantasypros.com/nfl/news/612682/cam-skattebo-shoulder-limited-practice-wednesday.php"
+    },
+    {
+      "player_name": "Cam Skattebo",
+      "published": "2026-10-05 10:57:31 UTC",
+      "news": "Cam Skattebo rushed the ball 18 times for 58 yards and caught one pass for eight yards in Sunday's 36-24 win over the Arizona Cardinals.\nNew York was able to score 36 points on Sunday, but Skattebo wasn't really able to get in on the action. He totaled just 66 yards on his 19 touches on the day, and he wasn't able to get into the end zone at all. He'll have a good opportunity to bounce back next week in a favorable matchup against the Commanders.",
+      "url": "https://www.fantasypros.com/nfl/news/612189/cam-skattebo-underwhelming-win-sunday.php"
+    },
+    {
+      "player_name": "Tai Felton",
+      "published": "2026-10-12 00:11:12 UTC",
+      "news": "Tai Felton caught two of his three targets for 27 yards in the Vikings' 23-13 win over the New Orleans Saints in Week 5.\nFelton has been minimally involved in the Minnesota offense to begin the season, finishing under 30 receiving yards in each of the first five games. The wideout can remain off rosters in all formats as the team enters a Week 6 bye.",
+      "url": "https://www.fantasypros.com/nfl/news/613332/tai-felton-quiet-week-5.php"
+    },
+    {
+      "player_name": "Bhayshul Tuten",
+      "published": "2026-10-11 22:51:07 UTC",
+      "news": "Bhayshul Tuten rushed for 72 yards on 22 carries, adding two receptions for 24 yards in Sunday's 19-17 win over the Eagles. \nTuten continues to prove he can shoulder the load out of the Jaguars' backfield. The second-year pro only averaged 3.3 yards on his career-high 22 carries Sunday, but he seemed to run stronger as the game progressed. For the season, Tuten is averaging 70 yards on more than 16 carries per game with a couple of touchdowns. He's a solid RB2 with upside in most fantasy formats. ",
+      "url": "https://www.fantasypros.com/nfl/news/613303/bhayshul-tuten-approaches-100-yards-total-offense-sunday.php"
+    },
+    {
+      "player_name": "Bhayshul Tuten",
+      "published": "2026-10-05 12:27:41 UTC",
+      "news": "Bhayshul Tuten rushed the ball 17 times for 73 yards and caught two passes for 18 yards in Sunday's 22-17 win over the Cincinnati Bengals.\nTuten had a good game on Sunday, finishing as the team's top rusher and dominating the touches in the backfield en route to a win over the Bengals. Chris Rodriguez Jr. was the one to get into the end zone for the Jaguars, however, which was annoying for fantasy managers to see. The young running back should continue to be a worthwhile fantasy asset moving forward.",
+      "url": "https://www.fantasypros.com/nfl/news/612210/bhayshul-tuten-racks-up-91-yards-win-sunday.php"
+    },
+    {
+      "player_name": "Denzel Boston",
+      "published": "2026-10-11 20:31:51 UTC",
+      "news": "Denzel Boston caught three of his seven targets for 46 yards and a touchdown in a 17-12 loss to the Jets in Week 5.\nBoston's impressive rookie season continues. The emerging star pass-catcher hauled in a 29-yard touchdown from Deshaun Watson in the fourth quarter, giving the Browns a temporary lead. Boston has now caught three touchdowns through five games. He will be on the WR3 radar in Week 6's home game against the Ravens.",
+      "url": "https://www.fantasypros.com/nfl/news/613256/denzel-boston-finds-end-zone-week-5-loss.php"
+    },
+    {
+      "player_name": "Denzel Boston",
+      "published": "2026-10-02 14:00:29 UTC",
+      "news": "Denzel Boston hauled in 4-of-7 targets for 89 yards in Thursday's 27-24 win over the Steelers. \nBoston rebounded from just a so-so output in Week 3, leading the Browns in receiving yards Thursday night for the third time in four games. The rookie has quickly acclimated to the NFL, totaling 13 catches for an average of 71 yards per game and two touchdowns to this point. ",
+      "url": "https://www.fantasypros.com/nfl/news/611825/denzel-boston-leads-browns-with-89-receiving-yards.php"
+    },
+    {
+      "player_name": "Jaylin Lane",
+      "published": "2026-10-06 20:41:40 UTC",
+      "news": "The Commanders placed WR Jaylin Lane on injured reserve. \nLane suffered a fractured and dislocated ankle on Sunday. He will be out for the season. ",
+      "url": "https://www.fantasypros.com/nfl/news/612506/jaylin-lane-ankle-placed-on-ir.php"
+    },
+    {
+      "player_name": "Jaylin Lane",
+      "published": "2026-10-05 23:35:44 UTC",
+      "news": "Commanders head coach Dan Quinn confirmed that WR Jaylin Lane will be out for the season. \nLane suffered a fractured and dislocated ankle on Sunday. ",
+      "url": "https://www.fantasypros.com/nfl/news/612416/jaylin-lane-ankle-confirmed-to-be-out-season.php"
+    },
+    {
+      "player_name": "Jaylin Lane",
+      "published": "2026-10-05 16:01:21 UTC",
+      "news": "Jaylin Lane (ankle) is likely out for the rest of the 2026 season after suffering a fracture and dislocation of his ankle.\nLane was not heavily involved in the rotation at reciever, but he still provided depth and an explosive play option. The team will now look to bring someone in to help with depth and punt return duties.",
+      "url": "https://www.fantasypros.com/nfl/news/612273/jaylin-lane-ankle-likely-done-2026-season.php"
+    },
+    {
+      "player_name": "Jaylin Lane",
+      "published": "2026-09-30 20:07:44 UTC",
+      "news": "Jaylin Lane (groin) is off of the injury report for Week 4's game against the Indianapolis Colts.\nLane is going to be good to go for Week 4 after being entirely removed from Washington's injury report. Fantasy managers shouldn't have high expectations for him moving forward, however.",
+      "url": "https://www.fantasypros.com/nfl/news/611579/jaylin-lane-groin-off-injury-report-week-4.php"
+    },
+    {
+      "player_name": "Kyle Williams",
+      "published": "2026-10-11 22:36:07 UTC",
+      "news": "Kyle Williams caught all three of his targets for 91 yards and a touchdown in the Patriots win over the Raiders. \nWilliams hauls in a 34-yard pass from Drake Maye early in the third quarter for his first touchdown of the season. This was Williams first contest of the season in which he logged more than one reception. Williams and the Patriots will take on the Jets in Week 6. ",
+      "url": "https://www.fantasypros.com/nfl/news/613294/kyle-williams-finds-end-zone-week-5-win.php"
+    },
+    {
+      "player_name": "Kansas City Chiefs",
+      "published": "2026-10-05 02:51:18 UTC",
+      "news": "The Chiefs D/ST allowed 27 points while forcing two turnovers in a 30-27 win over the Raiders in Week 4.\nKansas City struggled to slow down the Raiders on offense but they managed to hold on in the close win. They intercepted Kirk Cousins once and recovered a Dareke Young fumble in the game. Kansas City will be on bye in Week 5 before a Week 6 matchup against the Chargers.",
+      "url": "https://www.fantasypros.com/nfl/news/612119/chiefs-dst-allows-27-points-week-4.php"
+    },
+    {
+      "player_name": "Washington Commanders",
+      "published": "2026-10-12 14:56:36 UTC",
+      "news": "The Commanders D/ST registered two sacks while also forcing two turnovers (two fumble recoveries) in a 27-27 tie with the New York Giants in Week 5.\nThe defense was the epitome of bend don't break Sunday, allowing 408 offensive yards in the tie. The unit will be difficult to trust against a strong San Francisco 49ers offense in Week 6.",
+      "url": "https://www.fantasypros.com/nfl/news/613485/commanders-dst-offers-mixed-results-week-5.php"
+    },
+    {
+      "player_name": "Washington Commanders",
+      "published": "2026-10-04 20:57:11 UTC",
+      "news": "The Commanders D/ST allowed 143 passing yards, 128 rushing yards, and 30 points in a loss to the Colts. \nThe Commanders' defense tallied two sacks, one interception, and one fumble recovery in the loss. Despite a solid showing from the defense, the Commanders' offense struggled to get anything going. The Commanders will travel to Pittsburgh in Week 5. ",
+      "url": "https://www.fantasypros.com/nfl/news/612055/commanders-dst-allows-30-points-week-4-loss.php"
+    },
+    {
+      "player_name": "Brian Thomas Jr.",
+      "published": "2026-10-11 23:08:17 UTC",
+      "news": "Brian Thomas Jr. did not record a reception on three targets in Sunday's 19-17 win over the Eagles. \nIt is noteworthy that Thomas came up just a sideline toe touch short of scoring for the second straight week in this game. Still, Thomas has seen only six combined targets over the last three contests, and he seems to be in just a complementary role for the Jaguars at the moment. ",
+      "url": "https://www.fantasypros.com/nfl/news/613313/brian-thomas-jr-puts-up-goose-egg-week-5.php"
+    },
+    {
+      "player_name": "Brian Thomas Jr.",
+      "published": "2026-10-05 12:35:59 UTC",
+      "news": "Brian Thomas Jr. caught two passes for 17 yards and a touchdown in Sunday's 22-17 win over the Cincinnati Bengals.\nThomas was able to haul in Jacksonville's lone passing touchdown against the Bengals. He wasn't able to do much outside of that, however, totaling just 17 yards over the course of the afternoon. He has had a slow start to the season and should not be considered a viable fantasy option for the foreseeable future.",
+      "url": "https://www.fantasypros.com/nfl/news/612214/brian-thomas-jr-finds-end-zone-sunday.php"
+    },
+    {
+      "player_name": "Marvin Mims Jr.",
+      "published": "2026-10-03 05:57:58 UTC",
+      "news": "Marvin Mims Jr. is off the injury report for Sunday's game against the 49ers. \nMims remains off the fantasy radar in his current role. ",
+      "url": "https://www.fantasypros.com/nfl/news/611985/marvin-mims-jr-foot-off-injury-report-sunday.php"
+    },
+    {
+      "player_name": "Marvin Mims Jr.",
+      "published": "2026-10-01 16:30:58 UTC",
+      "news": "Marvin Mims Jr. is practicing in full for Week 4 against the 49ers.\nMims had not practiced since going down with a foot injury in Week 1. He'll be good to return this week. ",
+      "url": "https://www.fantasypros.com/nfl/news/611668/marvin-mims-jr-foot-practicing-full-week-4.php"
+    },
+    {
+      "player_name": "Luther Burden III",
+      "published": "2026-10-11 22:04:57 UTC",
+      "news": "Luther Burden III hauled in four of his six targets for a team-leading 47 yards while also rushing four times for two yards in the Bears' 31-7 Week 5 loss to the Green Bay Packers.\nBurden III has seen consistent involvement in the Chicago passing attack to begin the season, recording four or more receptions in four of five contests. The wideout remains one of the more stable pass-catching options for head coach Ben Johnson ahead of a Week 6 matchup against the Atlanta Falcons.",
+      "url": "https://www.fantasypros.com/nfl/news/613281/luther-burden-iii-leads-underwhelming-passing-offense-week-5-loss.php"
+    },
+    {
+      "player_name": "Luther Burden III",
+      "published": "2026-10-05 02:14:24 UTC",
+      "news": "Luther Burden III caught four of his six targets for 63 yards and added an 11-yard run in a 23-12 win over the Jets in Week 4.\nBurden got off to a fast start, catching three of his four passes in the first quarter, but was held to just one catch the rest of the way. He has been trending up, but fantasy managers are still waiting for a blow-up game from the second-year receiver. He will be a high-end WR3 in fantasy in Week 5 vs. the Packers.",
+      "url": "https://www.fantasypros.com/nfl/news/612106/luther-burden-iii-goes-63-yards-week-4.php"
+    }
+  ]
+}

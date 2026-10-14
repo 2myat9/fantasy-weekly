@@ -7,7 +7,7 @@ import {
   textMessage,
   triggerScheduledRun
 } from "./harness";
-import { savedSources, URLS } from "./sources";
+import { fakeSavedSources, savedSources, URLS } from "./sources";
 
 /** The first line of each Telegram message sent, in order. */
 function titles(messages: unknown[]) {
@@ -25,7 +25,7 @@ function throughLineupCheck(text: string) {
 // only when a test triggers it. The saved sources still report week 6 of 2026.
 
 it("a scheduled run on Saturday at 6:00 PM Pacific sends one league message per league, not marked as a preview", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
 
   // Saturday 19 October 2030, 6:00 PM Pacific.
   await triggerScheduledRun("2030-10-20T01:00:00Z");
@@ -56,7 +56,7 @@ it("a scheduled run on Saturday at 6:00 PM Pacific sends one league message per 
 });
 
 it("after a run, the next run is scheduled for the following Saturday at 6:00 PM Pacific", async () => {
-  fakeOutboundHttp(savedSources());
+  await fakeSavedSources(savedSources());
 
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
@@ -67,7 +67,7 @@ it("after a run, the next run is scheduled for the following Saturday at 6:00 PM
 });
 
 it("the next run stays at 6:00 PM Pacific across the autumn daylight-saving change", async () => {
-  fakeOutboundHttp(savedSources());
+  await fakeSavedSources(savedSources());
 
   // Saturday 2 November 2030, 6:00 PM Pacific Daylight Time.
   await triggerScheduledRun("2030-11-03T01:00:00Z");
@@ -79,7 +79,7 @@ it("the next run stays at 6:00 PM Pacific across the autumn daylight-saving chan
 });
 
 it("the next run stays at 6:00 PM Pacific across the spring daylight-saving change", async () => {
-  fakeOutboundHttp(savedSources());
+  await fakeSavedSources(savedSources());
 
   // Saturday 8 March 2031, 6:00 PM Pacific Standard Time.
   await triggerScheduledRun("2031-03-09T02:00:00Z");
@@ -106,7 +106,7 @@ it("the schedule is armed when the agent first starts, and only once", async () 
 });
 
 it("a second automatic run for the same season and week sends nothing", async () => {
-  const outbound = fakeOutboundHttp(savedSources());
+  const outbound = await fakeSavedSources(savedSources());
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
   // Sleeper still reports week 6.
@@ -120,7 +120,7 @@ it("the automatic digest is recorded per league, so a league that was not sent y
   // leagues can change between the two runs.
   const sources: Record<string, unknown> = savedSources();
   const [redraft, dynasty] = sources[URLS.leagues] as unknown[];
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
   sources[URLS.leagues] = [redraft];
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
@@ -139,7 +139,7 @@ it.each(["off", "pre"])(
     const sources = savedSources();
     (sources[URLS.nflState] as { season_type: string }).season_type =
       seasonType;
-    const outbound = fakeOutboundHttp(sources);
+    const outbound = await fakeSavedSources(sources);
 
     await triggerScheduledRun("2030-10-20T01:00:00Z");
 
@@ -154,7 +154,7 @@ it("nothing is sent for a league whose status is complete", async () => {
   const sources = savedSources();
   const [redraft] = sources[URLS.leagues] as { status: string }[];
   redraft.status = "complete";
-  const outbound = fakeOutboundHttp(sources);
+  const outbound = await fakeSavedSources(sources);
 
   await triggerScheduledRun("2030-10-20T01:00:00Z");
 
@@ -167,7 +167,7 @@ it("nothing is sent for a league where my team is eliminated from the playoffs",
   const sources = savedSources();
   // Week 15 is the first playoff week in both leagues. My roster is number 9.
   (sources[URLS.nflState] as { week: number }).week = 15;
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...sources,
     [URLS.scoreboardWeek15]: sources[URLS.scoreboard],
     [URLS.matchupsRedraftWeek15]: sources[URLS.matchupsRedraft],
@@ -216,7 +216,7 @@ it("a team left with only a placement game counts as eliminated, and one in the 
     { p: 1, m: 6, r: 3, l: null, w: null, t1: semifinalWinner, t2: 10 },
     { p: 3, m: 7, r: 3, l: null, w: null, t1: semifinalLoser, t2: 6 }
   ];
-  const outbound = fakeOutboundHttp({
+  const outbound = await fakeSavedSources({
     ...sources,
     [URLS.scoreboardWeek15]: sources[URLS.scoreboard],
     [URLS.matchupsRedraftWeek15]: sources[URLS.matchupsRedraft],

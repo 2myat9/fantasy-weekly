@@ -5,14 +5,20 @@
 // also hold that week's opponent in each league. The ESPN injuries were read
 // on 13 October 2026 and hold one dated report per player, for the user's
 // players, the opponents' and the injured of two teams the user's defenses can
-// be set against, Denver and Tampa Bay. Four dynasty players without an ESPN
-// ID in Sleeper have no report, so they cannot be matched. The ESPN league news, the ESPN
-// overview of each matched player and the ProFootballTalk feed were read the
-// same day, and are trimmed to the fields the agent reads.
+// be set against, Denver and Tampa Bay. The ESPN league news and the
+// ProFootballTalk feed were read the same day, and are trimmed to the fields
+// the agent reads. FantasyPros' news on the user's players, read the next day,
+// is served by `fakeSavedSources`.
 import { env } from "cloudflare:workers";
+import { fakeFantasyPros } from "./fantasypros";
+import injuryStatus from "./fixtures/fantasypros/injury-status.json";
+import {
+  fakeOutboundHttp,
+  signInToFantasyPros,
+  type WriterStandIn
+} from "./harness";
 import injuries from "./fixtures/espn/injuries.json";
 import leagueNews from "./fixtures/espn/news.json";
-import overviews from "./fixtures/espn/overviews.json";
 import scoreboard from "./fixtures/espn/scoreboard-2026-week-6.json";
 import proFootballTalk from "./fixtures/pft/profootballtalk.rss?raw";
 import leagues from "./fixtures/sleeper/leagues.json";
@@ -51,11 +57,6 @@ export const URLS = {
   proFootballTalk: "https://www.nbcsports.com/profootballtalk.rss"
 };
 
-/** Where the agent reads ESPN's overview of one player, by ESPN ID. */
-export function overviewUrl(espnId: string) {
-  return `https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/${espnId}/overview`;
-}
-
 /** The user's Sleeper user ID, which marks their roster in each league. */
 export const MY_USER_ID = user.user_id;
 
@@ -76,13 +77,7 @@ export function savedSources(): Record<string, unknown> {
     [URLS.scoreboard]: scoreboard,
     [URLS.injuries]: injuries,
     [URLS.leagueNews]: leagueNews,
-    [URLS.proFootballTalk]: proFootballTalk,
-    ...Object.fromEntries(
-      Object.entries(overviews).map(([espnId, overview]) => [
-        overviewUrl(espnId),
-        overview
-      ])
-    )
+    [URLS.proFootballTalk]: proFootballTalk
   });
 }
 
@@ -109,4 +104,75 @@ export function savedSourcesAhead(): Record<string, unknown> {
     report.date = new Date(date).toISOString();
   }
   return sources;
+}
+
+/** What FantasyPros' `injury_status` tool answers, as its JSON reads. */
+export type InjuryStatus = typeof injuryStatus;
+
+/**
+ * A fresh copy of FantasyPros' saved answer to `injury_status` for the 41
+ * players on my rosters who are not team defenses, read on 14 October 2026
+ * and trimmed to the fields the agent reads. It resolves every name but KC
+ * Concepcion's.
+ */
+export function savedInjuryStatus(): InjuryStatus {
+  return structuredClone(injuryStatus);
+}
+
+/**
+ * FantasyPros' saved answer, with the dates of its news moved forward 209
+ * weeks, as `savedSourcesAhead` moves ESPN's injuries.
+ */
+export function savedInjuryStatusAhead(): InjuryStatus {
+  const answer = savedInjuryStatus();
+  for (const item of answer.player_news) {
+    const published = new Date(item.published.replace(" UTC", "Z"));
+    const date = new Date(published.getTime() + WEEKS_AHEAD * WEEK_MS);
+    // Written as FantasyPros writes it, like `2030-10-13 05:23:26 UTC`.
+    item.published = `${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
+  }
+  return answer;
+}
+
+/**
+ * Serves the given sources through `fakeOutboundHttp`, with a stand-in
+ * FantasyPros the agent is signed in to. Its `injury_status` tool answers with
+ * `injuryStatus`, or with what `injuryStatus` gives for the arguments when it
+ * is a function. A source given for one of FantasyPros' addresses replaces
+ * the stand-in's. The stand-in's are added to `sources`.
+ */
+export async function fakeSavedSources(
+  sources: Record<string, unknown> = savedSources(),
+  {
+    injuryStatus = savedInjuryStatus(),
+    ...options
+  }: {
+    injuryStatus?: InjuryStatus | ((args: unknown) => unknown);
+    writer?: WriterStandIn;
+    rejectTelegram?: (text: string) => boolean;
+  } = {}
+) {
+  const fantasyPros = fakeFantasyPros({
+    tools: {
+      injury_status: (args) => ({
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              typeof injuryStatus === "function"
+                ? injuryStatus(args)
+                : injuryStatus
+            )
+          }
+        ]
+      })
+    }
+  });
+  // Added to the sources themselves, so that a test can still change them.
+  for (const [url, response] of Object.entries(fantasyPros.responses)) {
+    if (!(url in sources)) sources[url] = response;
+  }
+  const outbound = fakeOutboundHttp(sources, options);
+  await signInToFantasyPros(fantasyPros);
+  return { ...outbound, fantasyPros };
 }

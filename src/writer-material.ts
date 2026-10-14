@@ -8,9 +8,11 @@ import type { League, Player, RosterSpot } from "./sleeper";
 // A kicker is covered through injury or job news only, so that kicker lines
 // are not filler. Items carry no topic, so their wording is gone by: an ESPN
 // designation other than fit to play, or a word that injury reports and
-// roster moves use. A doubtful item is let through for the writer to judge.
+// roster moves use. Missing counts only when it is practice, time or games
+// that are missed, not kicks, which recaps of a kicker's game count. A
+// doubtful item is let through for the writer to judge.
 const KICKER_NEWS =
-  /ESPN status: (?!Active)|\b(injur\w*|hurt|ill(ness)?|strain\w*|sprain\w*|sore\w*|surgery|questionable|doubtful|out|miss(es|ed|ing)?|inactive|limited|did not practice|sidelined|suspen\w+|IR|reserve|sign(s|ed|ing)?|waive[sd]?|release[sd]?|cut|work(s|ed)? out|workouts?|tryouts?|compet\w+|bench(ed)?|replac\w+|practice squad|elevat\w+|claim(s|ed)?|trade[sd]?)\b/i;
+  /ESPN status: (?!Active)|\b(injur\w*|hurt|ill(ness)?|strain\w*|sprain\w*|sore\w*|surgery|questionable|doubtful|out|miss(es|ed|ing)? ((?!kicks?\b|field\b|FGs?\b|PATs?\b|extra\b|attempts?\b)\S+ ){0,4}(practice|time|games?|contests?|matchups?|weeks?|season)\b(?!-)|inactive|limited|did not practice|sidelined|suspen\w+|IR|reserve|sign(s|ed|ing)?|waive[sd]?|release[sd]?|cut|work(s|ed)? out|workouts?|tryouts?|compet\w+|bench(ed)?|replac\w+|practice squad|elevat\w+|claim(s|ed)?|trade[sd]?)\b/i;
 
 /**
  * The source items the writer is handed for one league, and the players on

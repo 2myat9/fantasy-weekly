@@ -5,6 +5,7 @@ import {
   callTool,
   completeSignIn,
   connection,
+  fetchPlayerNews,
   startSignIn,
   type SignInCallback
 } from "./fantasypros";
@@ -49,17 +50,14 @@ const SIGN_IN_CALLBACK = "/fantasypros/callback";
 // The parts of the NFL season, as Sleeper names them, that get a digest.
 const DIGEST_SEASON_TYPES = new Set(["regular", "post"]);
 
-// The free plan allows one invocation 50 outbound requests, and each player's
-// own page at ESPN is one of them. Read from Cloudflare's Workers limits page
-// on 2026-10-13.
-const LOOKUPS_PER_STEP = 25;
-
-// How many players whose page at ESPN could not be read a league message
-// names before it only counts them.
-const MOST_PAGES_NAMED = 5;
-
 // How many times the automatic digest takes a step before giving the run up.
 const STEP_ATTEMPTS = 3;
+
+// Whether a run still has FantasyPros' news to read. A run stored before
+// FantasyPros was read has no players to look up, and goes on without it.
+function lookingUp({ news }: Gathered) {
+  return (news.toLookUp?.length ?? 0) > 0;
+}
 
 // Where the news is gathered from: the start of the widest league window.
 function earliestWindow(windows: Map<string, Date>) {
@@ -227,7 +225,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       return;
     }
     const { gathered } = run;
-    if (gathered && gathered.news.lookups.length === 0) {
+    if (gathered && !lookingUp(gathered)) {
       const [league, ...leagues] = gathered.leagues;
       const failed = [...gathered.failed, league.name];
       await this.leagueDone(run, { ...gathered, leagues, failed });
@@ -257,8 +255,8 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     } else await this.finishRun(run, failed.length > 0 ? failed : null);
   }
 
-  // A run gathers the shared sources, then the per-player sources a batch at
-  // a time, then writes and sends one league message per step. What a step
+  // A run gathers the shared sources, then FantasyPros' news on the user's
+  // players, then writes and sends one league message per step. What a step
   // produced is stored only once it has succeeded, so a step that is taken
   // again starts from the same place.
   private async takeStep(run: Run) {
@@ -267,11 +265,12 @@ export class FantasyWeeklyAgent extends Agent<Env> {
       await this.gatherShared(run);
       return;
     }
-    if (gathered.news.lookups.length > 0) {
+    if (lookingUp(gathered)) {
       const news = await gatherPlayerNews(
         gathered.news,
+        gathered.players,
         earliestWindow(gathered.windows),
-        LOOKUPS_PER_STEP
+        (names) => fetchPlayerNews(this.ctx.storage, names)
       );
       this.stepTaken(run, { ...gathered, news });
       return;
@@ -364,7 +363,7 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     );
     const news = await gatherSharedNews({
       players: [...players.values()],
-      ownPages: new Set(myPlayers),
+      mine: new Set(myPlayers),
       schedule: schedule ?? NO_SCHEDULE,
       windowStart: earliestWindow(windows)
     });
@@ -402,19 +401,6 @@ export class FantasyWeeklyAgent extends Agent<Env> {
     const schedule = gathered.schedule ?? NO_SCHEDULE;
     const roster = rosterSpots(league);
     const missing = [...gathered.missing, ...news.missing];
-    const pagesUnread = roster.flatMap(({ playerId }) =>
-      news.pagesUnread.includes(playerId)
-        ? (players.get(playerId)?.name ?? [])
-        : []
-    );
-    if (pagesUnread.length > 0) {
-      // On a day ESPN's pages are down the names would fill the message.
-      missing.push(
-        pagesUnread.length > MOST_PAGES_NAMED
-          ? `ESPN's own pages for ${pagesUnread.length} of your players`
-          : `ESPN's own page for ${pagesUnread.join(", ")}`
-      );
-    }
     // The news was gathered for the league with the widest window.
     const windowStart = gathered.windows.get(league.id)!;
     const { items, kickedOff } = writerMaterial({

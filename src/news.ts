@@ -1,16 +1,16 @@
 // The news about a set of players: source items gathered from the news
 // sources, each tied to the Sleeper player it is about. The sources shared by
-// all players are read first, then the own page at ESPN of each player on the
-// user's rosters, a batch at a time, because there are more players than one
-// invocation may make requests.
+// all players are read first, then FantasyPros' news on the players on the
+// user's rosters, in a step of its own: a call to FantasyPros can take up to
+// seven requests, each attempt.
 import {
   gameOf,
   fetchInjuryReports,
   fetchLeagueNews,
-  fetchPlayerOverview,
   type InjuryReport,
   type WeekSchedule
 } from "./espn";
+import type { PlayerNewsRead } from "./fantasypros";
 import { fetchProFootballTalk } from "./pft";
 import type { Player } from "./sleeper";
 
@@ -25,39 +25,29 @@ export type SourceItem = {
   source: string;
 };
 
-/** A player whose own page at ESPN is still to be read. */
-export type Lookup = {
-  playerId: string;
-  espnId: string;
-  /** How many times reading the page has failed. */
-  failures: number;
-};
-
 /** The news gathered so far, and what is left to gather. */
 export type Gathering = {
   /** The items dated at or after the start of the news window. */
   items: SourceItem[];
   /**
-   * The players that could not be resolved to an ESPN record. Nothing is
+   * The players that could not be matched to their news source. Nothing is
    * known about them, which is not the same as their having no news.
    */
   unmatched: Set<string>;
-  /** Empty once the news is complete. */
-  lookups: Lookup[];
   /**
-   * The shared sources that could not be read, as the league message names
-   * them. The news was gathered without them.
+   * The players on the user's rosters whose news at FantasyPros is still to
+   * be read. Empty once the news is complete.
+   */
+  toLookUp: string[];
+  /**
+   * The sources that could not be read, as the league message names them.
+   * The news was gathered without them.
    */
   missing: string[];
-  /** The players whose own page at ESPN could not be read. */
-  pagesUnread: string[];
 };
 
-// How many times a player's own page is read before it is given up.
-const PAGE_ATTEMPTS = 3;
-
-// Where a player's page at ESPN is, before the ID.
-const PLAYER_PAGE = "https://www.espn.com/nfl/player/_/id";
+// Where FantasyPros has a player's news, before the player's name.
+const PLAYER_NEWS = "https://www.fantasypros.com/nfl/news";
 
 // Sleeper's position for a team defense.
 const DEFENSE = "DEF";
@@ -79,10 +69,6 @@ function normaliseName(name: string) {
     .split(" ")
     .filter((word) => word && !SUFFIXES.has(word))
     .join(" ");
-}
-
-function nameKey(name: string, team: string | null, position: string | null) {
-  return `${normaliseName(name)}|${team}|${position}`;
 }
 
 // Whether a text names the player. ProFootballTalk does not tag its entries
@@ -132,24 +118,24 @@ function addArticles(
 
 /**
  * Gathers the news on the given players since the start of the news window
- * from the sources shared by all players. A player is resolved to an ESPN
- * record by ESPN ID when Sleeper has one, otherwise by normalised name, team
- * and position. A team defense has no record of its own: one on the user's
- * rosters is covered by ESPN's reports on the absent players of the offense
- * it faces this week, and is unmatched when its game is not on the schedule.
- * Only the players in `ownPages` are left with their own page at ESPN to read:
- * the rest, the opponents' players, are covered by the shared sources alone,
- * which keeps a run to the same number of requests. A source that cannot be
- * read is named in `missing` and the news is gathered from the others.
+ * from the sources shared by all players. A player is resolved to ESPN's
+ * reports and news by the ESPN ID Sleeper has for them, and has none from
+ * ESPN without one. A team defense has no record of its own: one on the
+ * user's rosters is covered by ESPN's reports on the absent players of the
+ * offense it faces this week, and is unmatched when its game is not on the
+ * schedule. The players in `mine`, those on the user's rosters, are left to
+ * be looked up at FantasyPros, team defenses aside; the opponents' players
+ * are covered by the shared sources alone. A source that cannot be read is
+ * named in `missing` and the news is gathered from the others.
  */
 export async function gatherSharedNews({
   players,
-  ownPages,
+  mine,
   schedule,
   windowStart
 }: {
   players: Player[];
-  ownPages: Set<string>;
+  mine: Set<string>;
   schedule: WeekSchedule;
   windowStart: Date;
 }): Promise<Gathering> {
@@ -165,27 +151,23 @@ export async function gatherSharedNews({
   ];
   const missing = ["ESPN's injury reports", "ESPN's news", "ProFootballTalk"];
   const byEspnId = new Map<string, InjuryReport[]>();
-  const byName = new Map<string, InjuryReport[]>();
-  const add = (
-    index: Map<string, InjuryReport[]>,
-    key: string,
-    report: InjuryReport
-  ) => index.set(key, [...(index.get(key) ?? []), report]);
   for (const report of reports) {
-    add(byEspnId, report.espnId, report);
-    add(byName, nameKey(report.name, report.team, report.position), report);
+    byEspnId.set(report.espnId, [
+      ...(byEspnId.get(report.espnId) ?? []),
+      report
+    ]);
   }
 
   const items: SourceItem[] = [];
   const unmatched = new Set<string>();
-  // The resolved players by their ESPN ID.
+  // The players with an ESPN ID, by that ID.
   const resolved = new Map<string, string>();
-  const lookups: Lookup[] = [];
+  const toLookUp: string[] = [];
   for (const player of players) {
     if (player.position === DEFENSE) {
       // An opponent's defense is not covered: the offense it faces is not on
       // the opponent's roster.
-      if (!ownPages.has(player.id)) continue;
+      if (!mine.has(player.id)) continue;
       const facing = gameOf(schedule, player.team)?.teams.find(
         (team) => team !== player.team
       );
@@ -216,28 +198,10 @@ export async function gatherSharedNews({
       }
       continue;
     }
-    // With an ESPN ID the player is resolved even when ESPN has no report on
-    // them. Without one, a report found by name is the only ESPN record
-    // there is, so a player with none cannot be told from a failed match.
-    // The name is also tried when the ID finds nothing, in case Sleeper's
-    // ID is out of date.
-    const found =
-      (player.espnId ? byEspnId.get(player.espnId) : undefined) ??
-      byName.get(nameKey(player.name, player.team, player.position)) ??
-      (player.espnId ? [] : undefined);
-    if (!found) {
-      unmatched.add(player.id);
-      continue;
-    }
-    // A report carries the ID ESPN uses now.
-    const espnId = found[0]?.espnId ?? player.espnId;
-    if (espnId) {
-      resolved.set(espnId, player.id);
-      if (ownPages.has(player.id)) {
-        lookups.push({ playerId: player.id, espnId, failures: 0 });
-      }
-    }
-    for (const report of found) {
+    if (mine.has(player.id)) toLookUp.push(player.id);
+    if (!player.espnId) continue;
+    resolved.set(player.espnId, player.id);
+    for (const report of byEspnId.get(player.espnId) ?? []) {
       if (report.date < windowStart) continue;
       items.push({
         playerId: player.id,
@@ -270,63 +234,102 @@ export async function gatherSharedNews({
   return {
     items,
     unmatched,
-    lookups,
-    missing: missing.filter((_, index) => sources[index] === null),
-    pagesUnread: []
+    toLookUp,
+    missing: missing.filter((_, index) => sources[index] === null)
   };
 }
 
+// The player's news page at fantasypros.com, for an item without its own
+// link. FantasyPros names the page after the player.
+function playerNewsPage(name: string) {
+  const slug = name
+    .normalize("NFD")
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9 -]/g, "")
+    .trim()
+    .replaceAll(/\s+/g, "-");
+  return `${PLAYER_NEWS}/${slug}.php`;
+}
+
 /**
- * Reads the own pages of the next players waiting for it, at most `limit` of
- * them with one request each, and returns the gathering with their news added.
- * A page that cannot be read goes to the back of those waiting, so that it is
- * read again in a later invocation and not out of this one's requests, and
- * is given up as unread after a few attempts.
+ * Reads FantasyPros' news on the players still to be looked up there, in
+ * one call made by `read` with their names as Sleeper writes them, and
+ * returns the gathering with their news added. A player is unmatched when FantasyPros
+ * cannot resolve their name, or resolves it to a player of another team: a
+ * name two players share resolves to the better known of them. A player with
+ * no team in Sleeper is matched without the check. When FantasyPros cannot be
+ * read, it is named in `missing`, and the news is complete without it.
  */
 export async function gatherPlayerNews(
   gathering: Gathering,
+  players: Map<string, Player>,
   windowStart: Date,
-  limit: number
+  read: (names: string[]) => Promise<PlayerNewsRead>
 ): Promise<Gathering> {
-  const lookups = gathering.lookups.slice(0, limit);
-  const overviews = await Promise.all(
-    lookups.map(({ espnId }) => orNull(() => fetchPlayerOverview(espnId)))
+  const lookedUp = gathering.toLookUp.flatMap(
+    (playerId) => players.get(playerId) ?? []
   );
+  const done = { ...gathering, toLookUp: [] };
+  const outcome = await orNull(() =>
+    read([...new Set(lookedUp.map(({ name }) => name))])
+  );
+  const unmatched = new Set(gathering.unmatched);
+  if (outcome?.status !== "connected") {
+    // Without FantasyPros, a player ESPN cannot reach by ID was looked up
+    // nowhere.
+    for (const player of lookedUp) {
+      if (!player.espnId) unmatched.add(player.id);
+    }
+    const why =
+      outcome === null
+        ? ""
+        : outcome.status === "lost"
+          ? " (the sign-in was lost, send /connect)"
+          : " (not connected, send /connect)";
+    return {
+      ...done,
+      unmatched,
+      missing: [...done.missing, `FantasyPros' news${why}`]
+    };
+  }
+  const { resolved, unresolved, news } = outcome.news;
+  // FantasyPros echoes each name as it was sent, but is not relied on to
+  // keep its case or spacing.
+  const key = (name: string) => name.trim().toLowerCase();
+  const unresolvedKeys = new Set(unresolved.map(key));
+  // The Sleeper players each of FantasyPros' names stands for.
+  const byName = new Map<string, string[]>();
+  for (const player of lookedUp) {
+    const match = resolved.find(({ input }) => key(input) === key(player.name));
+    if (
+      !match ||
+      unresolvedKeys.has(key(player.name)) ||
+      (player.team !== null && match.team !== player.team)
+    ) {
+      unmatched.add(player.id);
+      continue;
+    }
+    byName.set(match.name, [...(byName.get(match.name) ?? []), player.id]);
+  }
   const items = [...gathering.items];
-  const again: Lookup[] = [];
-  const pagesUnread = [...gathering.pagesUnread];
-  lookups.forEach(({ playerId, espnId, failures }, index) => {
-    const overview = overviews[index];
-    if (!overview) {
-      if (failures + 1 < PAGE_ATTEMPTS) {
-        again.push({ playerId, espnId, failures: failures + 1 });
-      } else {
-        pagesUnread.push(playerId);
+  for (const { playerName, date, text, link } of news) {
+    for (const playerId of byName.get(playerName) ?? []) {
+      if (link) {
+        addArticles(items, windowStart, playerId, "FantasyPros", [
+          { date, text, link }
+        ]);
+      } else if (date >= windowStart) {
+        // Every item without a link of its own shares the player's page, so
+        // it is not taken for an article already added.
+        items.push({
+          playerId,
+          date,
+          text,
+          link: playerNewsPage(playerName),
+          source: "FantasyPros"
+        });
       }
-      return;
     }
-    const { articles, note } = overview;
-    addArticles(items, windowStart, playerId, "ESPN", articles);
-    // ESPN's injury report on a player is usually this same note.
-    const reported =
-      note &&
-      items.some(
-        (item) => item.playerId === playerId && item.text.includes(note.text)
-      );
-    if (note && !reported && note.date >= windowStart) {
-      items.push({
-        playerId,
-        date: note.date,
-        text: note.text,
-        link: `${PLAYER_PAGE}/${espnId}`,
-        source: "Rotowire"
-      });
-    }
-  });
-  return {
-    ...gathering,
-    items,
-    pagesUnread,
-    lookups: [...gathering.lookups.slice(limit), ...again]
-  };
+  }
+  return { ...done, items, unmatched };
 }
